@@ -1,0 +1,306 @@
+/* ===============================
+   CATEGORIES PAGE (MOBILE OPTIMIZED)
+   =============================== */
+
+.categories-page {
+    display: flex;
+    height: 100vh;
+    padding-top: 60px;
+    background: #fff;
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Prevent body scroll */
+}
+
+/* Sidebar */
+.categories-sidebar {
+    width: 28%;
+    max-width: 110px;
+    background: #f8f9fa;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 80px;
+    border-right: 1px solid #e5e7eb;
+    transition: transform 0.3s ease;
+    z-index: 50;
+}
+
+.mobile-sidebar-header {
+    display: none;
+    padding: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sidebar-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.close-sidebar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0;
+}
+
+.menu-toggle-btn {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #111827;
+    padding: 0;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.category-parent-item {
+    padding: 1rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #6b7280;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    border-bottom: 1px solid transparent;
+    position: relative;
+    word-break: break-word;
+    /* Prevent overflow of long text */
+    line-height: 1.2;
+}
+
+.category-parent-item:active {
+    background: #f3f4f6;
+}
+
+.category-parent-item.active {
+    background: #ffffff;
+    font-weight: 700;
+    color: #000000;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.active-indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #111827;
+}
+
+/* Main Content */
+.categories-content {
+    flex: 1;
+    padding: 1.5rem 1rem;
+    overflow-y: auto;
+    padding-bottom: 100px;
+    background: white;
+}
+
+.category-header {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    position: sticky;
+    top: -1.5rem;
+    /* Pull up to stick sooner if needed, but relative to padding */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    z-index: 10;
+    padding: 0.5rem 0 1rem;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.sticky-active .category-header {
+    border-color: #f3f4f6;
+}
+
+.category-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #111827;
+}
+
+.view-all-link {
+    font-size: 0.85rem;
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Grid */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 1rem;
+    justify-items: center;
+}
+
+.category-child-item {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    transition: transform 0.2s;
+}
+
+.category-child-item:active {
+    transform: scale(0.96);
+}
+
+.category-circle {
+    width: 100px;
+    height: 100px;
+    background: #f9fafb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    color: #374151;
+    overflow: hidden;
+    border: 1px solid #f3f4f6;
+}
+
+.category-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.category-child-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    color: #111827;
+    line-height: 1.2;
+}
+
+/* Hide footer on mobile when on Categories page */
+@media (max-width: 768px) {
+    body[data-page-categories="true"] .footer-wrapper {
+        display: none !important;
+    }
+}
+
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .categories-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        /* Full height */
+        bottom: 0;
+        width: 280px;
+        max-width: 80vw;
+        border-right: 1px solid #e5e7eb;
+        transform: translateX(-100%);
+        padding-bottom: 20px;
+        z-index: 2000;
+    }
+
+    .categories-sidebar.open {
+        transform: translateX(0);
+        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-sidebar-header {
+        display: flex;
+    }
+
+    .menu-toggle-btn {
+        display: block;
+    }
+
+    .category-parent-item {
+        justify-content: flex-start;
+        padding-left: 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .categories-content {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+    .categories-sidebar {
+        width: 240px;
+        max-width: none;
+    }
+
+    .category-parent-item {
+        justify-content: flex-start;
+        padding-left: 2rem;
+        text-align: left;
+        font-size: 1rem;
+    }
+
+    .categories-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .category-circle {
+        width: 140px;
+        height: 140px;
+    }
+
+    .category-title {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .category-circle {
+        width: 85px;
+        height: 85px;
+    }
+
+    .category-child-label {
+        font-size: 0.8rem;
+    }
+
+    .categories-grid {
+        gap: 1.25rem 0.75rem;
+    }
+
+    .category-child-label {
+        font-size: 0.8rem;
+    }
+}

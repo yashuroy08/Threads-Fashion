@@ -1,0 +1,202 @@
+/* ===============================
+   FOOTER (REFINED SLATE)
+   =============================== */
+@import url('https://fonts.googleapis.com/css2?family=Macondo&display=swap');
+
+.footer-wrapper {
+    background: var(--brand-primary);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6rem 2rem 2rem;
+    margin-top: 4rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    gap: 4rem;
+}
+
+/* ===============================
+   FOOTER COLUMNS
+   =============================== */
+.footer-column h4 {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 2rem;
+    color: #ffffff;
+}
+
+.footer-desc {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #7f8c8d;
+    max-width: 320px;
+    margin-bottom: 2rem;
+}
+
+.brand-logo-footer {
+    font-family: 'Macondo', cursive;
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+}
+
+.brand-logo-footer:hover {
+    color: #ffffff;
+}
+
+.brand-logo-footer span {
+    color: #e74c3c;
+}
+
+/* ===============================
+   FOOTER LINKS
+   =============================== */
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* ===============================
+   CONTACT & SOCIAL
+   =============================== */
+.contact-info {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.contact-info li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    line-height: 1.4;
+}
+
+.contact-info a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.social-links {
+    display: flex;
+    gap: 1.25rem;
+}
+
+.social-icon {
+    color: #ffffff;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.social-icon:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+    color: #ffffff;
+}
+
+/* ===============================
+   FOOTER BOTTOM
+   =============================== */
+.footer-bottom {
+    max-width: 1440px;
+    margin: 4rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #ffffff;
+}
+
+.footer-legal {
+    display: flex;
+    gap: 2rem;
+}
+
+.footer-legal a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+.footer-legal a:hover {
+    color: #ffffff;
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+@media (max-width: 1024px) {
+    .footer-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-wrapper {
+        padding: 4rem 1.5rem 2rem;
+        margin-bottom: 80px;
+    }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .footer-desc,
+    .contact-info li {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .contact-info li {
+        justify-content: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: center;
+    }
+}

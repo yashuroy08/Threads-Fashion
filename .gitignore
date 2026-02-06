@@ -1,0 +1,21 @@
+# Top-level ignores
+node_modules/
+.DS_Store
+
+# Nested Environment files
+**/.env
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# Subproject build folders
+backend/dist/
+frontend/dist/
+
+# Logs
+**/*.log
+
+# Editor
+.vscode/
+.idea/

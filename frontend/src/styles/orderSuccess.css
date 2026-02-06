@@ -1,0 +1,210 @@
+/* ===============================
+   ORDER SUCCESS PAGE STYLES
+   =============================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.order-success-page {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f4f6;
+    /* Light gray bg to pop the card */
+    padding: 1rem;
+    text-align: center;
+}
+
+.success-content-card {
+    max-width: 480px;
+    width: 100%;
+    animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #ffffff;
+    border-radius: 24px;
+    /* Requested Border Radius */
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative;
+    /* For close button anchor */
+    border: 1px solid #e5e7eb;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* 1. CHECKMARK ICON SECTION */
+.checkmark-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.checkmark-circle {
+    width: 100px;
+    height: 100px;
+    background: #f8fafc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+.checkmark-icon {
+    color: #000000;
+    /* Deep dark indigo/black */
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+}
+
+/* Close Button */
+.close-btn-corner {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.close-btn-corner:hover {
+    background: #e2e8f0;
+    color: #000000;
+    transform: rotate(90deg);
+}
+
+/* 2. TITLES */
+.success-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.order-id-label {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 2.5rem;
+}
+
+.order-number {
+    color: #000;
+    font-weight: 700;
+}
+
+/* 3. INFO DIVIDER & SECTIONS */
+.success-divider {
+    height: 1px;
+    background: #e5e7eb;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.info-box {
+    text-align: left;
+    margin-bottom: 2.5rem;
+    padding: 0 0.5rem;
+}
+
+.info-item {
+    margin-bottom: 1.5rem;
+}
+
+.info-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.info-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+/* 4. ACTION BUTTONS */
+.success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.btn-success-track {
+    background: #000;
+    /* Monochrome Black for Premium feel */
+    color: #ffffff;
+    border: none;
+    padding: 1.1rem;
+    border-radius: 50px;
+    /* Pillow shape for modern look */
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    text-decoration: none;
+    display: block;
+}
+
+.btn-success-track:hover {
+    background: #1a1a1a;
+    color: #f3f4f6;
+    transform: translateY(-2px);
+}
+
+.btn-success-continue {
+    background: transparent;
+    color: #000;
+    border: 2px solid #000;
+    padding: 1rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: block;
+}
+
+.btn-success-continue:hover {
+    background: #f9fafb;
+    border-color: #333;
+    color: #333;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+    .success-title {
+        font-size: 1.8rem;
+    }
+
+    .checkmark-circle {
+        width: 80px;
+        height: 80px;
+    }
+}

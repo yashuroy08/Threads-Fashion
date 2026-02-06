@@ -1,0 +1,558 @@
+/* ===============================
+   NAVBAR (PROFESSIONAL)
+   Based on Auth Design System
+   =============================== */
+@import url('https://fonts.googleapis.com/css2?family=Macondo&family=Playfair+Display:wght@700;900&display=swap');
+
+:root {
+    --navbar-height: 70px;
+    /* Slightly shorter for a sleeker look */
+    --navbar-bg: #000000;
+    /* Pure black as in image */
+    --navbar-border: rgba(255, 255, 255, 0.05);
+    --navbar-text: #ffffff;
+    --navbar-accent: #ffffff;
+    /* White dots/accents */
+    --navbar-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ===============================
+   NAVBAR CONTAINER
+   =============================== */
+
+.navbar-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--navbar-height);
+    background: var(--navbar-bg);
+    border-bottom: 1px solid var(--navbar-border);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.navbar-wrapper.scrolled {
+    box-shadow: var(--navbar-shadow);
+}
+
+.navbar-inner {
+    width: 100%;
+    max-width: 100%;
+    /* Ensure it spans the full width */
+    height: 100%;
+    margin: 0;
+    padding: 0 1.5rem;
+    /* Standard comfortable padding from edges */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ===============================
+   LOGO
+   =============================== */
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.nav-brand {
+    font-family: 'Macondo', cursive;
+    /* Macondo font as requested */
+    font-size: 1.8rem;
+    font-weight: 400;
+    /* Macondo is naturally bold/display */
+    color: #ffffff;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.nav-brand:hover {
+    color: #ffffff;
+}
+
+.nav-brand span {
+    color: #ef4444;
+    /* Red dot accent */
+}
+
+/* ===============================
+   NAVIGATION LINKS
+   =============================== */
+
+.desktop-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* RIGHT SECTION */
+.nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    width: auto;
+}
+
+
+/* ===============================
+   SEARCH BAR EXPANSION
+   =============================== */
+
+.nav-search-container {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    /* Default width is just the icon size */
+    width: 40px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-search-container.expanded {
+    width: 300px;
+}
+
+.search-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: #ffffff;
+    /* color matches icon color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.search-input-wrapper {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 40px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.nav-search-container.expanded .search-input-wrapper {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nav-search-input {
+    width: 100%;
+    height: 100%;
+    padding: 0 2.5rem 0 1rem;
+    /* Space for clear btn */
+    background: #f1f2f4;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    color: #333;
+    outline: none;
+}
+
+.nav-search-input:focus {
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+}
+
+/* Hide toggle button when expanded or move it? 
+   Actually, the design often keeps the icon or replaces it. 
+   Here, we overlap the input on top of the toggle button space or push it.
+   Let's simply hide the toggle button visually when expanded to avoid cloning.
+   OR better: The toggle button IS the close button? No, user requested "expands to an input only on click".
+*/
+.nav-search-container.expanded .search-toggle-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* ===============================
+   SEARCH RESULTS DROPDOWN
+   =============================== */
+
+.search-results-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 300px;
+    /* Fixed width relative to container or viewport? */
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1001;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.search-result-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.search-result-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-result-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2c3e50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result-price {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.1rem;
+}
+
+
+/* ===============================
+   NAV ACTIONS
+   =============================== */
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    /* Consistent tight gap between icons */
+}
+
+.nav-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ffffff;
+    padding: 0.25rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.nav-icon-btn:hover {
+    color: var(--navbar-text);
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.nav-signin-btn {
+    background: #ffffff;
+    color: #000000;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-signin-btn:hover {
+    background: #f3f4f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    padding: 2px;
+}
+
+/* ===============================
+   MEGA MENU DROPDOWN (Click-Based)
+   =============================== */
+.nav-dropdown-group {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.nav-link-wrapper {
+    padding: 0.5rem 0;
+    transition: opacity 0.2s;
+}
+
+.nav-link-wrapper:hover {
+    opacity: 0.8;
+}
+
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.dropdown-arrow.rotate {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-content {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 220px;
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    padding: 0.5rem 0;
+    display: none;
+    /* Hidden by default */
+    flex-direction: column;
+    z-index: 1000;
+    margin-top: 0.5rem;
+    animation: fadeIn 0.15s ease-out;
+}
+
+/* Show class toggled by React */
+.nav-dropdown-content.show {
+    display: flex;
+}
+
+.nav-dropdown-item {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: #2c3e50;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s, color 0.2s;
+    border-left: 2px solid transparent;
+}
+
+.nav-dropdown-item:hover {
+    background: #f8f9fa;
+    color: #000;
+    border-left-color: #000;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===============================
+   MOBILE MENU
+   =============================== */
+
+.navbar-mobile-toggle {
+    display: none;
+    /* handled by Tailwind usually, but here for legacy */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--navbar-text);
+}
+
+/* ===============================
+   RESPONSIVE
+   =============================== */
+
+@media (max-width: 1024px) {
+    .navbar-inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 0;
+    }
+
+    .desktop-links {
+        display: none !important;
+        /* Force hide desktop links */
+    }
+
+    .mobile-menu-trigger {
+        display: flex !important;
+        /* Force show hamburger */
+    }
+
+    .nav-left {
+        gap: 1rem;
+    }
+
+    /* On mobile, search might need to be always expanded or handled differently?
+       For now, keeping the icon expando behavior or hiding it if space constraints.
+       The design says "Hamburger menu exclusively on mobile", implying search is still there. 
+    */
+    .nav-search-container.expanded {
+        width: 180px;
+        /* Smaller width on tablets */
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-search-container.expanded {
+        width: 140px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .mobile-menu-trigger {
+        display: none !important;
+    }
+
+    .desktop-links {
+        display: flex !important;
+    }
+}
+
+/* ===============================
+   MOBILE - HIDE NAVBAR, SHOW BOTTOM BAR
+   =============================== */
+
+/* ===============================
+   MOBILE - SHOW NAVBAR, BUT HIDE DESKTOP LINKS
+   =============================== */
+
+@media (max-width: 767px) {
+    .navbar-wrapper {
+        display: flex;
+        /* Changed from none */
+        padding: 0;
+    }
+
+    .navbar-inner {
+        padding: 0 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 0;
+    }
+
+    .nav-left {
+        gap: 0 !important;
+        /* margin-left: -0.5rem;  Already close enough with reduced padding */
+    }
+
+    .nav-brand {
+        font-size: 1.4rem;
+    }
+
+    /* Adjust spacing for mobile right icons */
+    .nav-right {
+        gap: 0.5rem;
+        width: auto;
+        justify-content: flex-end;
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-brand {
+        font-size: 1.3rem;
+        /* Slightly smaller logo */
+    }
+
+    .nav-signin-btn {
+        display: inline-flex !important;
+        padding: 0.35rem 0.85rem;
+        font-size: 0.75rem;
+    }
+
+    .nav-icon-btn {
+        padding: 0.2rem;
+        /* Reduce hit area slightly visually, keep touch target manageable via flex */
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-hidden {
+        display: none !important;
+    }
+}
+
+
+/* Force hide mobile menu trigger on profile page - targeting via body attribute set in JS or local check */
+/* Note: Since we can't easily use :has() everywhere yet, and we are using inline styles in React, 
+   the React fix should have worked. However, if 'display: flex !important' is overriding it in media query... */
+
+.mobile-menu-trigger[style*="display: none"] {
+    display: none !important;
+}

@@ -1,0 +1,209 @@
+/* OTP Page Design */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f9fafb;
+    /* Light gray background */
+    padding: 1rem;
+}
+
+.otp-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    text-align: center;
+    position: relative;
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.otp-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+    width: 100%;
+    justify-content: flex-start;
+    /* Align left */
+}
+
+.otp-back-link:hover {
+    color: #111827;
+}
+
+.otp-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.025em;
+}
+
+.otp-subtitle {
+    font-size: 0.95rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+}
+
+.otp-phone-display {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.02em;
+}
+
+.otp-inputs-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+}
+
+.otp-input-box {
+    width: 50px;
+    height: 60px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    color: #111827;
+    transition: all 0.2s;
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.otp-input-box:focus {
+    border-color: #111827;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.otp-verify-btn {
+    width: auto;
+    min-width: 200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    /* Slightly rounded */
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.otp-verify-btn:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.otp-verify-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.otp-resend-container {
+    margin-top: 2.5rem;
+}
+
+.otp-resend-text {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.otp-resend-link {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    /* Disabled gray initially */
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: default;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: color 0.2s;
+}
+
+.otp-resend-link.active {
+    color: #2563eb;
+    cursor: pointer;
+}
+
+.otp-resend-link.active:hover {
+    color: #1d4ed8;
+}
+
+/* Success status notification style if used here */
+.otp-status-message {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s;
+}
+
+.otp-status-message.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.otp-status-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+@media (max-width: 640px) {
+    .otp-card {
+        padding: 1.5rem;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .otp-inputs-group {
+        gap: 6px;
+    }
+
+    .otp-input-box {
+        width: 40px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}

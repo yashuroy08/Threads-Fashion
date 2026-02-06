@@ -1,0 +1,64 @@
+/* Breadcrumb Navigation Styles */
+.breadcrumb-nav {
+    padding: 0;
+    /* Remove internal vertical padding if Products container handles it */
+    margin-bottom: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-top: 0;
+}
+
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.breadcrumb-link {
+    text-decoration: none;
+    color: #6b7280;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-link:hover {
+    color: #111827;
+    /* Darker on hover */
+    text-decoration: underline;
+}
+
+.breadcrumb-current {
+    color: #111827;
+    /* Black for current page */
+    font-weight: 500;
+}
+
+.breadcrumb-separator {
+    color: #9ca3af;
+    /* Lighter gray for separators */
+}
+
+.home-item .breadcrumb-link {
+    display: flex;
+    align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .breadcrumb-nav {
+        display: block;
+        font-size: 0.75rem;
+    }
+}
