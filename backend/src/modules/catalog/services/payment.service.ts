@@ -1,11 +1,13 @@
 import Razorpay from 'razorpay';
 import { AppError } from '../../../common/errors/app-error';
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || '',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-});
+// Initialize Razorpay instance only if credentials are provided
+const razorpay = (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET)
+    ? new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+    })
+    : null;
 
 /**
  * Verify UPI VPA (Virtual Payment Address)
@@ -14,6 +16,11 @@ const razorpay = new Razorpay({
  */
 export const verifyUpiVpa = async (vpa: string) => {
     try {
+        // Check if Razorpay is configured
+        if (!razorpay) {
+            throw new AppError('Payment gateway not configured', 503);
+        }
+
         // Validate VPA format first
         if (!vpa || !vpa.includes('@')) {
             throw new AppError('Invalid UPI ID format', 400);
@@ -52,6 +59,11 @@ export const verifyUpiVpa = async (vpa: string) => {
  */
 export const createRazorpayOrder = async (amount: number, orderId: string) => {
     try {
+        // Check if Razorpay is configured
+        if (!razorpay) {
+            throw new AppError('Payment gateway not configured', 503);
+        }
+
         const options = {
             amount: amount, // Amount in paise
             currency: 'INR',
@@ -109,6 +121,11 @@ export const verifyPaymentSignature = (
  */
 export const fetchPaymentDetails = async (paymentId: string) => {
     try {
+        // Check if Razorpay is configured
+        if (!razorpay) {
+            throw new AppError('Payment gateway not configured', 503);
+        }
+
         const payment = await razorpay.payments.fetch(paymentId);
         return payment;
     } catch (error: any) {
