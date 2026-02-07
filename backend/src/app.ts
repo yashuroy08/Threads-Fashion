@@ -74,6 +74,29 @@ app.use(requestLogger);
 app.use(httpLogger);
 
 // ---------- Routes ----------
+app.get('/', (_req, res) => {
+    res.status(200).json({
+        name: 'E-Commerce Platform API',
+        version: '1.0.0',
+        status: 'running',
+        endpoints: {
+            health: '/health',
+            api: '/api/v1',
+            auth: '/api/v1/auth',
+            products: '/api/v1/products',
+            orders: '/api/v1/orders',
+            cart: '/api/v1/cart',
+            profile: '/api/v1/profile',
+            categories: '/api/v1/categories',
+            wishlist: '/api/v1/wishlist',
+            payments: '/api/v1/payments',
+            admin: '/api/v1/admin',
+            settings: '/api/v1/settings',
+            upload: '/api/v1/upload'
+        }
+    });
+});
+
 app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
