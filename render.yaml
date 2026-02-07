@@ -12,7 +12,6 @@ services:
       - key: MONGO_URI
         value: replace_me_with_mongodb_connection_string
       - key: JWT_SECRET
-        sync: false
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
