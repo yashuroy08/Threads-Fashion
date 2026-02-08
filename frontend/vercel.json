@@ -1,6 +1,10 @@
 {
     "rewrites": [
         {
+            "source": "/api/:path*",
+            "destination": "https://threads-fashion-backend.onrender.com/api/:path*"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
