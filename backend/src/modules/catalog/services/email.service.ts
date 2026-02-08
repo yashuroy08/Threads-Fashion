@@ -146,23 +146,23 @@ export class EmailService {
         let message = '';
         switch (status) {
             case 'SHIPPED':
-                title = 'Your Order Has Shipped! 🚚';
+                title = 'Your Order Has Shipped! ';
                 message = 'Your package is on its way. Get ready!';
                 break;
             case 'DELIVERED':
-                title = 'Order Delivered! 📦';
+                title = 'Order Delivered! ';
                 message = 'Your package has arrived. We hope you love it!';
                 break;
             case 'CANCELLED':
-                title = 'Order Cancelled ❌';
+                title = 'Order Cancelled ';
                 message = 'Your order has been cancelled as requested.';
                 break;
             case 'RETURN_APPROVED':
-                title = 'Return Approved ✅';
+                title = 'Return Approved ';
                 message = 'Your return request has been approved. Please pack the item and wait for pickup.';
                 break;
             case 'EXCHANGE_APPROVED':
-                title = 'Exchange Approved 🔄';
+                title = 'Exchange Approved ';
                 message = 'Your exchange request has been approved. We will pick up the old item soon.';
                 break;
             default:
@@ -236,7 +236,17 @@ export class EmailService {
                             console.log(`[Resend] Successfully sent to: ${to}`);
                             resolve(true);
                         } else {
-                            console.error(`[Resend Error] Status: ${res.statusCode} | Body: ${body}`);
+                            console.error(`[Resend Error] Status: ${res.statusCode}`);
+                            if (res.statusCode === 403) {
+                                console.error('\n=== RESEND SANDBOX RESTRICTION ===');
+                                console.error('You are in Sandbox Mode. You can ONLY send emails to:');
+                                console.error('  yashwanthp2335.sse@saveetha.com');
+                                console.error('\nTo send to ANY email address, you MUST:');
+                                console.error('1. Go to resend.com/domains');
+                                console.error('2. Add and verify your own domain.');
+                                console.error('===================================\n');
+                            }
+                            console.error(`[Resend Body] ${body}`);
                             resolve(false);
                         }
                     });
