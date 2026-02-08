@@ -827,7 +827,8 @@ function Profile() {
                                                 alignItems: 'center',
                                                 gap: '8px',
                                                 color: '#6b7280',
-                                                pointerEvents: 'none'
+                                                pointerEvents: 'none',
+                                                height: '20px'
                                             }}>
                                                 <Phone size={18} />
                                                 <span style={{
@@ -836,7 +837,9 @@ function Profile() {
                                                     paddingLeft: '8px',
                                                     borderLeft: '1px solid #e5e7eb',
                                                     fontSize: '0.95rem',
-                                                    lineHeight: '1'
+                                                    lineHeight: '20px',
+                                                    display: 'flex',
+                                                    alignItems: 'center'
                                                 }}>+91</span>
                                             </div>
                                             <input
