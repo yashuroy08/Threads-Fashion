@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Save, AlertTriangle, MapPin, AlertCircle } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useSocket } from '../../context/SocketContext';
+import { useNotification } from '../../context/NotificationContext';
 import { API_BASE } from '../../config/api.config';
 import '../../styles/admin.css';
 
@@ -20,21 +21,19 @@ export default function AdminSettings() {
     const [settings, setSettings] = useState<AdminSettings | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [zipLoading, setZipLoading] = useState(false);
     const [zipInfo, setZipInfo] = useState('');
 
-    // We can access the socket instance to listen for real-time updates
+    const { notify } = useNotification();
     const socket = useSocket();
 
     useEffect(() => {
         fetchSettings();
 
-        // Real-time listener
         if (socket) {
             socket.on('SETTINGS_UPDATED', (updatedSettings: AdminSettings) => {
                 setSettings(updatedSettings);
-                // Optionally show a toast that info was updated by another admin
+                notify('Settings updated by another admin', 'info');
             });
         }
 
@@ -55,6 +54,7 @@ export default function AdminSettings() {
             setSettings(data);
         } catch (error) {
             console.error('Failed to fetch settings', error);
+            notify('Failed to load settings', 'error');
         } finally {
             setLoading(false);
         }
@@ -63,7 +63,6 @@ export default function AdminSettings() {
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
-        setMessage(null);
 
         try {
             const token = localStorage.getItem('token');
@@ -78,13 +77,12 @@ export default function AdminSettings() {
 
             if (!res.ok) throw new Error('Failed to update');
 
-            setMessage({ type: 'success', text: 'Settings updated successfully!' });
+            notify('Settings updated successfully!', 'success');
 
-            // Re-fetch to ensure sync (optional since we have real-time, but good for confirmation)
             const updated = await res.json();
             setSettings(updated);
         } catch (error) {
-            setMessage({ type: 'error', text: 'Failed to update settings.' });
+            notify('Failed to update settings', 'error');
         } finally {
             setSaving(false);
         }
@@ -138,18 +136,7 @@ export default function AdminSettings() {
                 </header>
             </div>
 
-            {message && (
-                <div style={{
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    marginBottom: '2rem',
-                    background: message.type === 'success' ? '#ECFDF5' : '#FEF2F2',
-                    color: message.type === 'success' ? '#065F46' : '#991B1B',
-                    border: `1px solid ${message.type === 'success' ? '#A7F3D0' : '#FECACA'}`
-                }}>
-                    {message.text}
-                </div>
-            )}
+
 
             <form onSubmit={handleSave} className="reveal">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem' }}>

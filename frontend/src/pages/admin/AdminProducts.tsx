@@ -8,7 +8,7 @@ import AdminLayout from '../../components/AdminLayout';
 // 
 import { TableSkeleton } from '../../components/SkeletonLoader';
 
-import '../../styles/admin.css';
+import { useNotification } from '../../context/NotificationContext';
 
 export default function AdminProducts() {
     const [products, setProducts] = useState<any[]>([]);
@@ -16,11 +16,19 @@ export default function AdminProducts() {
     const [editingProduct, setEditingProduct] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
+    const { notify } = useNotification();
+
     async function load() {
         setLoading(true);
-        const data = await fetchAdminProducts();
-        setProducts(data.items);
-        setLoading(false);
+        try {
+            const data = await fetchAdminProducts();
+            setProducts(data.items);
+        } catch (error) {
+            console.error('Failed to load products', error);
+            notify('Failed to load products', 'error');
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -140,8 +148,13 @@ export default function AdminProducts() {
                                             <button
                                                 className={p.isActive ? 'btn-danger' : 'btn-success'}
                                                 onClick={async () => {
-                                                    await toggleProduct(p.id, p.isActive);
-                                                    load();
+                                                    try {
+                                                        await toggleProduct(p.id, p.isActive);
+                                                        notify(`Product ${p.isActive ? 'deactivated' : 'reactivated'} successfully`, 'success');
+                                                        load();
+                                                    } catch (error) {
+                                                        notify('Failed to update product status', 'error');
+                                                    }
                                                 }}
                                             >
                                                 {p.isActive ? 'Deactivate' : 'Reactivate'}

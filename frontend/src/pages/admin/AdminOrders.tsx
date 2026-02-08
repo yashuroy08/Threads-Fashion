@@ -6,6 +6,8 @@ import { Trash2 } from 'lucide-react';
 import { API_BASE } from '../../config/api.config';
 import '../../styles/admin.css';
 
+import { useNotification } from '../../context/NotificationContext';
+
 export default function AdminOrders() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -13,6 +15,8 @@ export default function AdminOrders() {
     const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
     const [isBulkDeleting, setIsBulkDeleting] = useState(false);
     const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+
+    const { notify } = useNotification();
 
     async function loadOrders() {
         try {
@@ -24,6 +28,7 @@ export default function AdminOrders() {
             setOrders(data);
         } catch (error) {
             console.error('Failed to load orders:', error);
+            notify('Failed to load orders', 'error');
         } finally {
             setLoading(false);
         }
@@ -32,7 +37,7 @@ export default function AdminOrders() {
     async function updateStatus(orderId: string, status: string) {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`${API_BASE}/orders/admin/status/${orderId}`, {
+            const res = await fetch(`${API_BASE}/orders/admin/status/${orderId}`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -40,9 +45,16 @@ export default function AdminOrders() {
                 },
                 body: JSON.stringify({ status })
             });
-            loadOrders();
+
+            if (res.ok) {
+                notify('Order status updated successfully', 'success');
+                loadOrders();
+            } else {
+                throw new Error('Failed to update status');
+            }
         } catch (error) {
             console.error('Failed to update status:', error);
+            notify('Failed to update order status', 'error');
         }
     }
 
@@ -57,6 +69,7 @@ export default function AdminOrders() {
             });
 
             if (res.ok) {
+                notify('Order deleted successfully', 'success');
                 loadOrders();
                 setShowDeleteConfirm(null);
                 // Remove from selection if deleted
@@ -64,10 +77,11 @@ export default function AdminOrders() {
                 newSelected.delete(orderId);
                 setSelectedOrders(newSelected);
             } else {
-                console.error('Failed to delete order');
+                notify('Failed to delete order', 'error');
             }
         } catch (error) {
             console.error('Failed to delete order:', error);
+            notify('Error deleting order', 'error');
         }
     }
 
@@ -86,14 +100,16 @@ export default function AdminOrders() {
             });
 
             if (res.ok) {
+                notify(`${selectedOrders.size} orders deleted successfully`, 'success');
                 loadOrders();
                 setSelectedOrders(new Set());
                 setShowBulkDeleteConfirm(false);
             } else {
-                console.error('Failed to bulk delete orders');
+                notify('Failed to bulk delete orders', 'error');
             }
         } catch (error) {
             console.error('Failed to bulk delete orders:', error);
+            notify('Error during bulk delete', 'error');
         } finally {
             setIsBulkDeleting(false);
         }
@@ -126,6 +142,7 @@ export default function AdminOrders() {
     useEffect(() => {
         if (!socket) return;
         socket.on('order_update', () => {
+            notify('New order update received', 'info');
             loadOrders();
         });
         return () => {

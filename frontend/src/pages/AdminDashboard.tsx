@@ -8,11 +8,14 @@ import { API_BASE } from '../config/api.config';
 
 import '../styles/admin.css';
 
+import { useNotification } from '../context/NotificationContext';
+
 export default function AdminDashboard() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const socket = useSocket();
+    const { notify } = useNotification();
 
     const fetchStats = async () => {
         try {
@@ -24,6 +27,7 @@ export default function AdminDashboard() {
             setData(result);
         } catch (error) {
             console.error('Failed to fetch admin stats', error);
+            notify('Failed to update dashboard stats', 'error');
         } finally {
             setLoading(false);
         }
@@ -37,6 +41,7 @@ export default function AdminDashboard() {
         if (!socket) return;
 
         socket.on('order_update', () => {
+            notify('New order activity - Stats updated', 'info');
             fetchStats();
         });
 

@@ -41,6 +41,7 @@ export default function AdminUsers() {
                 },
                 body: JSON.stringify(data)
             });
+            notify('User updated successfully', 'success');
             setIsModalOpen(false);
             setEditingUser(null);
             loadUsers();
