@@ -796,14 +796,14 @@ function Profile() {
                                         <label className="form-label">First Name</label>
                                         <div style={{ position: 'relative' }}>
                                             <User size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
-                                            <input className="form-input-bold" name="firstName" value={firstName} onChange={(e) => { setFirstName(e.target.value); handleFormChange(e); }} required style={{ paddingLeft: '3rem' }} />
+                                            <input className="form-input-bold" name="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required style={{ paddingLeft: '3rem' }} />
                                         </div>
                                     </div>
                                     <div className="form-item-container">
                                         <label className="form-label">Last Name</label>
                                         <div style={{ position: 'relative' }}>
                                             <User size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
-                                            <input className="form-input-bold" name="lastName" value={lastName} onChange={(e) => { setLastName(e.target.value); handleFormChange(e); }} required style={{ paddingLeft: '3rem' }} />
+                                            <input className="form-input-bold" name="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required style={{ paddingLeft: '3rem' }} />
                                         </div>
                                     </div>
                                     <div className="form-item-container">
