@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import https from 'https';
 
 /**
  * SMTP Configuration for Email Service
@@ -16,8 +17,8 @@ import nodemailer from 'nodemailer';
 const smtpPort = parseInt(process.env.SMTP_PORT || '587');
 const useSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
 
-console.log('[EmailService] Initializing with config:', {
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+console.log('[EmailService] SMTP Status:', {
+    host: process.env.SMTP_HOST || 'smtp.zoho.in',
     port: smtpPort,
     secure: useSecure,
     user: process.env.SMTP_USER ? '***' + process.env.SMTP_USER.slice(-10) : 'NOT_SET'
@@ -65,8 +66,9 @@ export class EmailService {
     }
 
     static async sendOTP(email: string, otp: string) {
-        if (!process.env.SMTP_USER && !process.env.SMTP_PASS) {
-            console.warn(`[Email Mock] SMTP credentials missing. Logged OTP: ${otp} to ${email}`);
+        // Fallback to console in development if no key is present
+        if (!process.env.SMTP_USER && !process.env.SMTP_PASS && !process.env.RESEND_API_KEY) {
+            console.warn(`[Email Mock] Credentials missing. Logged OTP: ${otp} to ${email}`);
             return true;
         }
 
@@ -90,7 +92,6 @@ export class EmailService {
 
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
         const ordersUrl = `${frontendUrl}/account/orders`;
-        // Use a specific logical tracking URL if available, otherwise default to orders list where tracking is usually available
         const trackingUrl = `${frontendUrl}/orders/${order.orderId}`;
 
         const itemsHtml = order.items.map((item: any) =>
@@ -136,42 +137,18 @@ export class EmailService {
                 <div style="text-align: center; margin-top: 30px; margin-bottom: 10px;">
                     <a href="${trackingUrl}" style="background-color: #111; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Track Your Order</a>
                 </div>
-                
-                <p style="text-align: center; font-size: 12px; color: #888; margin-top: 20px;">
-                    You can view your order details by clicking explicitly on the products above.
-                </p>
             `)
         );
     }
 
     static async sendOrderStatusUpdate(email: string, order: any, status: string) {
-        let message = '';
         let title = '';
-
+        let message = '';
         switch (status) {
-            case 'SHIPPED':
-                title = 'Your Order Has Shipped! 🚚';
-                message = 'Your package is on its way. Get ready!';
-                break;
-            case 'DELIVERED':
-                title = 'Order Delivered! 📦';
-                message = 'Your package has arrived. We hope you love it!';
-                break;
-            case 'CANCELLED':
-                title = 'Order Cancelled ❌';
-                message = 'Your order has been cancelled as requested.';
-                break;
-            case 'RETURN_APPROVED':
-                title = 'Return Approved ✅';
-                message = 'Your return request has been approved. Please pack the item and wait for pickup.';
-                break;
-            case 'EXCHANGE_APPROVED':
-                title = 'Exchange Approved 🔄';
-                message = 'Your exchange request has been approved. We will pick up the old item soon.';
-                break;
-            default:
-                title = `Order Updated: ${status}`;
-                message = `The status of your order #${order.orderId} has changed to ${status}.`;
+            case 'SHIPPED': title = 'Your Order Has Shipped! 🚚'; message = 'Your package is on its way. Get ready!'; break;
+            case 'DELIVERED': title = 'Order Delivered! 📦'; message = 'Your package has arrived. We hope you love it!'; break;
+            case 'CANCELLED': title = 'Order Cancelled ❌'; message = 'Your order has been cancelled as requested.'; break;
+            default: title = `Order Updated: ${status}`; message = `The status of your order #${order.orderId} has changed to ${status}.`;
         }
 
         return this.sendEmail(email, `Order Update: ${status} - #${order.orderId}`,
@@ -186,40 +163,63 @@ export class EmailService {
         );
     }
 
-    static async sendReturnRequestReceived(email: string, order: any) {
-        return this.sendEmail(email, `Return Request Received - #${order.orderId}`,
-            `We received your return request for order #${order.orderId}.`,
-            this.wrapHtml(`
-                <h2>Return Request Received</h2>
-                <p>We've received your request to return items from order <strong>#${order.orderId}</strong>.</p>
-                <p>Our team will review it shortly and update you on the status.</p>
-            `)
-        );
-    }
-
-    static async sendExchangeRequestReceived(email: string, order: any) {
-        return this.sendEmail(email, `Exchange Request Received - #${order.orderId}`,
-            `We received your exchange request for order #${order.orderId}.`,
-            this.wrapHtml(`
-                <h2>Exchange Request Received</h2>
-                <p>We've received your request to exchange items from order <strong>#${order.orderId}</strong>.</p>
-                <p>Our team will review it shortly and update you on the status.</p>
-            `)
-        );
-    }
-
     // --- Core Sender ---
     private static async sendEmail(to: string, subject: string, text: string, html: string) {
-        console.log(`[EmailService] Attempting to send email to: ${to} | Subject: ${subject}`);
+        // Priority 1: Resend API (HTTP-based, bypasses Render's SMTP port block)
+        if (process.env.RESEND_API_KEY) {
+            console.log(`[EmailService] Using Resend API for: ${to}`);
+            return new Promise<boolean>((resolve) => {
+                const data = JSON.stringify({
+                    from: process.env.RESEND_FROM || 'Threads Fashion <onboarding@resend.dev>',
+                    to: [to],
+                    subject: subject,
+                    text: text,
+                    html: html,
+                });
 
+                const options = {
+                    hostname: 'api.resend.com',
+                    path: '/emails',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                    },
+                };
+
+                const req = https.request(options, (res) => {
+                    let body = '';
+                    res.on('data', (chunk) => body += chunk);
+                    res.on('end', () => {
+                        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+                            console.log(`[Resend] Successfully sent to: ${to}`);
+                            resolve(true);
+                        } else {
+                            console.error(`[Resend Error] Status: ${res.statusCode} | Body: ${body}`);
+                            resolve(false);
+                        }
+                    });
+                });
+
+                req.on('error', (error) => {
+                    console.error('[Resend Error] Network error:', error.message);
+                    resolve(false);
+                });
+
+                req.write(data);
+                req.end();
+            });
+        }
+
+        // Priority 2: SMTP (Standard way, often blocked on cloud free tiers)
         if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-            console.warn(`[EmailService] SMTP credentials missing (User: ${!!process.env.SMTP_USER}, Pass: ${!!process.env.SMTP_PASS}). Using Mock mode.`);
+            console.warn(`[EmailService] No Resend API Key and no SMTP credentials. Using Mock mode.`);
             console.log(`[Email Mock] To: ${to} | Subject: ${subject}`);
             return true;
         }
 
         try {
-            console.log(`[EmailService] Sending via SMTP host: ${process.env.SMTP_HOST || 'default'}`);
+            console.log(`[EmailService] Attempting SMTP delivery via: ${process.env.SMTP_HOST || 'zoho.in'}`);
             await transporter.sendMail({
                 from: `"Threads Fashion" <${process.env.SMTP_USER}>`,
                 to,
@@ -227,37 +227,15 @@ export class EmailService {
                 text,
                 html,
             });
-            console.log(`[Email] Successfully sent to: ${to} | Subject: ${subject}`);
+            console.log(`[Email] Successfully sent via SMTP to: ${to}`);
             return true;
         } catch (error: any) {
-            console.error('[Email Error] Failed to send email:', error.message);
-            console.error('[Email Error] Error code:', error.code);
-            console.error('[Email Error] Command:', error.command);
-
-            // Provide specific troubleshooting guidance based on error type
+            console.error('[Email Error] SMTP delivery failed:', error.message);
             if (error.code === 'ETIMEDOUT' || error.code === 'ESOCKET') {
-                console.error('\n=== SMTP CONNECTION TIMEOUT ===');
-                console.error('This usually means:');
-                console.error('1. Port 465 is blocked by your hosting provider (Render, Heroku, etc.)');
-                console.error('2. Firewall is blocking outbound SMTP connections');
-                console.error('\nRECOMMENDED FIX:');
-                console.error('Change your environment variables to:');
-                console.error('  SMTP_PORT=587');
-                console.error('  SMTP_SECURE=false');
-                console.error('  SMTP_HOST=smtp.zoho.com (or smtppro.zoho.com for paid accounts)');
-                console.error('================================\n');
-            } else if (error.code === 'EAUTH') {
-                console.error('\n=== SMTP AUTHENTICATION FAILED ===');
-                console.error('Check your SMTP_USER and SMTP_PASS environment variables.');
-                console.error('For Zoho with 2FA, you need an app-specific password.');
-                console.error('===================================\n');
-            } else if (error.responseCode === 550 || error.responseCode === 553) {
-                console.error('\n=== EMAIL REJECTED BY SERVER ===');
-                console.error('The recipient address may be invalid or blocked.');
-                console.error('=================================\n');
+                console.error('--- RENDER DETECTED: SMTP IS BLOCKED ---');
+                console.error('Render blocks SMTP ports on the free tier.');
+                console.error('FIX: Get a free API key from resend.com and add it as RESEND_API_KEY');
             }
-
-            console.error('Full error details:', error);
             return false;
         }
     }
