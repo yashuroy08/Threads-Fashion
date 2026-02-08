@@ -1,4 +1,5 @@
-const BASE_URL = '/api/v1';
+import { API_BASE } from '../config/api.config';
+const BASE_URL = API_BASE;
 
 export type CartItem = {
     productId: string | { _id: string; title: string; price: { amount: number }; images: { url: string }[] };

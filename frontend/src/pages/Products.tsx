@@ -4,6 +4,7 @@ import { ProductGridSkeleton } from '../components/SkeletonLoader';
 import Breadcrumb from '../components/Breadcrumb';
 import ProductCard from '../components/ProductCard';
 import { FilterGroup, CheckboxFilter, ColorFilter, PriceRangeFilter, SortDropdown } from '../components/FilterComponents';
+import { API_BASE } from '../config/api.config';
 
 import { SlidersHorizontal, X } from 'lucide-react';
 
@@ -173,7 +174,7 @@ export default function Products() {
 
     // Fetch Categories
     useEffect(() => {
-        fetch('/api/v1/categories')
+        fetch(`${API_BASE}/categories`)
             .then(res => res.json())
             .then(data => {
                 const allCategories = data || [];
@@ -191,7 +192,7 @@ export default function Products() {
         const searchQuery = query ? `&q=${encodeURIComponent(query)}` : '';
 
         // Base Query
-        let url = `/api/v1/products?limit=20${searchQuery}`;
+        let url = `${API_BASE}/products?limit=20${searchQuery}`;
 
         // Category Resolution
         let targetParentId = "";

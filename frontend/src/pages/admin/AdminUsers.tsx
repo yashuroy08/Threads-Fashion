@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 import '../../styles/admin.css';
 import { useNotification } from '../../context/NotificationContext';
+import { API_BASE } from '../../config/api.config';
 
 export default function AdminUsers() {
     const [users, setUsers] = useState<any[]>([]);
@@ -13,7 +14,7 @@ export default function AdminUsers() {
     async function loadUsers() {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/profile/admin/users', {
+            const res = await fetch(`${API_BASE}/profile/admin/users`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -32,7 +33,7 @@ export default function AdminUsers() {
 
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/v1/profile/admin/users/${editingUser._id}`, {
+            await fetch(`${API_BASE}/profile/admin/users/${editingUser._id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,

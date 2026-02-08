@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Truck, ShieldCheck, RefreshCw, Headphones, ArrowRight, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import '../styles/global.css';
 import '../styles/landing.css';
+import { API_BASE } from '../config/api.config';
 
 
 const HERO_SLIDES = [
@@ -96,7 +97,7 @@ export default function Home() {
     useEffect(() => {
         const fetchCategoryProducts = async (category: string, setter: (products: Product[]) => void) => {
             try {
-                const res = await fetch(`/api/v1/products?parentCategory=${category}&limit=8&sort=newest`);
+                const res = await fetch(`${API_BASE}/products?parentCategory=${category}&limit=8&sort=newest`);
                 const data = await res.json();
                 const items = data.items || (Array.isArray(data) ? data : []);
                 setter(items.filter((p: Product) => p.images && p.images.length > 0));
@@ -157,7 +158,7 @@ export default function Home() {
 
     useEffect(() => {
         // Fetch a larger set to ensure we get a diverse range of categories
-        fetch('/api/v1/products?limit=50&sort=newest')
+        fetch(`${API_BASE}/products?limit=50&sort=newest`)
             .then(res => res.json())
             .then(data => {
                 const items = data.items || (Array.isArray(data) ? data : []);

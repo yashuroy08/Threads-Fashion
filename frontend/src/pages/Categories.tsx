@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Shirt, Footprints, Watch, Glasses, ShoppingBag, Scissors, Briefcase, Menu, X } from 'lucide-react';
 import '../styles/categories.css';
+import { API_BASE } from '../config/api.config';
 
 const getCategoryIcon = (name: string) => {
     const lower = name.toLowerCase();
@@ -21,7 +22,7 @@ export default function Categories() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
-        fetch('/api/v1/categories')
+        fetch(`${API_BASE}/categories`)
             .then(res => res.json())
             .then(data => {
                 const allCats = Array.isArray(data) ? data : [];

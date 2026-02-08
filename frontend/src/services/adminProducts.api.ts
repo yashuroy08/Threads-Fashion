@@ -1,4 +1,5 @@
-const BASE_URL = '/api/v1/products/admin';
+import { API_BASE } from '../config/api.config';
+const BASE_URL = `${API_BASE}/products/admin`;
 
 function authHeader() {
     const token = localStorage.getItem('token');

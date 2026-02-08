@@ -1,4 +1,5 @@
-const BASE_URL = '/api/v1';
+import { API_BASE } from '../config/api.config';
+const BASE_URL = API_BASE;
 
 export interface Order {
     orderId: string;

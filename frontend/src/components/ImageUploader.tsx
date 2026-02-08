@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, Loader2, Check } from 'lucide-react';
+import { API_BASE } from '../config/api.config';
 
 interface ImageUploaderProps {
     onUpload: (url: string) => void;
@@ -21,7 +22,7 @@ export default function ImageUploader({ onUpload, className, buttonText = 'Uploa
         formData.append('image', file);
 
         try {
-            const res = await fetch('/api/v1/upload', {
+            const res = await fetch(`${API_BASE}/upload`, {
                 method: 'POST',
                 body: formData,
             });

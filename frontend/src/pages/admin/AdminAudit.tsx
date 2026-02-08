@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '../../context/AuthContext';
 import AdminLayout from '../../components/AdminLayout';
+import { API_BASE } from '../../config/api.config';
 
 export default function AdminAudit() {
     const { user } = useAuthContext();
@@ -20,7 +21,7 @@ export default function AdminAudit() {
                 ...filters
             });
 
-            const res = await fetch(`/api/v1/admin/audit?${query}`, {
+            const res = await fetch(`${API_BASE}/admin/audit?${query}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();

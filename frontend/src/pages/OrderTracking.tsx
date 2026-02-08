@@ -4,6 +4,7 @@ import { useSocket } from '../context/SocketContext';
 import { useAuthContext } from '../context/AuthContext';
 import ReasonModal from '../components/ReasonModal';
 import { OrderApi } from '../api/orders.api';
+import { API_BASE } from '../config/api.config';
 import {
     CheckCircle,
     Package,
@@ -39,7 +40,7 @@ export default function OrderTracking() {
     const fetchOrder = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/v1/orders/${orderId}`, {
+            const res = await fetch(`${API_BASE}/orders/${orderId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();

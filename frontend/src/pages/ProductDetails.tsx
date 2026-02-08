@@ -7,6 +7,7 @@ import { ProductDetailsSkeleton } from '../components/SkeletonLoader';
 import RelatedProducts from '../components/RelatedProducts';
 import '../styles/product-details.css';
 import Breadcrumb from '../components/Breadcrumb';
+import { API_BASE } from '../config/api.config';
 
 type ProductVariant = {
     size: string;
@@ -435,7 +436,7 @@ export default function ProductDetails() {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`/api/v1/products/${id}`)
+        fetch(`${API_BASE}/products/${id}`)
             .then(res => res.json())
             .then(data => {
                 setProduct(data);

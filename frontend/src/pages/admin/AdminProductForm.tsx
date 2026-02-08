@@ -23,6 +23,7 @@ import {
 import ImageUploader from '../../components/ImageUploader';
 import { ProductDetailsView } from '../ProductDetails';
 import type { Product } from '../ProductDetails';
+import { API_BASE } from '../../config/api.config';
 
 const QUICK_COLORS = [
     { name: 'Red', hex: '#ef4444' },
@@ -85,7 +86,7 @@ export default function AdminProductForm({ product, onDone }: any) {
 
     // Fetch categories on mount
     useEffect(() => {
-        fetch('/api/v1/categories')
+        fetch(`${API_BASE}/categories`)
             .then(res => res.json())
             .then(data => setCategories(data || []))
             .catch(err => console.error('Failed to load categories', err));

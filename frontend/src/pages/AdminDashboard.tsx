@@ -4,6 +4,7 @@ import { Package, Users, ArrowRight, ScrollText } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
 import { DashboardSkeleton } from '../components/SkeletonLoader';
 import { useSocket } from '../context/SocketContext';
+import { API_BASE } from '../config/api.config';
 
 import '../styles/admin.css';
 
@@ -16,7 +17,7 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/admin/stats', {
+            const res = await fetch(`${API_BASE}/admin/stats`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const result = await res.json();

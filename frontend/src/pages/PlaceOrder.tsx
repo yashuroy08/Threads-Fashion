@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { API_BASE } from '../config/api.config';
 import '../styles/checkout.css';
 import { useCartContext } from '../context/CartContext';
 import { OrderApi } from '../api/orders.api';
@@ -174,7 +175,7 @@ export default function PlaceOrder() {
         try {
             const token = localStorage.getItem('token');
             if (!token) return;
-            const res = await fetch('/api/v1/profile/me', {
+            const res = await fetch(`${API_BASE}/profile/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -190,7 +191,7 @@ export default function PlaceOrder() {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch('/api/v1/settings/public');
+            const res = await fetch(`${API_BASE}/settings/public`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.warehouseZipCode) setWarehouseZipCode(data.warehouseZipCode);
@@ -311,8 +312,8 @@ export default function PlaceOrder() {
             if (!token) throw new Error('Not authenticated');
 
             const url = editingAddress
-                ? `/api/v1/profile/me/addresses/${editingAddress.addressType}`
-                : '/api/v1/profile/me/addresses';
+                ? `${API_BASE}/profile/me/addresses/${editingAddress.addressType}`
+                : `${API_BASE}/profile/me/addresses`;
 
             const method = editingAddress ? 'PUT' : 'POST';
 
@@ -373,7 +374,7 @@ export default function PlaceOrder() {
             const token = localStorage.getItem('token');
             if (!token) throw new Error('Not authenticated');
 
-            const response = await fetch(`/api/v1/profile/me/addresses/${type}`, {
+            const response = await fetch(`${API_BASE}/profile/me/addresses/${type}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

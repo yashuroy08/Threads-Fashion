@@ -4,6 +4,7 @@ import { Search, ShoppingBag, X, ChevronDown, User, Heart, LayoutDashboard, LogO
 import { useAuthContext } from '../context/AuthContext';
 import { useCartContext } from '../context/CartContext';
 import '../styles/navbar.css';
+import { API_BASE } from '../config/api.config';
 
 export function Navbar() {
     const { user } = useAuthContext();
@@ -35,7 +36,7 @@ export function Navbar() {
     }, [location]);
 
     useEffect(() => {
-        fetch('/api/v1/categories')
+        fetch(`${API_BASE}/categories`)
             .then(res => res.json())
             .then(data => {
                 if (!Array.isArray(data)) {
@@ -100,7 +101,7 @@ export function Navbar() {
                 setSearchLoading(true);
                 try {
                     const response = await fetch(
-                        `/api/v1/products/search?q=${encodeURIComponent(searchTerm)}&limit=5`
+                        `${API_BASE}/products/search?q=${encodeURIComponent(searchTerm)}&limit=5`
                     );
                     const data = await response.json();
                     const items = Array.isArray(data.items) ? data.items : [];

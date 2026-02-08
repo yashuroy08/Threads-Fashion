@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Save, AlertTriangle, MapPin, AlertCircle } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { useSocket } from '../../context/SocketContext';
+import { API_BASE } from '../../config/api.config';
 import '../../styles/admin.css';
 
 interface AdminSettings {
@@ -47,7 +48,7 @@ export default function AdminSettings() {
     const fetchSettings = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/admin/settings', {
+            const res = await fetch(`${API_BASE}/admin/settings`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -66,7 +67,7 @@ export default function AdminSettings() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/admin/settings', {
+            const res = await fetch(`${API_BASE}/admin/settings`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

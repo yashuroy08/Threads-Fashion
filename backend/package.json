@@ -46,6 +46,8 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "make-admin": "ts-node-dev --transpile-only src/scripts/make-admin.ts",
+    "seed": "ts-node-dev --transpile-only src/scripts/seed-database.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

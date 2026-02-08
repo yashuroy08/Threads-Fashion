@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 import { useSocket } from '../../context/SocketContext';
 import { Trash2 } from 'lucide-react';
+import { API_BASE } from '../../config/api.config';
 import '../../styles/admin.css';
 
 export default function AdminOrders() {
@@ -16,7 +17,7 @@ export default function AdminOrders() {
     async function loadOrders() {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/orders/admin/list', {
+            const res = await fetch(`${API_BASE}/orders/admin/list`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -31,7 +32,7 @@ export default function AdminOrders() {
     async function updateStatus(orderId: string, status: string) {
         try {
             const token = localStorage.getItem('token');
-            await fetch(`/api/v1/orders/admin/status/${orderId}`, {
+            await fetch(`${API_BASE}/orders/admin/status/${orderId}`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -48,7 +49,7 @@ export default function AdminOrders() {
     async function deleteOrder(orderId: string) {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`/api/v1/orders/admin/${orderId}`, {
+            const res = await fetch(`${API_BASE}/orders/admin/${orderId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -75,7 +76,7 @@ export default function AdminOrders() {
         setIsBulkDeleting(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('/api/v1/orders/admin/bulk-delete', {
+            const res = await fetch(`${API_BASE}/orders/admin/bulk-delete`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,
