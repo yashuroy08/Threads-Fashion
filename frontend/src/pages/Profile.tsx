@@ -820,15 +820,14 @@ function Profile() {
                                             <div style={{
                                                 position: 'absolute',
                                                 left: '16px',
-                                                top: '50%',
-                                                transform: 'translateY(-50%)',
+                                                top: 0,
+                                                bottom: 0,
                                                 zIndex: 10,
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: '8px',
                                                 color: '#6b7280',
-                                                pointerEvents: 'none',
-                                                height: '20px'
+                                                pointerEvents: 'none'
                                             }}>
                                                 <Phone size={18} />
                                                 <span style={{
@@ -837,7 +836,7 @@ function Profile() {
                                                     paddingLeft: '8px',
                                                     borderLeft: '1px solid #e5e7eb',
                                                     fontSize: '0.95rem',
-                                                    lineHeight: '20px',
+                                                    lineHeight: '1',
                                                     display: 'flex',
                                                     alignItems: 'center'
                                                 }}>+91</span>
