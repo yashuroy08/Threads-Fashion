@@ -219,7 +219,7 @@ async function seedDatabase() {
                 return {
                     name: subcat.name,
                     slug: subcat.slug,
-                    parentCategory: parent?._id,
+                    parentId: parent?._id, // Fixed: match schema field name
                     description: subcat.description,
                     isActive: true,
                     displayOrder: subcat.displayOrder,

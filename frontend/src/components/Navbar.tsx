@@ -167,38 +167,116 @@ export function Navbar() {
                         THREADS<span>.</span>
                     </Link>
 
-                    <div className="desktop-links hidden lg:flex">
+                    <div className="desktop-links hidden lg:flex" style={{ gap: '2rem' }}>
                         {categoryTree.parents.map(parent => {
                             const hasChildren = categoryTree.childrenMap[parent._id] && categoryTree.childrenMap[parent._id].length > 0;
                             const isOpen = activeDropdown === parent._id;
 
                             return (
-                                <div key={parent._id} className={`nav-dropdown-group ${isOpen ? 'active' : ''}`}>
+                                <div
+                                    key={parent._id}
+                                    className={`nav-dropdown-group ${isOpen ? 'active' : ''}`}
+                                    style={{ position: 'relative' }}
+                                >
                                     <div
                                         className="nav-link-wrapper"
-                                        onClick={(e) => hasChildren ? toggleDropdown(parent._id, e) : navigate(`/products?category=${parent.slug}`)}
-                                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                        onClick={(e) => {
+                                            if (hasChildren) {
+                                                toggleDropdown(parent._id, e);
+                                            } else {
+                                                navigate(`/products?parentCategory=${parent.slug}`);
+                                            }
+                                        }}
+                                        onMouseEnter={() => hasChildren && setActiveDropdown(parent._id)}
+                                        style={{
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            padding: '0.5rem 0',
+                                            position: 'relative'
+                                        }}
                                     >
-                                        <span className="nav-link">
+                                        <span className="nav-link" style={{
+                                            color: '#ffffff',
+                                            fontSize: '0.875rem',
+                                            fontWeight: '500',
+                                            letterSpacing: '0.05em',
+                                            textTransform: 'uppercase',
+                                            transition: 'color 0.2s'
+                                        }}>
                                             {parent.name}
                                         </span>
-                                        {/* Always show arrow if it has children, or even if we want to indicate functionality */}
                                         {hasChildren && (
                                             <ChevronDown
                                                 size={14}
-                                                className={`dropdown-arrow ${isOpen ? 'rotate' : ''}`}
+                                                style={{
+                                                    color: '#ffffff',
+                                                    transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                    transition: 'transform 0.2s'
+                                                }}
                                             />
                                         )}
                                     </div>
 
                                     {/* Dropdown Content */}
                                     {hasChildren && isOpen && (
-                                        <div className="nav-dropdown-content show">
+                                        <div
+                                            onMouseLeave={() => setActiveDropdown(null)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '100%',
+                                                left: '0',
+                                                minWidth: '200px',
+                                                background: '#1f2937',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+                                                padding: '0.5rem 0',
+                                                marginTop: '0.5rem',
+                                                zIndex: 1000,
+                                                border: '1px solid rgba(255, 255, 255, 0.1)'
+                                            }}
+                                        >
+                                            <Link
+                                                to={`/products?parentCategory=${parent.slug}`}
+                                                style={{
+                                                    display: 'block',
+                                                    padding: '0.75rem 1.25rem',
+                                                    color: '#ffffff',
+                                                    textDecoration: 'none',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: '600',
+                                                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                                                    transition: 'background 0.2s'
+                                                }}
+                                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                                                onClick={() => setActiveDropdown(null)}
+                                            >
+                                                View All {parent.name}
+                                            </Link>
                                             {categoryTree.childrenMap[parent._id].map(child => (
                                                 <Link
                                                     key={child._id}
-                                                    to={`/products?category=${child.slug}`}
-                                                    className="nav-dropdown-item"
+                                                    to={`/products?childCategory=${child.slug}`}
+                                                    style={{
+                                                        display: 'block',
+                                                        padding: '0.75rem 1.25rem',
+                                                        color: '#d1d5db',
+                                                        textDecoration: 'none',
+                                                        fontSize: '0.875rem',
+                                                        transition: 'all 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                                                        e.currentTarget.style.color = '#ffffff';
+                                                        e.currentTarget.style.paddingLeft = '1.5rem';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.background = 'transparent';
+                                                        e.currentTarget.style.color = '#d1d5db';
+                                                        e.currentTarget.style.paddingLeft = '1.25rem';
+                                                    }}
                                                     onClick={() => setActiveDropdown(null)}
                                                 >
                                                     {child.name}
