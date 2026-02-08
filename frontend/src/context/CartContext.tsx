@@ -33,7 +33,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (!user) return;
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             if (token) {
                 const data = await CartApi.getCart(token);
                 setCart(data);
@@ -51,7 +51,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             return false;
         }
         try {
-            const token = localStorage.getItem('token')!;
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) {
+                notify('Please login again', 'error');
+                return false;
+            }
             const newCart = await CartApi.addToCart(token, productId, quantity, size, color);
             setCart(newCart);
             if (showNotification) {
@@ -69,7 +73,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     async function updateQuantity(productId: string, quantity: number, size?: string, color?: string) {
         try {
-            const token = localStorage.getItem('token')!;
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) return;
             const newCart = await CartApi.updateQuantity(token, productId, quantity, size, color);
             setCart(newCart);
         } catch (error) {
@@ -79,7 +84,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     async function removeItem(productId: string, size?: string, color?: string) {
         try {
-            const token = localStorage.getItem('token')!;
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) return;
             const newCart = await CartApi.removeItem(token, productId, size, color);
             setCart(newCart);
         } catch (error) {
@@ -89,7 +95,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     async function clearCart() {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             if (token) {
                 await CartApi.clearCart(token);
                 setCart({ items: [], total: 0 });

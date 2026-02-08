@@ -435,7 +435,15 @@ function Profile() {
 
             if (!profileRes.ok) throw new Error('Failed to fetch profile');
             const profileData = await profileRes.json();
-            const ordersData = await ordersRes.json();
+
+            // Handle orders response with error checking
+            let ordersData = [];
+            if (ordersRes.ok) {
+                ordersData = await ordersRes.json();
+            } else {
+                console.warn('Failed to fetch orders:', ordersRes.status);
+            }
+
             let settingsData = null;
             if (settingsRes.ok) settingsData = await settingsRes.json();
 
@@ -776,14 +784,14 @@ function Profile() {
                                         <label className="form-label">First Name</label>
                                         <div style={{ position: 'relative' }}>
                                             <User size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
-                                            <input className="form-input-bold" name="firstName" defaultValue={state.profile?.firstName} required style={{ paddingLeft: '3rem' }} />
+                                            <input className="form-input-bold" name="firstName" value={state.profile?.firstName || ''} onChange={() => { }} required style={{ paddingLeft: '3rem' }} />
                                         </div>
                                     </div>
                                     <div className="form-item-container">
                                         <label className="form-label">Last Name</label>
                                         <div style={{ position: 'relative' }}>
                                             <User size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
-                                            <input className="form-input-bold" name="lastName" defaultValue={state.profile?.lastName} required style={{ paddingLeft: '3rem' }} />
+                                            <input className="form-input-bold" name="lastName" value={state.profile?.lastName || ''} onChange={() => { }} required style={{ paddingLeft: '3rem' }} />
                                         </div>
                                     </div>
                                     <div className="form-item-container">
