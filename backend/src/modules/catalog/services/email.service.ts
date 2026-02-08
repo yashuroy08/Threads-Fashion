@@ -145,10 +145,29 @@ export class EmailService {
         let title = '';
         let message = '';
         switch (status) {
-            case 'SHIPPED': title = 'Your Order Has Shipped! 🚚'; message = 'Your package is on its way. Get ready!'; break;
-            case 'DELIVERED': title = 'Order Delivered! 📦'; message = 'Your package has arrived. We hope you love it!'; break;
-            case 'CANCELLED': title = 'Order Cancelled ❌'; message = 'Your order has been cancelled as requested.'; break;
-            default: title = `Order Updated: ${status}`; message = `The status of your order #${order.orderId} has changed to ${status}.`;
+            case 'SHIPPED':
+                title = 'Your Order Has Shipped! 🚚';
+                message = 'Your package is on its way. Get ready!';
+                break;
+            case 'DELIVERED':
+                title = 'Order Delivered! 📦';
+                message = 'Your package has arrived. We hope you love it!';
+                break;
+            case 'CANCELLED':
+                title = 'Order Cancelled ❌';
+                message = 'Your order has been cancelled as requested.';
+                break;
+            case 'RETURN_APPROVED':
+                title = 'Return Approved ✅';
+                message = 'Your return request has been approved. Please pack the item and wait for pickup.';
+                break;
+            case 'EXCHANGE_APPROVED':
+                title = 'Exchange Approved 🔄';
+                message = 'Your exchange request has been approved. We will pick up the old item soon.';
+                break;
+            default:
+                title = `Order Updated: ${status}`;
+                message = `The status of your order #${order.orderId} has changed to ${status}.`;
         }
 
         return this.sendEmail(email, `Order Update: ${status} - #${order.orderId}`,
@@ -159,6 +178,28 @@ export class EmailService {
                 <p>${message}</p>
                 <p style="margin-top: 20px;">Order ID: <strong>#${order.orderId}</strong></p>
                 <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/account/orders" style="display: inline-block; background: #111; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin-top: 15px;">View Order</a>
+            `)
+        );
+    }
+
+    static async sendReturnRequestReceived(email: string, order: any) {
+        return this.sendEmail(email, `Return Request Received - #${order.orderId}`,
+            `We received your return request for order #${order.orderId}.`,
+            this.wrapHtml(`
+                <h2>Return Request Received</h2>
+                <p>We've received your request to return items from order <strong>#${order.orderId}</strong>.</p>
+                <p>Our team will review it shortly and update you on the status.</p>
+            `)
+        );
+    }
+
+    static async sendExchangeRequestReceived(email: string, order: any) {
+        return this.sendEmail(email, `Exchange Request Received - #${order.orderId}`,
+            `We received your exchange request for order #${order.orderId}.`,
+            this.wrapHtml(`
+                <h2>Exchange Request Received</h2>
+                <p>We've received your request to exchange items from order <strong>#${order.orderId}</strong>.</p>
+                <p>Our team will review it shortly and update you on the status.</p>
             `)
         );
     }
