@@ -344,6 +344,10 @@ function Profile() {
     // Gender State for Custom Dropdown
     const [gender, setGender] = useState<string>('');
 
+    // Local state for name fields
+    const [firstName, setFirstName] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
+
     // Track selected address for radio buttons
     const [selectedAddressIndex, setSelectedAddressIndex] = useState<number>(0);
 
@@ -354,10 +358,18 @@ function Profile() {
             setGender(state.profile.gender);
         }
 
+        // Sync name fields
+        if (state.profile?.firstName) {
+            setFirstName(state.profile.firstName);
+        }
+        if (state.profile?.lastName) {
+            setLastName(state.profile.lastName);
+        }
+
         // Auto-fix malformed phone numbers (e.g. missing +91)
         if (state.profile?.phoneNumber) {
             const phone = state.profile.phoneNumber;
-            const digits = phone.replace(/\D/g, '');
+            const digits = phone.replace(/\\D/g, '');
             // If it has 10 digits but doesn't start with +91, fix it
             if (digits.length === 10 && phone !== `+91${digits}`) {
                 // We must ensure we don't cause an infinite loop. 
@@ -369,7 +381,7 @@ function Profile() {
                 dispatch({ type: 'UPDATE_LOCAL_PROFILE', payload: { phoneNumber: `+91${digits}` } });
             }
         }
-    }, [state.profile?.gender, state.profile?.phoneNumber]);
+    }, [state.profile?.gender, state.profile?.phoneNumber, state.profile?.firstName, state.profile?.lastName]);
 
     // Handle URL query parameters for tab navigation
     useEffect(() => {
@@ -784,14 +796,14 @@ function Profile() {
                                         <label className="form-label">First Name</label>
                                         <div style={{ position: 'relative' }}>
                                             <User size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
-                                            <input className="form-input-bold" name="firstName" value={state.profile?.firstName || ''} onChange={() => { }} required style={{ paddingLeft: '3rem' }} />
+                                            <input className="form-input-bold" name="firstName" value={firstName} onChange={(e) => { setFirstName(e.target.value); handleFormChange(e); }} required style={{ paddingLeft: '3rem' }} />
                                         </div>
                                     </div>
                                     <div className="form-item-container">
                                         <label className="form-label">Last Name</label>
                                         <div style={{ position: 'relative' }}>
                                             <User size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }} />
-                                            <input className="form-input-bold" name="lastName" value={state.profile?.lastName || ''} onChange={() => { }} required style={{ paddingLeft: '3rem' }} />
+                                            <input className="form-input-bold" name="lastName" value={lastName} onChange={(e) => { setLastName(e.target.value); handleFormChange(e); }} required style={{ paddingLeft: '3rem' }} />
                                         </div>
                                     </div>
                                     <div className="form-item-container">
