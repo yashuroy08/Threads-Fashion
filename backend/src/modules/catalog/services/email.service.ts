@@ -1,13 +1,49 @@
 import nodemailer from 'nodemailer';
 
+/**
+ * SMTP Configuration for Email Service
+ * 
+ * Recommended Zoho Mail Settings:
+ * - SMTP_HOST: smtp.zoho.com (free) or smtppro.zoho.com (paid)
+ * - SMTP_PORT: 587 (recommended for most hosting platforms like Render)
+ * - SMTP_SECURE: false (use STARTTLS with port 587)
+ * - SMTP_USER: your full email address (e.g., threadsfashion@zohomail.in)
+ * - SMTP_PASS: your password or app-specific password
+ * 
+ * Note: Port 465 (SSL) may be blocked by some hosting providers' firewalls.
+ * Port 587 (STARTTLS) is more widely supported and recommended.
+ */
+const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+const useSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
+
+console.log('[EmailService] Initializing with config:', {
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: smtpPort,
+    secure: useSecure,
+    user: process.env.SMTP_USER ? '***' + process.env.SMTP_USER.slice(-10) : 'NOT_SET'
+});
+
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true' || process.env.SMTP_PORT === '465',
+    port: smtpPort,
+    secure: useSecure,
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
     },
+    // Connection timeout and socket timeout to fail faster
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+    // TLS options for better compatibility
+    tls: {
+        // Don't fail on invalid certs in development
+        rejectUnauthorized: process.env.NODE_ENV === 'production',
+        minVersion: 'TLSv1.2'
+    },
+    // Enable debug output in development
+    debug: process.env.NODE_ENV === 'development',
+    logger: process.env.NODE_ENV === 'development'
 });
 
 export class EmailService {
@@ -195,7 +231,33 @@ export class EmailService {
             return true;
         } catch (error: any) {
             console.error('[Email Error] Failed to send email:', error.message);
-            console.error(error);
+            console.error('[Email Error] Error code:', error.code);
+            console.error('[Email Error] Command:', error.command);
+
+            // Provide specific troubleshooting guidance based on error type
+            if (error.code === 'ETIMEDOUT' || error.code === 'ESOCKET') {
+                console.error('\n=== SMTP CONNECTION TIMEOUT ===');
+                console.error('This usually means:');
+                console.error('1. Port 465 is blocked by your hosting provider (Render, Heroku, etc.)');
+                console.error('2. Firewall is blocking outbound SMTP connections');
+                console.error('\nRECOMMENDED FIX:');
+                console.error('Change your environment variables to:');
+                console.error('  SMTP_PORT=587');
+                console.error('  SMTP_SECURE=false');
+                console.error('  SMTP_HOST=smtp.zoho.com (or smtppro.zoho.com for paid accounts)');
+                console.error('================================\n');
+            } else if (error.code === 'EAUTH') {
+                console.error('\n=== SMTP AUTHENTICATION FAILED ===');
+                console.error('Check your SMTP_USER and SMTP_PASS environment variables.');
+                console.error('For Zoho with 2FA, you need an app-specific password.');
+                console.error('===================================\n');
+            } else if (error.responseCode === 550 || error.responseCode === 553) {
+                console.error('\n=== EMAIL REJECTED BY SERVER ===');
+                console.error('The recipient address may be invalid or blocked.');
+                console.error('=================================\n');
+            }
+
+            console.error('Full error details:', error);
             return false;
         }
     }
