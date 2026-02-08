@@ -75,19 +75,21 @@ export class OTPService {
         const emailSent = await this.sendEmail(email, otp);
         console.log('[OTP] Email sent:', emailSent);
 
-        let smsSent = true;
+        let smsSent = false;
 
         if (phoneNumber) {
             console.log('[OTP] Sending to phone:', phoneNumber);
             smsSent = await this.sendSMS(phoneNumber, otp);
             console.log('[OTP] SMS sent:', smsSent);
+            // If phone number exists, success if either works
+            const result = emailSent || smsSent;
+            console.log('[OTP] Final result:', result);
+            return result;
         }
 
-        // Return true if at least one succeeded, or as per preference. 
-        // User said "implement real time otp for mobile and mail", implying both.
-        const result = emailSent || smsSent;
-        console.log('[OTP] Final result:', result);
-        return result;
+        // If no phone number, success depends solely on email
+        console.log('[OTP] Final result:', emailSent);
+        return emailSent;
     }
 
     static async generateOTP(userId: string, type: 'registration' | 'password_reset' | 'login_verification' | 'phone_verification') {

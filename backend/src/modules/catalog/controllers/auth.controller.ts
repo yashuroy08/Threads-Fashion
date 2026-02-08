@@ -30,6 +30,7 @@ export const registerHandler = asyncHandler(
             const normalizedEmail = email.trim().toLowerCase();
             const existingUser = await UserModel.findOne({ email: normalizedEmail });
             if (existingUser) {
+                console.warn(`[Register] Duplicate registration attempt: ${normalizedEmail} found with ID: ${existingUser._id}`);
                 throw new AppError('Email already registered', 409);
             }
 
