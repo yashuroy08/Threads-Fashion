@@ -24,7 +24,7 @@ console.log('[EmailService] Initializing with config:', {
 });
 
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    host: process.env.SMTP_HOST || 'smtp.zoho.in',
     port: smtpPort,
     secure: useSecure,
     auth: {
@@ -32,13 +32,13 @@ const transporter = nodemailer.createTransport({
         pass: process.env.SMTP_PASS,
     },
     // Connection timeout and socket timeout to fail faster
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
     // TLS options for better compatibility
     tls: {
-        // Don't fail on invalid certs in development
-        rejectUnauthorized: process.env.NODE_ENV === 'production',
+        // Relax certificate validation to troubleshoot timeouts
+        rejectUnauthorized: false,
         minVersion: 'TLSv1.2'
     },
     // Enable debug output in development
