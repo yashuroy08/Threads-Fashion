@@ -25,6 +25,10 @@ import uploadRoutes from './modules/catalog/routes/upload.routes';
 const app = express();
 
 // ---------- Global middleware ----------
+// Trust proxy - required for Render, Heroku, and other hosting platforms
+// This allows Express to correctly read X-Forwarded-* headers from reverse proxies
+app.set('trust proxy', 1);
+
 // Configure Helmet to allow Google Sign-In popups (COOP)
 app.use(
     helmet({
