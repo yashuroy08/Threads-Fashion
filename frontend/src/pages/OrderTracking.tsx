@@ -16,7 +16,7 @@ import {
     ShieldCheck,
     XCircle,
     RefreshCw,
-    Search,
+
     ShoppingBag,
     HelpCircle,
     RotateCcw
@@ -109,8 +109,7 @@ export default function OrderTracking() {
     
     // Status Logic for visibility
     const canCancel = ['PENDING', 'PLACED', 'PAID', 'CONFIRMED', 'PROCESSING'].includes(normalizedStatus);
-    const canReturn = normalizedStatus === 'DELIVERED';
-    const canExchange = normalizedStatus === 'DELIVERED';
+
     const isReturning = ['RETURN_REQUESTED', 'RETURN_APPROVED', 'PICKUP_SCHEDULED', 'PICKED_UP', 'RETURNED', 'REFUND_INITIATED', 'REFUNDED'].includes(normalizedStatus);
     const isExchanging = ['EXCHANGE_REQUESTED', 'EXCHANGE_APPROVED', 'EXCHANGE_SHIPPED', 'EXCHANGED'].includes(normalizedStatus);
     const isCancelled = normalizedStatus === 'CANCELLED';

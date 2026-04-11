@@ -26,7 +26,7 @@ import {
     Pencil,
     MapPin,
     ShieldCheck,
-    CheckCircle,
+
     ShoppingBag,
     RefreshCw,
     XCircle
@@ -1099,7 +1099,7 @@ function Profile() {
                                         const isCancelled = status === 'CANCELLED';
                                         const isDelivered = status === 'DELIVERED';
                                         const isShipped = status === 'SHIPPED';
-                                        const isFailed = status === 'FAILED';
+
                                         
                                         // Actions logic
                                         const canBuyAgain = isDelivered || isCancelled;
