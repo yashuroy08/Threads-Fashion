@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import { useWishlist } from '../context/WishlistContext';
@@ -35,21 +35,32 @@ export default function ProductCard({ product }: ProductCardProps) {
     const { addToWishlist } = useWishlist();
 
     // State for selected color variant (defaults to first color available, or null)
-    // const [selectedColor, setSelectedColor] = useState<string | null>(
-    //     product.colors && product.colors.length > 0 ? product.colors[0] : null
-    // );
-    // Simplified: No selection state needed as we disabled interaction.
-    const selectedColor = product.colors && product.colors.length > 0 ? product.colors[0] : null;
+    // State for selected color variant
+    const [selectedColor, setSelectedColor] = useState<string | null>(
+        product.colors && product.colors.length > 0 ? product.colors[0] : null
+    );
 
     // Filter images based on selected color (if any)
     const filteredImages = useMemo(() => {
-        if (!product.images) return [];
-        if (!selectedColor) return product.images.slice(0, 4); // specific "4 images" request if no color
+        if (!product.images || product.images.length === 0) return [];
+        if (!selectedColor) return product.images.slice(0, 4);
 
-        const colorImages = product.images.filter(img => img.color === selectedColor);
-        // Fallback: If no specific images for this color, show generic ones or just the first few
-        return colorImages.length > 0 ? colorImages : product.images.slice(0, 4);
-    }, [product.images, selectedColor]);
+        const colorImages = product.images.filter(img => 
+            img.color && img.color.toLowerCase() === selectedColor.toLowerCase()
+        );
+        
+        if (colorImages.length > 0) return colorImages;
+        
+        // Fallback: map color index to image index to ensure image changes on click
+        if (product.colors) {
+            const colorIndex = product.colors.findIndex(c => c.toLowerCase() === selectedColor.toLowerCase());
+            if (colorIndex >= 0) {
+                return [product.images[colorIndex % product.images.length]];
+            }
+        }
+        
+        return product.images.slice(0, 4);
+    }, [product.images, selectedColor, product.colors]);
 
 
 
@@ -93,31 +104,31 @@ export default function ProductCard({ product }: ProductCardProps) {
 
                 {/* Wishlist Button: Top Right */}
                 <button
-                    className="wishlist-btn absolute top-3 right-3 z-20 bg-white/90 p-2 rounded-full shadow-sm hover:scale-110 transition-transform"
+                    className="wishlist-btn absolute top-2 right-2 z-20 bg-white/90 rounded-full shadow-sm hover:scale-110 transition-transform"
                     onClick={(e) => {
                         e.preventDefault();
                         addToWishlist(product.id || product._id || '');
                     }}
                     aria-label="Add to Wishlist"
                 >
-                    <Heart size={20} className="hover:fill-red-500 hover:text-red-500 transition-colors" />
+                    <Heart size={16} strokeWidth={2} className="hover:fill-red-500 hover:text-red-500 transition-colors" />
                 </button>
             </div>
 
-            <div className="prod-info p-4">
-                <span className="prod-meta block mb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <div className="prod-info">
+                <span className="prod-meta block font-semibold text-gray-400 uppercase tracking-wider">
                     Premium Cotton
                 </span>
 
-                <Link to={`/products/${product.slug}`} className="prod-title block text-base font-semibold text-gray-900 mb-2 no-underline hover:text-black">
+                <Link to={`/products/${product.slug}`} className="prod-title block font-semibold text-gray-900 no-underline hover:text-black">
                     {product.title}
                 </Link>
 
-                <div className="flex justify-between items-center mb-3">
-                    <div style={{ display: 'flex', alignItems: 'baseline', marginTop: '4px' }}>
-                        <span style={{ fontSize: '1.1rem', fontWeight: 700, marginRight: '16px', color: '#111827' }}>₹{displayPrice}</span>
+                <div className="product-card-footer">
+                    <div className="price-wrapper">
+                        <span className="prod-price">₹{displayPrice}</span>
                         {discountedPrice && (
-                            <span style={{ textDecoration: 'line-through', color: '#9ca3af', fontSize: '0.9rem' }}>
+                            <span className="original-price">
                                 ₹{discountedPrice}
                             </span>
                         )}
@@ -125,15 +136,20 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
 
                 {/* Color Swatches */}
-                {/* Color Swatches (Display Only) */}
                 {product.colors && product.colors.length > 0 && (
                     <div className="product-color-display">
                         {product.colors.map(color => (
-                            <div
+                            <button
                                 key={color}
-                                className="static-color-circle"
+                                className={`color-swatch-btn ${selectedColor === color ? 'active' : ''}`}
                                 style={{ backgroundColor: color.toLowerCase() }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setSelectedColor(color);
+                                }}
                                 title={color}
+                                type="button"
+                                aria-label={`Select ${color}`}
                             />
                         ))}
                     </div>

@@ -1,4 +1,4 @@
-﻿/* ===============================
+/* ===============================
    ADMIN DESIGN SYSTEM (PROFESSIONAL)
    Based on Auth Design System
    =============================== */
@@ -58,6 +58,12 @@
 
 .admin-main.collapsed {
     margin-left: 80px;
+}
+
+@media (max-width: 1024px) {
+    .admin-main, .admin-main.collapsed {
+        margin-left: 0 !important;
+    }
 }
 
 /* ===============================
@@ -138,6 +144,64 @@
 
 .admin-sidebar.collapsed {
     width: 80px;
+}
+
+@media (max-width: 1024px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        width: 280px !important;
+    }
+    
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .mobile-toggle {
+        display: flex !important;
+    }
+
+    .desktop-toggle {
+        display: none !important;
+    }
+}
+
+/* Improved Mobile UI: Hide Sidebar and Breadcrumb on Mobile */
+@media (max-width: 768px) {
+    /* Effectively hide the sidebar and its toggle to give maximum space */
+    .admin-sidebar,
+    .mobile-toggle,
+    .sidebar-overlay,
+    .admin-breadcrumb-wrapper,
+    .breadcrumb-nav {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        pointer-events: none !important;
+        position: absolute !important;
+        clip: rect(0,0,0,0) !important;
+    }
+
+    .admin-main {
+        margin-left: 0 !important;
+        padding-top: env(safe-area-inset-top);
+        width: 100% !important;
+    }
+
+    .admin-main-content {
+        padding: 1rem !important;
+    }
+
+    .admin-top-header {
+        padding: 0.75rem 1rem !important;
+    }
+
+    /* Adjust page titles for mobile */
+    .admin-title {
+        font-size: 1.5rem !important;
+    }
 }
 
 .sidebar-overlay {
@@ -1417,7 +1481,7 @@ div[style*="grid"] input {
     gap: 0.75rem;
 }
 
-.color-swatch-btn {
+.admin-color-swatch-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1429,7 +1493,7 @@ div[style*="grid"] input {
     transition: all 0.2s ease;
 }
 
-.color-swatch-btn:hover {
+.admin-color-swatch-btn:hover {
     border-color: var(--admin-primary);
     transform: translateY(-1px);
 }

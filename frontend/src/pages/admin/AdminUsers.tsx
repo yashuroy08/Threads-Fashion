@@ -14,7 +14,7 @@ export default function AdminUsers() {
     async function loadUsers() {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${API_BASE}/profile/admin/users`, {
+            const res = await fetch(`${API_BASE}/admin/users`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -33,7 +33,7 @@ export default function AdminUsers() {
 
         try {
             const token = localStorage.getItem('token');
-            await fetch(`${API_BASE}/profile/admin/users/${editingUser._id}`, {
+            await fetch(`${API_BASE}/admin/users/${editingUser._id || editingUser.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -75,8 +75,8 @@ export default function AdminUsers() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map(user => (
-                            <tr key={user._id}>
+                        {users.map((user: any) => (
+                            <tr key={user._id || user.id}>
                                 <td>{user.firstName} {user.lastName}</td>
                                 <td>{user.email}</td>
                                 <td>

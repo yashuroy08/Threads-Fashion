@@ -10,7 +10,7 @@ import '../styles/auth.css';
 export default function Login() {
     const {
         user, login, googleLogin, loading, error, success,
-        needsVerification, pendingUserId, setNeedsVerification
+        needsVerification, pendingEmail, setNeedsVerification
     } = useAuth();
     const navigate = useNavigate();
 
@@ -50,12 +50,12 @@ export default function Login() {
                     </>
                 )}
 
-                {needsVerification && pendingUserId ? (
+                {needsVerification && pendingEmail ? (
                     <OTPVerification
-                        userId={pendingUserId}
+                        email={pendingEmail}
                         type="registration"
                         onSuccess={handleVerificationSuccess}
-                        onResend={() => resendOTP({ userId: pendingUserId, type: 'registration' })}
+                        onResend={() => resendOTP({ email: pendingEmail, type: 'registration' })}
                         loading={loading}
                         error={error}
                         onBack={() => setNeedsVerification(false)}

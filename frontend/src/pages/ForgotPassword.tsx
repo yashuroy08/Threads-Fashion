@@ -9,7 +9,6 @@ export default function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [userId, setUserId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
@@ -19,8 +18,7 @@ export default function ForgotPassword() {
         setError(null);
 
         try {
-            const data = await forgotPassword(email);
-            setUserId(data.userId);
+            await forgotPassword(email);
             setSubmitted(true);
         } catch (err: any) {
             setError(err.message);
@@ -30,7 +28,7 @@ export default function ForgotPassword() {
     };
 
     const handleVerificationSuccess = (otp: string) => {
-        navigate('/reset-password', { state: { userId, email, otp } });
+        navigate('/reset-password', { state: { email, otp } });
     };
 
     return (
@@ -43,12 +41,12 @@ export default function ForgotPassword() {
                     However, OTPVerification's design has "Back to Login", which is correct for this flow too.
                 */}
 
-                {submitted && userId ? (
+                {submitted ? (
                     <OTPVerification
-                        userId={userId}
+                        email={email}
                         type="password_reset"
                         onSuccess={handleVerificationSuccess}
-                        onResend={() => resendOTP({ userId, type: 'password_reset' })}
+                        onResend={() => resendOTP({ email, type: 'password_reset' })}
                         loading={loading}
                     />
                 ) : (

@@ -1,0 +1,61 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------< com.threads:ecommerce-backend >--------------------
+[INFO] Building threads-fashion-backend 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.3.4:run (default-cli) > test-compile @ ecommerce-backend >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ ecommerce-backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ ecommerce-backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ ecommerce-backend ---
+[INFO] skip non existing resourceDirectory C:\Users\hp\ecommerce-platform\backend-spring\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ ecommerce-backend ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] <<< spring-boot:3.3.4:run (default-cli) < test-compile @ ecommerce-backend <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.3.4:run (default-cli) @ ecommerce-backend ---
+[INFO] Attaching agents: []
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+2026-04-09T09:33:10.109+05:30  INFO 25440 --- [           main] com.threads.ThreadsFashionApplication    : Starting ThreadsFashionApplication using Java 17.0.17 with PID 25440 (C:\Users\hp\ecommerce-platform\backend-spring\target\classes started by hp in C:\Users\hp\ecommerce-platform\backend-spring)
+2026-04-09T09:33:10.113+05:30  INFO 25440 --- [           main] com.threads.ThreadsFashionApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-04-09T09:33:11.440+05:30  INFO 25440 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data MongoDB repositories in DEFAULT mode.
+2026-04-09T09:33:11.590+05:30  INFO 25440 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 141 ms. Found 9 MongoDB repository interfaces.
+2026-04-09T09:33:12.793+05:30  INFO 25440 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8081 (http)
+2026-04-09T09:33:12.815+05:30  INFO 25440 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-09T09:33:12.815+05:30  INFO 25440 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-04-09T09:33:12.954+05:30  INFO 25440 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-09T09:33:12.957+05:30  INFO 25440 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2745 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-04-09T09:33:13.789+05:30  INFO 25440 --- [           main] org.mongodb.driver.client                : MongoClient with metadata {"application": {"name": "Cluster0"}, "driver": {"name": "mongo-java-driver|sync|spring-boot", "version": "5.0.1"}, "os": {"type": "Windows", "name": "Windows 11", "architecture": "amd64", "version": "10.0"}, "platform": "Java/Eclipse Adoptium/17.0.17+10"} created with settings MongoClientSettings{readPreference=primary, writeConcern=WriteConcern{w=null, wTimeout=null ms, journal=null}, retryWrites=true, retryReads=true, readConcern=ReadConcern{level=null}, credential=MongoCredential{mechanism=null, userName='yash-user-08', source='admin', password=<hidden>, mechanismProperties=<hidden>}, transportSettings=null, commandListeners=[], codecRegistry=ProvidersCodecRegistry{codecProviders=[ValueCodecProvider{}, BsonValueCodecProvider{}, DBRefCodecProvider{}, DBObjectCodecProvider{}, DocumentCodecProvider{}, CollectionCodecProvider{}, IterableCodecProvider{}, MapCodecProvider{}, GeoJsonCodecProvider{}, GridFSFileCodecProvider{}, Jsr310CodecProvider{}, JsonObjectCodecProvider{}, BsonCodecProvider{}, EnumCodecProvider{}, com.mongodb.client.model.mql.ExpressionCodecProvider@298b64f7, com.mongodb.Jep395RecordCodecProvider@740b6628, com.mongodb.KotlinCodecProvider@27fe059d]}, loggerSettings=LoggerSettings{maxDocumentLength=1000}, clusterSettings={hosts=[127.0.0.1:27017], srvHost=cluster0.1keupot.mongodb.net, srvServiceName=mongodb, mode=MULTIPLE, requiredClusterType=REPLICA_SET, requiredReplicaSetName='atlas-v1ly5c-shard-0', serverSelector='null', clusterListeners='[]', serverSelectionTimeout='30000 ms', localThreshold='15 ms'}, socketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=0, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, heartbeatSocketSettings=SocketSettings{connectTimeoutMS=10000, readTimeoutMS=10000, receiveBufferSize=0, proxySettings=ProxySettings{host=null, port=null, username=null, password=null}}, connectionPoolSettings=ConnectionPoolSettings{maxSize=100, minSize=0, maxWaitTimeMS=120000, maxConnectionLifeTimeMS=0, maxConnectionIdleTimeMS=0, maintenanceInitialDelayMS=0, maintenanceFrequencyMS=60000, connectionPoolListeners=[], maxConnecting=2}, serverSettings=ServerSettings{heartbeatFrequencyMS=10000, minHeartbeatFrequencyMS=500, serverListeners='[]', serverMonitorListeners='[]'}, sslSettings=SslSettings{enabled=true, invalidHostNameAllowed=false, context=null}, applicationName='Cluster0', compressorList=[], uuidRepresentation=JAVA_LEGACY, serverApi=null, autoEncryptionSettings=null, dnsClient=null, inetAddressResolver=null, contextProvider=null}
+2026-04-09T09:33:13.866+05:30  INFO 25440 --- [pot.mongodb.net] org.mongodb.driver.cluster               : Adding discovered server ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017 to client view of cluster
+2026-04-09T09:33:13.941+05:30  INFO 25440 --- [pot.mongodb.net] org.mongodb.driver.cluster               : Adding discovered server ac-3mcd38a-shard-00-01.1keupot.mongodb.net:27017 to client view of cluster
+2026-04-09T09:33:13.946+05:30  INFO 25440 --- [pot.mongodb.net] org.mongodb.driver.cluster               : Adding discovered server ac-3mcd38a-shard-00-00.1keupot.mongodb.net:27017 to client view of cluster
+2026-04-09T09:33:14.964+05:30  WARN 25440 --- [           main] com.threads.catalog.service.OtpService   : Twilio credentials not configured. SMS will be mocked.
+2026-04-09T09:33:15.281+05:30  WARN 25440 --- [           main] c.t.catalog.service.PaymentService       : Razorpay credentials not fully configured. Payments will fail in production.
+2026-04-09T09:33:15.316+05:30  INFO 25440 --- [ngodb.net:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=ac-3mcd38a-shard-00-01.1keupot.mongodb.net:27017, type=REPLICA_SET_SECONDARY, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=25, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=563784600, setName='atlas-v1ly5c-shard-0', canonicalAddress=ac-3mcd38a-shard-00-01.1keupot.mongodb.net:27017, hosts=[ac-3mcd38a-shard-00-00.1keupot.mongodb.net:27017, ac-3mcd38a-shard-00-01.1keupot.mongodb.net:27017, ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017], passives=[], arbiters=[], primary='ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017', tagSet=TagSet{[Tag{name='availabilityZone', value='aps1-az3'}, Tag{name='diskState', value='READY'}, Tag{name='nodeType', value='ELECTABLE'}, Tag{name='provider', value='AWS'}, Tag{name='region', value='AP_SOUTH_1'}, Tag{name='workloadType', value='OPERATIONAL'}]}, electionId=null, setVersion=385, topologyVersion=TopologyVersion{processId=69ce9c7a4e20428f23292995, counter=3}, lastWriteDate=Thu Apr 09 09:33:24 IST 2026, lastUpdateTimeNanos=4700141204100}
+2026-04-09T09:33:15.317+05:30  INFO 25440 --- [ngodb.net:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=ac-3mcd38a-shard-00-00.1keupot.mongodb.net:27017, type=REPLICA_SET_SECONDARY, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=25, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=563855200, setName='atlas-v1ly5c-shard-0', canonicalAddress=ac-3mcd38a-shard-00-00.1keupot.mongodb.net:27017, hosts=[ac-3mcd38a-shard-00-00.1keupot.mongodb.net:27017, ac-3mcd38a-shard-00-01.1keupot.mongodb.net:27017, ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017], passives=[], arbiters=[], primary='ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017', tagSet=TagSet{[Tag{name='availabilityZone', value='aps1-az1'}, Tag{name='diskState', value='READY'}, Tag{name='nodeType', value='ELECTABLE'}, Tag{name='provider', value='AWS'}, Tag{name='region', value='AP_SOUTH_1'}, Tag{name='workloadType', value='OPERATIONAL'}]}, electionId=null, setVersion=385, topologyVersion=TopologyVersion{processId=69ce977e42d82f2ae491a40d, counter=4}, lastWriteDate=Thu Apr 09 09:33:24 GMT+05:30 2026, lastUpdateTimeNanos=4700141204000}
+2026-04-09T09:33:15.317+05:30  INFO 25440 --- [ngodb.net:27017] org.mongodb.driver.cluster               : Monitor thread successfully connected to server with description ServerDescription{address=ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017, type=REPLICA_SET_PRIMARY, state=CONNECTED, ok=true, minWireVersion=0, maxWireVersion=25, maxDocumentSize=16777216, logicalSessionTimeoutMinutes=30, roundTripTimeNanos=564246000, setName='atlas-v1ly5c-shard-0', canonicalAddress=ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017, hosts=[ac-3mcd38a-shard-00-00.1keupot.mongodb.net:27017, ac-3mcd38a-shard-00-01.1keupot.mongodb.net:27017, ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017], passives=[], arbiters=[], primary='ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017', tagSet=TagSet{[Tag{name='availabilityZone', value='aps1-az2'}, Tag{name='diskState', value='READY'}, Tag{name='nodeType', value='ELECTABLE'}, Tag{name='provider', value='AWS'}, Tag{name='region', value='AP_SOUTH_1'}, Tag{name='workloadType', value='OPERATIONAL'}]}, electionId=7fffffff000000000000016c, setVersion=385, topologyVersion=TopologyVersion{processId=69ce9ac41bcdafbfb39457bf, counter=6}, lastWriteDate=Thu Apr 09 09:33:24 GMT+05:30 2026, lastUpdateTimeNanos=4700141204000}
+2026-04-09T09:33:15.326+05:30  INFO 25440 --- [ngodb.net:27017] org.mongodb.driver.cluster               : Discovered replica set primary ac-3mcd38a-shard-00-02.1keupot.mongodb.net:27017 with max election id 7fffffff000000000000016c and max set version 385
+2026-04-09T09:33:15.518+05:30  INFO 25440 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-04-09T09:33:16.562+05:30  INFO 25440 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8081 (http) with context path '/'
+2026-04-09T09:33:16.581+05:30  INFO 25440 --- [           main] com.threads.ThreadsFashionApplication    : Started ThreadsFashionApplication in 7.257 seconds (process running for 7.943)

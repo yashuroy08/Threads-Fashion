@@ -64,8 +64,8 @@
    =============================== */
 
 .collection-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: 1.35rem;
+    padding-bottom: 1.1rem;
     border-bottom: 1px solid #e5e7eb;
 }
 
@@ -76,10 +76,10 @@
 }
 
 .header-title-section h1 {
-    font-size: 2rem;
+    font-size: 1.65rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
     color: #111111;
 }
 
@@ -105,9 +105,9 @@
 
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem 1.5rem;
-    margin-bottom: 4rem;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.35rem 1.1rem;
+    margin-bottom: 3rem;
 }
 
 /* ===============================
@@ -138,12 +138,11 @@
 .product-image-container {
     position: relative;
     width: 100%;
-    aspect-ratio: 3/4;
+    aspect-ratio: 4 / 5;
     overflow: hidden;
     background: #fafafa;
     margin-bottom: 0;
     display: block;
-    /* Ensure block formatting context */
 }
 
 /* Image Link Wrapper */
@@ -163,6 +162,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top center;
     opacity: 0;
     transition: opacity 0.5s ease;
     display: block;
@@ -178,6 +178,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top center;
     display: block;
 }
 
@@ -257,10 +258,10 @@
 /* Product Labels */
 .prod-label {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.75rem;
+    top: 8px;
+    left: 8px;
+    padding: 0.28rem 0.55rem;
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -286,12 +287,12 @@
 /* Wishlist Button */
 .wishlist-btn {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 8px;
+    right: 8px;
     background: white;
     border: none;
     border-radius: 50%;
-    padding: 8px;
+    padding: 6px;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     z-index: 10;
@@ -299,8 +300,8 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
 }
 
 .wishlist-btn svg {
@@ -320,10 +321,10 @@
 
 /* Product Info */
 .prod-info {
-    padding: 1rem;
+    padding: 0.65rem 0.75rem 0.85rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.28rem;
     position: relative;
     z-index: 2;
     background: #ffffff;
@@ -331,7 +332,7 @@
 
 .prod-meta {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.62rem;
     font-weight: 600;
     color: #9ca3af;
     text-transform: uppercase;
@@ -340,11 +341,11 @@
 
 .prod-title {
     display: block;
-    font-size: 0.95rem;
+    font-size: 0.82rem;
     font-weight: 600;
     color: #111111;
     text-decoration: none;
-    line-height: 1.3;
+    line-height: 1.28;
     margin: 0;
 }
 
@@ -353,23 +354,44 @@
 }
 
 .prod-price {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #111111;
+}
+
+.product-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.35rem;
+}
+
+.price-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+}
+
+.original-price {
+    font-size: 0.75rem;
+    text-decoration: line-through;
+    color: #9ca3af;
+    font-weight: 500;
 }
 
 /* Color Swatches */
 .color-swatches {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
+    margin-top: 0.1rem;
 }
 
 .color-swatch {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    min-height: 20px;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
     border-radius: 50%;
     border: 1px solid #e5e7eb;
 }
@@ -705,13 +727,13 @@
 .product-color-display {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 0.5rem;
+    gap: 4px;
+    margin-top: 0.2rem;
 }
 
 .static-color-circle {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     border: 1px solid #e5e7eb;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);

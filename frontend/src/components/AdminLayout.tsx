@@ -109,7 +109,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </header>
 
                 {/* Content Area */}
-                < main className="admin-main-content" >
+                <main className="admin-main-content" >
                     <div className="admin-breadcrumb-wrapper">
                         <Breadcrumb items={[
                             { label: 'Admin', href: '/admin' },

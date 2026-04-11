@@ -25,7 +25,7 @@ export default function AdminOrders() {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
-            setOrders(data);
+            setOrders(data?.content || data?.items || (Array.isArray(data) ? data : []));
         } catch (error) {
             console.error('Failed to load orders:', error);
             notify('Failed to load orders', 'error');

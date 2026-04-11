@@ -125,20 +125,26 @@ export default function PlaceOrder() {
             setTotalPrice(finalPrice);
         } else if (contextCart && contextCart.items.length > 0) {
             const mappedItems = contextCart.items.map(item => {
-                // Robust price resolution: prefer item.price, but fallback to populated product price if 0
-                let finalPrice = parsePrice(item.price);
-                if (finalPrice === 0 && (item.productId as any)?.price) {
-                    finalPrice = parsePrice((item.productId as any).price);
-                }
+                const itemAny = item as any;
+                const productObj = itemAny.product || itemAny.productId;
+                const pid = productObj?._id || productObj?.id || itemAny.productId;
+                const finalId = typeof pid === 'string' ? pid : String(pid || '');
+                
+                // Robust price resolution: prefer snapshot, fallback to product obj, fallback to item.price
+                let finalPrice = parsePrice(itemAny.priceSnapshot);
+                if (!finalPrice || finalPrice === 0) finalPrice = parsePrice(productObj?.price);
+                if (!finalPrice || finalPrice === 0) finalPrice = parsePrice(itemAny.price);
+
+                const imageSrc = itemAny.imageSnapshot || (productObj?.images?.length > 0 ? productObj.images[0].url : '');
 
                 return {
-                    productId: (item.productId as any)._id || item.productId,
-                    title: (item.productId as any).title || item.title,
-                    quantity: item.quantity,
+                    productId: finalId,
+                    title: itemAny.titleSnapshot || productObj?.title || itemAny.title || 'Product',
+                    quantity: itemAny.quantity || 1,
                     price: finalPrice,
-                    images: (item.productId as any).images || [],
-                    size: item.size,
-                    color: item.color,
+                    images: imageSrc ? [{ url: imageSrc }] : [],
+                    size: itemAny.size,
+                    color: itemAny.color,
                 };
             });
             setCheckoutItems(mappedItems);
@@ -265,12 +271,16 @@ export default function PlaceOrder() {
         const payload = {
             items: checkoutItems.map(it => ({
                 productId: it.productId,
+                title: it.title,
                 quantity: it.quantity,
+                price: it.price,
                 size: it.size,
                 color: it.color,
                 image: it.images && it.images.length > 0 ? it.images[0].url : ''
             })),
-            total: totalPrice,
+            total: finalTotal,
+            taxAmount: tax,
+            shippingAmount: shipping,
             shippingAddress: {
                 street: address.street,
                 city: address.city,
@@ -432,6 +442,10 @@ export default function PlaceOrder() {
     }
 
     const currentAddress = savedAddresses[selectedAddressIdx] || null;
+
+    const tax = totalPrice * 0.18;
+    const shipping = (totalPrice >= 99900) ? 0 : 9900;
+    const finalTotal = totalPrice + tax + shipping;
 
     return (
         <div className="checkout-page-professional">
@@ -828,16 +842,20 @@ export default function PlaceOrder() {
                             </div>
                             <div className="summary-row">
                                 <span>Shipping</span>
-                                <span className="free-tag">Free</span>
+                                {shipping === 0 ? (
+                                    <span className="free-tag">Free</span>
+                                ) : (
+                                    <span>₹{formatPrice(shipping)}</span>
+                                )}
                             </div>
                             <div className="summary-row">
-                                <span>Estimated Tax</span>
-                                <span>₹0.00</span>
+                                <span>Estimated Tax (18%)</span>
+                                <span>₹{formatPrice(tax)}</span>
                             </div>
 
                             <div className="summary-total-row">
                                 <span>Order Total</span>
-                                <span className="total-amount">₹{formatPrice(totalPrice)}</span>
+                                <span className="total-amount">₹{formatPrice(finalTotal)}</span>
                             </div>
                         </div>
 

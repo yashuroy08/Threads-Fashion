@@ -17,13 +17,13 @@ type AuthContextType = {
     error: string | null;
     success: string | null;
     needsVerification: boolean;
-    pendingUserId: string | null;
+    pendingEmail: string | null;
     login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
     register: (payload: any) => Promise<boolean>;
     googleLogin: (userData: any) => Promise<boolean>;
     logout: () => void;
     setNeedsVerification: (val: boolean) => void;
-    setPendingUserId: (val: string | null) => void;
+    setPendingEmail: (val: string | null) => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [needsVerification, setNeedsVerification] = useState(false);
-    const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+    const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
     useEffect(() => {
         // Check both storages
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (data.needsVerification) {
                 setNeedsVerification(true);
-                setPendingUserId(data.userId);
+                setPendingEmail(data.email);
                 setSuccess(data.message);
                 return false;
             }
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const data = await registerUser(payload);
             setNeedsVerification(true);
-            setPendingUserId(data.userId);
+            setPendingEmail(data.email);
             setSuccess(data.message);
             return true;
         } catch (e: any) {
@@ -133,8 +133,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthContext.Provider value={{
-            user, loading, error, success, needsVerification, pendingUserId,
-            login, register, googleLogin, logout, setNeedsVerification, setPendingUserId
+            user, loading, error, success, needsVerification, pendingEmail,
+            login, register, googleLogin, logout, setNeedsVerification, setPendingEmail
         }}>
             {children}
         </AuthContext.Provider>

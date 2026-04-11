@@ -57,7 +57,14 @@ export const CartApi = {
             },
             body: JSON.stringify({ quantity, size, color })
         });
-        if (!res.ok) throw new Error('Failed to update cart');
+        if (!res.ok) {
+            let errorMessage = 'Failed to update quantity';
+            try {
+                const errorData = await res.json();
+                errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch (e) {}
+            throw new Error(errorMessage);
+        }
         return res.json();
     },
 

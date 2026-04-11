@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import '../styles/auth.css';
 
 interface Props {
-    userId: string;
+    email: string;
     type: 'registration' | 'password_reset' | 'login_verification';
     onSuccess: (otp: string) => void;
     onResend: () => Promise<void>;
@@ -13,7 +13,7 @@ interface Props {
     onBack?: () => void;
 }
 
-export default function OTPVerification({ userId, type, onSuccess, onResend, loading, error: externalError, onBack }: Props) {
+export default function OTPVerification({ email, type, onSuccess, onResend, loading, error: externalError, onBack }: Props) {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [timer, setTimer] = useState(60);
     const [isResending, setIsResending] = useState(false);
@@ -56,10 +56,10 @@ export default function OTPVerification({ userId, type, onSuccess, onResend, loa
 
         setError(null);
         try {
-            const response = await fetch('/api/v1/auth/otp/verify', {
+            const response = await fetch('/api/auth/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, otp: fullOtp, type }),
+                body: JSON.stringify({ email, otp: fullOtp, type }),
             });
 
             const data = await response.json();
@@ -180,7 +180,7 @@ export default function OTPVerification({ userId, type, onSuccess, onResend, loa
 
                 <div className="auth-footer-support">
                     <span>Need help?</span>
-                    <a href="mailto:support@thesouledstore.com">Contact Support</a>
+                    <a href="mailto:threadsfashionzohoin.com">Contact Support</a>
                 </div>
             </form>
         </div>

@@ -9,9 +9,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        // Connect to backend socket - use env variable in production, localhost in dev
-        const socketUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:5000';
-        const newSocket = io(socketUrl);
+        // Connect to backend socket - use env variable in production
+        const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://127.0.0.1:8081';
+        const newSocket = io(socketUrl, { autoConnect: false });
         setSocket(newSocket);
 
         return () => {

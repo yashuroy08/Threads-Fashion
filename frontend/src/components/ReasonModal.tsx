@@ -9,12 +9,14 @@ interface ReasonModalProps {
     title: string;
     placeholder: string;
     type: 'cancel' | 'return' | 'exchange';
+    isLoading?: boolean;
 }
 
-export default function ReasonModal({ isOpen, onClose, onSubmit, title, placeholder, type }: ReasonModalProps) {
+export default function ReasonModal({ isOpen, onClose, onSubmit, title, placeholder, type, isLoading }: ReasonModalProps) {
     const [reason, setReason] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
+    const isSubmitting = submitting || isLoading;
 
     if (!isOpen) return null;
 
@@ -177,7 +179,7 @@ export default function ReasonModal({ isOpen, onClose, onSubmit, title, placehol
                         </button>
                         <button
                             type="submit"
-                            disabled={submitting || !reason.trim() || reason.trim().length < 10}
+                            disabled={isSubmitting || !reason.trim() || reason.trim().length < 10}
                             style={{
                                 padding: '0.75rem',
                                 borderRadius: '10px',
@@ -186,14 +188,14 @@ export default function ReasonModal({ isOpen, onClose, onSubmit, title, placehol
                                 background: '#111827',
                                 color: 'white',
                                 border: 'none',
-                                cursor: submitting ? 'not-allowed' : 'pointer',
-                                opacity: (submitting || !reason.trim() || reason.trim().length < 10) ? 0.7 : 1,
+                                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                                opacity: (isSubmitting || !reason.trim() || reason.trim().length < 10) ? 0.7 : 1,
                                 transition: 'all 0.2s',
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                                 whiteSpace: 'nowrap'
                             }}
                         >
-                            {submitting ? 'Submitting...' : 'Submit'}
+                            {isSubmitting ? 'Submitting...' : 'Submit'}
                         </button>
                     </div>
                 </form>

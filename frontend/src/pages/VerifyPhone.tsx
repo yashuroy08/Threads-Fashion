@@ -84,7 +84,7 @@ const VerifyPhone = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const res = await fetch('/api/v1/profile/me/verify-phone/init', {
+            const res = await fetch('/api/profile/me/verify-phone/init', {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -122,7 +122,7 @@ const VerifyPhone = () => {
         try {
             setLoading(true);
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const res = await fetch('/api/v1/profile/me/verify-phone/complete', {
+            const res = await fetch('/api/profile/me/verify-phone/complete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ otp: otpValue })

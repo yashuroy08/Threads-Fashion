@@ -42,9 +42,12 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         setLoading(true);
         try {
             const data = await fetchWishlist();
-            setWishlist(data);
+            // Handle both Array (old/fixed) and Object with items (transitional) formats
+            const items = Array.isArray(data) ? data : (data?.items || []);
+            setWishlist(items);
         } catch (error) {
             console.error('Failed to load wishlist', error);
+            setWishlist([]);
         } finally {
             setLoading(false);
         }

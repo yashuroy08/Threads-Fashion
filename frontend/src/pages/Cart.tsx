@@ -33,12 +33,15 @@ export default function Cart() {
 
     // Calculate subtotal from items if cart.total is 0 but items exist (fallback)
     const calculatedSubtotal = cart?.items?.reduce((sum: number, item: any) => {
-        return sum + (item.productId?.price?.amount || 0) * item.quantity;
+        const p = item.productId;
+        const priceAmount = p?.price?.amount || item.priceSnapshot || 0;
+        return sum + priceAmount * item.quantity;
     }, 0) || 0;
 
     const subtotal = (cart?.total && cart.total > 0) ? cart.total : calculatedSubtotal;
-    const tax = Math.round(subtotal * 0.05);
-    const finalTotal = subtotal + tax;
+    const tax = subtotal * 0.18;
+    const shipping = (subtotal >= 99900) ? 0 : 9900;
+    const finalTotal = subtotal + tax + shipping;
 
     const handleDeleteClick = (productId: string, productTitle: string, size: string, color: string) => {
         setDeleteConfirm({ show: true, productId, productTitle, size, color });
@@ -117,34 +120,38 @@ export default function Cart() {
                     {/* Left Column: Items */}
                     <div className="cart-items-list">
                         {cart.items.map((item: any) => {
-                            const product = item.productId;
+                            const product = item.product || {};
+                            const productId = item.productId;
                             return (
-                                <div key={`${product._id}-${item.size}-${item.color}`} className="cart-item-card">
-                                    {/* Product Image */}
-                                    <div className="cart-item-image">
-                                        {product.images && product.images[0] ? (
-                                            <img src={product.images[0].url} alt={product.title} />
-                                        ) : (
-                                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No Image</div>
-                                        )}
-                                    </div>
-
-                                    {/* Product Info */}
-                                    <div className="cart-item-info">
-                                        <div className="cart-item-header">
-                                            <h3 className="cart-item-title">
-                                                {product.title}
-                                            </h3>
-                                            <div className="cart-item-actions">
-                                                <button
-                                                    onClick={() => handleDeleteClick(product._id, product.title, item.size, item.color)}
-                                                    className="btn-icon-action delete"
-                                                    title="Remove Item"
-                                                >
-                                                    <Trash2 size={24} color="#ef4444" />
-                                                </button>
-                                            </div>
+                                    <div key={`${productId}-${item.size}-${item.color}`} className="cart-item-card">
+                                        {/* Product Image */}
+                                        <div className="cart-item-image">
+                                            {(product.images && product.images[0]) || item.imageSnapshot ? (
+                                                <img 
+                                                    src={(product.images && product.images[0]?.url) || item.imageSnapshot} 
+                                                    alt={product.title || item.titleSnapshot} 
+                                                />
+                                            ) : (
+                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>No Image</div>
+                                            )}
                                         </div>
+    
+                                        {/* Product Info */}
+                                        <div className="cart-item-info">
+                                            <div className="cart-item-header">
+                                                <h3 className="cart-item-title">
+                                                    {product?.title || item.titleSnapshot || 'Product Unavailable'}
+                                                </h3>
+                                                <div className="cart-item-actions">
+                                                    <button
+                                                        onClick={() => handleDeleteClick(productId, product.title || item.titleSnapshot, item.size, item.color)}
+                                                        className="btn-icon-action delete"
+                                                        title="Remove Item"
+                                                    >
+                                                        <Trash2 size={24} color="#ef4444" />
+                                                    </button>
+                                                </div>
+                                            </div>
 
                                         {/* Variant Display & Quantity with Dropdowns */}
                                         <div className="cart-item-controls-row">
@@ -175,8 +182,9 @@ export default function Cart() {
                                                                 }
 
                                                                 try {
-                                                                    await removeItem(product._id, item.size, item.color);
-                                                                    await addToCart(product._id, item.quantity, newSize, item.color, false);
+                                                                    const pid = product._id || product.id;
+                                                                    await removeItem(pid, item.size, item.color);
+                                                                    await addToCart(pid, item.quantity, newSize, item.color, false);
                                                                 } catch (err: any) {
                                                                     console.error("Failed to change size", err);
                                                                     const msg = err?.response?.data?.message || err?.message || "Failed to update size";
@@ -209,7 +217,7 @@ export default function Cart() {
                                                         onChange={async (e) => {
                                                             const newQty = Number(e.target.value);
                                                             try {
-                                                                await updateQuantity(product._id, newQty, item.size, item.color);
+                                                                await updateQuantity(productId, newQty, item.size, item.color);
                                                             } catch (err: any) {
                                                                 const msg = err?.response?.data?.message || err?.message || "Failed to update quantity";
                                                                 notify(String(msg), "error");
@@ -252,13 +260,15 @@ export default function Cart() {
                                         {/* Price & Wishlist Row */}
                                         <div className="cart-item-footer">
                                             <div className="cart-item-price">
-                                                ₹{(product.price.amount / 100).toLocaleString('en-IN')}
+                                                ₹{((product?.price?.amount || item.priceSnapshot || 0) / 100).toLocaleString('en-IN')}
                                             </div>
                                             <button
                                                 onClick={async () => {
                                                     try {
-                                                        await addToWishlist(product._id);
-                                                        await removeItem(product._id, item.size, item.color);
+                                                        if (!productId) return;
+                                                        
+                                                        await addToWishlist(productId);
+                                                        await removeItem(productId, item.size, item.color);
                                                         notify('Moved to wishlist', 'success');
                                                     } catch (err: any) {
                                                         console.error('Failed to move to wishlist:', err);
@@ -288,10 +298,14 @@ export default function Cart() {
                             </div>
                             <div className="summary-row-bold">
                                 <span>Shipping:</span>
-                                <span style={{ color: '#16a34a' }}>FREE</span>
+                                {shipping === 0 ? (
+                                    <span style={{ color: '#16a34a' }}>FREE</span>
+                                ) : (
+                                    <span>₹{(shipping / 100).toLocaleString('en-IN')}</span>
+                                )}
                             </div>
                             <div className="summary-row-bold">
-                                <span>Tax:</span>
+                                <span>Tax (18%):</span>
                                 <span>₹{(tax / 100).toLocaleString('en-IN')}</span>
                             </div>
                         </div>

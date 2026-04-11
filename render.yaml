@@ -1,34 +1,33 @@
 services:
-  # Backend Service
+  # Backend Service (Spring Boot)
   - type: web
     name: threads-fashion-backend
-    env: node
+    env: docker
     plan: free
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm start
+    dockerContext: backend-spring
+    dockerfilePath: Dockerfile
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: MONGO_URI
-        value: replace_me_with_mongodb_connection_string
-      - key: JWT_SECRET
-        generateValue: true
-      - key: JWT_EXPIRES_IN
-        value: 7d
+        value: mongodb+srv://yash-user-08:yashuroy08@cluster0.1keupot.mongodb.net/threads-fashion?retryWrites=true&w=majority
+      - key: MONGO_DB
+        value: threads-fashion
+      - key: JWT_SECRET 
+        value: replace_me_with_jwt_secret
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASS
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
       - key: FRONTEND_URL
-        value: https://threads-fashion.vercel.app # Replace with your Vercel URL later
-
-  # Frontend Service (Optional, but Vercel is better for React)
-  # If you want to use Render for frontend too:
-  - type: web
-    name: threads-fashion-frontend
-    env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://threads-fashion-backend.onrender.com/api/*
-      - type: rewrite
-        source: /*
-        destination: /index.html
+        value: https://threads-fashion.vercel.app
+      - key: PORT
+        value: 8081

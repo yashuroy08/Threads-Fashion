@@ -1,0 +1,35 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/threads-fashion}
+      database: ${MONGO_DB:test}
+  mail:
+    host: smtp.zoho.in
+    port: 587
+    username: ${MAIL_USER:}
+    password: ${MAIL_PASS:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.protocols: TLSv1.2
+      mail.debug: true
+
+jwt:
+  secret: ${JWT_SECRET:defaultDevSecretKeyThatShouldBeChangedInProduction123456}
+  expiration: 86400000  # 24 hours in ms
+
+razorpay:
+  key-id: ${RAZORPAY_KEY_ID:}
+  key-secret: ${RAZORPAY_KEY_SECRET:}
+
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID:}
+  auth-token: ${TWILIO_AUTH_TOKEN:}
+  from-number: ${TWILIO_FROM_NUMBER:}
+
+server:
+  port: ${PORT:8081}
+
+logging:
+  level:
+    com.threads: INFO

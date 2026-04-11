@@ -26,14 +26,6 @@ const HERO_SLIDES = [
         linkPrimary: "/products?parentCategory=women"
     },
     {
-        image: "https://images.unsplash.com/photo-1622290291165-d341f1938b8a?auto=format&fit=crop&q=80&w=1600",
-        badge: "Kids' Corner",
-        title: "Playful\nAdventure",
-        subtitle: "Comfortable and stylish wear for the little ones.\nReady for every discovery.",
-        ctaPrimary: "Shop Kids",
-        linkPrimary: "/products?parentCategory=kids"
-    },
-    {
         image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1600",
         badge: "Exclusive Drop",
         title: "Urban\nLuxury",
@@ -48,32 +40,61 @@ interface Product {
     id: string;
     title: string;
     price: { amount: number };
-    images: { url: string }[];
+    images?: { url: string }[];
     slug: string;
 }
 
-const CategoryShowcase = ({ title, categorySlug, products }: { title: string, categorySlug: string, products: Product[] }) => {
+const EditorialShowcase = ({ title, categorySlug, products, isReversed }: { title: string, categorySlug: string, products: Product[], isReversed: boolean }) => {
     if (products.length === 0) return null;
+    
+    // Pick the first product as the "Featured" lifestyle product
+    const featuredProduct = products[0];
+    const otherProducts = products.slice(1, 4);
+
     return (
-        <section className="product-showcase-section">
-            <div className="showcase-header">
-                <h2 className="showcase-title">{title}</h2>
-                <Link to={`/products?parentCategory=${categorySlug}`} className="btn-showcase-cta">
-                    Shop {title.split("'")[0]} <ArrowRight size={16} />
-                </Link>
-            </div>
-            <div className="product-rail">
-                {products.map((product) => (
-                    <Link to={`/products/${product.slug}`} key={product.id} className="showcase-card">
-                        <div className="showcase-img-wrapper">
-                            <img src={product.images[0].url} alt={product.title} className="showcase-img" />
-                        </div>
-                        <div className="showcase-info">
-                            <h4>{product.title}</h4>
-                        </div>
-                    </Link>
-                ))}
-            </div>
+        <section className={`editorial-section ${isReversed ? 'editorial-reversed' : ''}`}>
+             <div className="editorial-featured reveal-on-scroll">
+                 <Link to={`/products/${featuredProduct.slug}`} className="editorial-featured-link">
+                     {featuredProduct.images?.[0]?.url ? (
+                         <img src={featuredProduct.images[0].url} alt={featuredProduct.title} className="editorial-main-img" />
+                     ) : (
+                         <div className="editorial-main-img placeholder" />
+                     )}
+                     <div className="editorial-featured-overlay">
+                         <span className="editorial-shop-btn">Shop The Look</span>
+                     </div>
+                 </Link>
+             </div>
+
+             <div className="editorial-content-wrapper">
+                 <div className="editorial-story reveal-on-scroll" style={{ transitionDelay: '0.2s' }}>
+                      <span className="editorial-subtitle">Curated Collection</span>
+                      <h2 className="editorial-title">{title}</h2>
+                      <p className="editorial-text">
+                        Discover our new arrivals tailored for excellence. Blending classic design with a modern edge to redefine your everyday style.
+                      </p>
+                      <Link to={`/products?parentCategory=${categorySlug}`} className="editorial-cta-btn">
+                           Explore {title.split("'")[0]}
+                      </Link>
+                 </div>
+
+                 <div className="editorial-side-products">
+                     {otherProducts.map((product, idx) => (
+                         <Link to={`/products/${product.slug}`} key={product.id} className="editorial-small-card reveal-on-scroll" style={{ transitionDelay: `${0.3 + idx * 0.15}s` }}>
+                            <div className="img-wrap">
+                                {product.images?.[0]?.url ? (
+                                    <img src={product.images[0].url} alt={product.title} className="editorial-small-img" />
+                                ) : (
+                                    <div className="editorial-small-img placeholder" />
+                                )}
+                            </div>
+                            <div className="editorial-small-info">
+                                <h4>{product.title}</h4>
+                            </div>
+                         </Link>
+                     ))}
+                 </div>
+             </div>
         </section>
     );
 };
@@ -92,15 +113,14 @@ export default function Home() {
 
     const [menProducts, setMenProducts] = useState<Product[]>([]);
     const [womenProducts, setWomenProducts] = useState<Product[]>([]);
-    const [kidsProducts, setKidsProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         const fetchCategoryProducts = async (category: string, setter: (products: Product[]) => void) => {
             try {
-                const res = await fetch(`${API_BASE}/products?parentCategory=${category}&limit=8&sort=newest`);
+                const res = await fetch(`${API_BASE}/products?parentCategory=${category}&limit=8&sortBy=newest`);
                 const data = await res.json();
-                const items = data.items || (Array.isArray(data) ? data : []);
-                setter(items.filter((p: Product) => p.images && p.images.length > 0));
+                const items = data.content || data.items || (Array.isArray(data) ? data : []);
+                setter(items);
             } catch (err) {
                 console.error(`Failed to fetch ${category} products:`, err);
             }
@@ -108,7 +128,6 @@ export default function Home() {
 
         fetchCategoryProducts('men', setMenProducts);
         fetchCategoryProducts('women', setWomenProducts);
-        fetchCategoryProducts('kids', setKidsProducts);
     }, []);
 
     useEffect(() => {
@@ -117,6 +136,23 @@ export default function Home() {
         }, 8000);
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Optional: stop observing once revealed
+                    // observer.unobserve(entry.target); 
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        const revealElements = document.querySelectorAll('.reveal-on-scroll');
+        revealElements.forEach(el => observer.observe(el));
+
+        return () => observer.disconnect();
+    }, [categoryCards, menProducts, womenProducts]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
@@ -158,27 +194,42 @@ export default function Home() {
 
     useEffect(() => {
         // Fetch a larger set to ensure we get a diverse range of categories
-        fetch(`${API_BASE}/products?limit=50&sort=newest`)
+        fetch(`${API_BASE}/products?limit=50&sortBy=newest`)
             .then(res => res.json())
             .then(data => {
-                const items = data.items || (Array.isArray(data) ? data : []);
+                const items = data.content || data.items || (Array.isArray(data) ? data : []);
 
                 const uniqueCategories = new Map();
 
                 items.forEach((p: any) => {
-                    // We need both parent and child, and a valid image to build the correct link
-                    if (p.childCategory && p.parentCategory && p.images && p.images.length > 0 && p.images[0].url) {
-                        const key = p.childCategory.slug;
-                        if (!uniqueCategories.has(key)) {
-                            uniqueCategories.set(key, {
-                                childId: p.childCategory._id || p.childCategory.id, // Handle different population shapes if any
-                                childName: p.childCategory.name,
-                                childSlug: p.childCategory.slug,
-                                parentId: p.parentCategory._id || p.parentCategory.id,
-                                parentName: p.parentCategory.name,
-                                parentSlug: p.parentCategory.slug,
-                                image: p.images[0].url
-                            });
+                    const hasClassicPopulated = p.childCategory && p.parentCategory;
+                    const hasFlatPopulated = p.childCategoryId && p.parentCategoryId;
+                    
+                    if ((hasClassicPopulated || hasFlatPopulated) && p.images && p.images.length > 0 && p.images[0].url) {
+                        const childId = p.childCategory?._id || p.childCategory?.id || p.childCategoryId;
+                        const childName = p.childCategory?.name || p.childCategoryName || '';
+                        // Prefer API slug; never derive from name alone — "T-Shirts" -> t-shirts does not match DB slugs like kids-tshirts.
+                        const childSlug = p.childCategory?.slug || '';
+
+                        const parentId = p.parentCategory?._id || p.parentCategory?.id || p.parentCategoryId;
+                        const parentName = p.parentCategory?.name || p.parentCategoryName || '';
+                        const parentSlug = p.parentCategory?.slug || (p.parentCategoryName || '').toLowerCase().replace(/ /g, '-');
+
+                        // Dedupe by stable child id when present (avoids collisions on duplicate display names).
+                        const key = (childId && String(childId)) || childSlug || childName;
+                        if (key && childId && parentId && !uniqueCategories.has(key)) {
+                            // Filter out 'kids' temporarily
+                            if (parentSlug !== 'kids' && parentName.toLowerCase() !== 'kids') {
+                                uniqueCategories.set(key, {
+                                    childId: String(childId),
+                                    childName,
+                                    childSlug,
+                                    parentId: String(parentId),
+                                    parentName,
+                                    parentSlug,
+                                    image: p.images[0].url
+                                });
+                            }
                         }
                     }
                 });
@@ -259,20 +310,20 @@ export default function Home() {
             </section>
 
             {/* CHILD CATEGORIES GRID */}
-            <section className="products-section">
+            <section className="products-section reveal-on-scroll">
                 <div className="section-header">
                     <span className="section-subtitle">Curated Styles</span>
                     <h2 className="section-title">Trending Categories</h2>
                 </div>
 
-                <div className="landing-products-grid">
+                <div className="category-rail">
                     {categoryCards.length === 0 ? (
                         <p className="loading-text">Loading categories...</p>
                     ) : (
                         categoryCards.map((cat) => (
                             <Link
-                                to={`/products?parentCategory=${cat.parentSlug}&childCategory=${cat.childSlug}`}
-                                key={cat.childSlug}
+                                to={`/products?parentCategory=${encodeURIComponent(cat.parentId)}&childCategory=${encodeURIComponent(cat.childId)}`}
+                                key={cat.childId}
                                 className="landing-product-card category-visual-card"
                             >
                                 <div className="landing-product-img-wrapper">
@@ -303,12 +354,11 @@ export default function Home() {
             </section>
 
             {/* CATEGORY PRODUCT SHOWCASES */}
-            <CategoryShowcase title="Men's Latest" categorySlug="men" products={menProducts} />
-            <CategoryShowcase title="Women's Trends" categorySlug="women" products={womenProducts} />
-            <CategoryShowcase title="Kids' Favorites" categorySlug="kids" products={kidsProducts} />
+            <EditorialShowcase title="Men's Edit" categorySlug="men" products={menProducts} isReversed={false} />
+            <EditorialShowcase title="Women's Edit" categorySlug="women" products={womenProducts} isReversed={true} />
 
             {/* FEATURES SECTION */}
-            <section className="features-section">
+            <section className="features-section reveal-on-scroll">
                 <div className="feature-item">
                     <div className="feature-icon"><Truck size={24} /></div>
                     <div className="feature-info">
@@ -340,7 +390,7 @@ export default function Home() {
             </section>
 
             {/* NEWSLETTER SECTION */}
-            <section className="newsletter-section">
+            <section className="newsletter-section reveal-on-scroll">
                 <div className="newsletter-content">
                     <div className="newsletter-icon">
                         <Mail size={32} color="#111827" strokeWidth={1.5} />

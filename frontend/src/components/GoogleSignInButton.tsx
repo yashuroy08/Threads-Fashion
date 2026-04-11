@@ -17,10 +17,13 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleButtonProps) {
         const initializeGoogleSignIn = () => {
             if (typeof google !== 'undefined' && googleButtonRef.current) {
                 try {
-                    google.accounts.id.initialize({
-                        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-                        callback: handleCredentialResponse,
-                    });
+                    if (!(window as any).googleInitialized) {
+                        google.accounts.id.initialize({
+                            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                            callback: handleCredentialResponse,
+                        });
+                        (window as any).googleInitialized = true;
+                    }
 
                     google.accounts.id.renderButton(googleButtonRef.current, {
                         theme: 'outline',

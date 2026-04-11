@@ -14,6 +14,7 @@ import {
 
 } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
+import { API_BASE } from '../config/api.config';
 import { useSocket } from '../context/SocketContext';
 import { useNotification } from '../context/NotificationContext';
 import '../styles/admin.css';
@@ -40,7 +41,7 @@ export default function AdminSidebar({ isOpen, isCollapsed, onClose }: AdminSide
 
     const fetchCounts = () => {
         const token = localStorage.getItem('token');
-        fetch('/api/v1/admin/stats', {
+        fetch(`${API_BASE}/admin/stats`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())

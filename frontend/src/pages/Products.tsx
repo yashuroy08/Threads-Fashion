@@ -48,8 +48,9 @@ export default function Products() {
     // Data State
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [parentCategories, setParentCategories] = useState<{ _id: string, name: string, slug: string }[]>([]);
-    const [childCategories, setChildCategories] = useState<{ _id: string, name: string, slug: string, parentId: string }[]>([]);
+    const [parentCategories, setParentCategories] = useState<{ _id?: string, id?: string, name: string, slug: string }[]>([]);
+    const [childCategories, setChildCategories] = useState<{ _id?: string, id?: string, name: string, slug: string, parentId: string }[]>([]);
+    const [categoriesReady, setCategoriesReady] = useState(false);
 
     // Router State
     const [searchParams, setSearchParams] = useSearchParams();
@@ -88,7 +89,7 @@ export default function Products() {
         const colorParam = searchParams.get('colors');
         const minParam = searchParams.get('minPrice');
         const maxParam = searchParams.get('maxPrice');
-        const sortParam = searchParams.get('sort');
+        const sortParam = searchParams.get('sortBy') || searchParams.get('sort');
 
         setFilters({
             sizes: sizeParam ? sizeParam.split(',') : [],
@@ -124,9 +125,12 @@ export default function Products() {
         if (newFilters.maxPrice) params.set('maxPrice', newFilters.maxPrice);
         else params.delete('maxPrice');
 
-        // Handle Sort
-        if (newSort !== 'newest') params.set('sort', newSort);
-        else params.delete('sort');
+        // Handle Sort (sortBy preferred; remove legacy sort=)
+        if (newSort !== 'newest') params.set('sortBy', newSort);
+        else {
+            params.delete('sortBy');
+            params.delete('sort');
+        }
 
         setSearchParams(params);
     };
@@ -181,12 +185,17 @@ export default function Products() {
                 setParentCategories(allCategories.filter((cat: any) => !cat.parentId));
                 setChildCategories(allCategories.filter((cat: any) => cat.parentId));
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error(err))
+            .finally(() => setCategoriesReady(true));
     }, []);
 
     // Fetch Products
     useEffect(() => {
-        if (categorySlug && parentCategories.length === 0 && childCategories.length === 0) return;
+        // Wait until the categories request finishes so we can resolve slugs to ids; then fall back to slug params if lists are empty (e.g. API error).
+        const needsCategoryLists = !!(parentCategoryParam || childCategoryParam || categorySlug);
+        if (needsCategoryLists && !categoriesReady) {
+            return;
+        }
 
         setLoading(true);
         const searchQuery = query ? `&q=${encodeURIComponent(query)}` : '';
@@ -200,49 +209,54 @@ export default function Products() {
 
         // Check explicit parent/child params first (new structure)
         if (parentCategoryParam) {
-            const p = parentCategories.find(c => c.slug === parentCategoryParam || c._id === parentCategoryParam);
-            if (p) targetParentId = p._id;
+            const p = parentCategories.find(c => c.slug === parentCategoryParam || c._id === parentCategoryParam || c.id === parentCategoryParam);
+            if (p) targetParentId = p._id || p.id || "";
         }
         if (childCategoryParam) {
-            const c = childCategories.find(c => c.slug === childCategoryParam || c._id === childCategoryParam);
-            if (c) targetChildId = c._id;
+            const c = childCategories.find(c => c.slug === childCategoryParam || c._id === childCategoryParam || c.id === childCategoryParam);
+            if (c) targetChildId = c._id || c.id || "";
         }
 
         // Check fallback generic category param
         if (categorySlug && !targetParentId && !targetChildId) {
             const parent = parentCategories.find(c => c.slug === categorySlug);
-            if (parent) targetParentId = parent._id;
+            if (parent) targetParentId = parent._id || parent.id || "";
             else {
                 const child = childCategories.find(c => c.slug === categorySlug);
-                if (child) targetChildId = child._id;
+                if (child) targetChildId = child._id || child.id || "";
             }
         }
 
-        if (targetChildId) url += `&childCategory=${targetChildId}`;
-        else if (targetParentId) url += `&parentCategory=${targetParentId}`;
+        // Prefer Mongo id when matched; otherwise pass slug so the API can resolve (handles edge cases / backends that only resolve by slug).
+        if (targetChildId) {
+            url += `&childCategory=${encodeURIComponent(targetChildId)}`;
+        } else if (childCategoryParam) {
+            url += `&childCategory=${encodeURIComponent(childCategoryParam)}`;
+        } else if (targetParentId) {
+            url += `&parentCategory=${encodeURIComponent(targetParentId)}`;
+        } else if (parentCategoryParam) {
+            url += `&parentCategory=${encodeURIComponent(parentCategoryParam)}`;
+        }
 
         // Append Filters
         if (filters.sizes.length) url += `&sizes=${filters.sizes.join(',')}`;
         if (filters.colors.length) url += `&colors=${filters.colors.join(',')}`;
         if (filters.minPrice) url += `&minPrice=${filters.minPrice}`;
         if (filters.maxPrice) url += `&maxPrice=${filters.maxPrice}`;
-        if (sortBy) url += `&sort=${sortBy}`;
+        if (sortBy) url += `&sortBy=${encodeURIComponent(sortBy)}`;
 
         fetch(url)
             .then(res => res.json())
             .then(data => {
-                const items = (data.items || []) as Product[];
-                const filtered = items.filter(
-                    (p) => Array.isArray(p.images) && p.images[0] && !!p.images[0].url
-                );
-                setProducts(filtered);
+                const items = (data.content || data.items || (Array.isArray(data) ? data : [])) as Product[];
+                setProducts(items);
                 setLoading(false);
             })
             .catch(err => {
                 console.error(err);
                 setLoading(false);
             });
-    }, [parentCategoryParam, childCategoryParam, categorySlug, query, parentCategories, childCategories, filters, sortBy]);
+    }, [parentCategoryParam, childCategoryParam, categorySlug, query, parentCategories, childCategories, categoriesReady, filters, sortBy]);
 
     // Helper: Display Name
     const getCategoryDisplayName = () => {
@@ -250,11 +264,11 @@ export default function Products() {
 
         // Try child first as it's more specific
         const childSlug = childCategoryParam || categorySlug;
-        const child = childCategories.find(c => c.slug === childSlug || c._id === childSlug);
+        const child = childCategories.find(c => c.slug === childSlug || c._id === childSlug || c.id === childSlug);
         if (child) return child.name;
 
         const parentSlug = parentCategoryParam || categorySlug;
-        const parent = parentCategories.find(c => c.slug === parentSlug || c._id === parentSlug);
+        const parent = parentCategories.find(c => c.slug === parentSlug || c._id === parentSlug || c.id === parentSlug);
         if (parent) return parent.name;
 
         return 'The Collection';
@@ -273,13 +287,13 @@ export default function Products() {
         }
 
         const childIdOrSlug = childCategoryParam || categorySlug;
-        const child = childCategories.find(c => c.slug === childIdOrSlug || c._id === childIdOrSlug);
+        const child = childCategories.find(c => c.slug === childIdOrSlug || c._id === childIdOrSlug || c.id === childIdOrSlug);
 
         const parentIdOrSlug = parentCategoryParam || categorySlug;
-        const parent = parentCategories.find(c => c.slug === parentIdOrSlug || c._id === parentIdOrSlug);
+        const parent = parentCategories.find(c => c.slug === parentIdOrSlug || c._id === parentIdOrSlug || c.id === parentIdOrSlug);
 
         if (child) {
-            const parentOfChild = parentCategories.find(p => p._id === child.parentId);
+            const parentOfChild = parentCategories.find(p => p._id === child.parentId || p.id === child.parentId);
             if (parentOfChild) {
                 items.push({ label: parentOfChild.name, href: `/products?parentCategory=${parentOfChild.slug}` });
             }

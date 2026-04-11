@@ -48,7 +48,7 @@ export const OrderApi = {
         if (!res.ok) {
             throw new Error(data.message || 'Failed to cancel order');
         }
-        return data.order;
+        return data;
     },
 
     requestReturn: async (orderId: string, reason: string, token: string): Promise<Order> => {
@@ -64,7 +64,7 @@ export const OrderApi = {
         if (!res.ok) {
             throw new Error(data.message || 'Failed to submit return request');
         }
-        return data.order;
+        return data;
     },
 
     requestExchange: async (orderId: string, reason: string, token: string): Promise<Order> => {
@@ -80,7 +80,7 @@ export const OrderApi = {
         if (!res.ok) {
             throw new Error(data.message || 'Failed to submit exchange request');
         }
-        return data.order;
+        return data;
     },
 
     createOrder: async (orderData: any, token: string) => {
@@ -89,13 +89,16 @@ export const OrderApi = {
             ...orderData,
             items: orderData.items?.map((item: any) => ({
                 productId: item.productId,
+                title: item.title,
                 quantity: item.quantity,
+                price: item.price,
+                image: item.image,
                 size: item.size,      // 🔥 CRITICAL: Include variant info
                 color: item.color,    // 🔥 CRITICAL: Include variant info
             }))
         };
 
-        const res = await fetch(`${BASE_URL}/orders/checkout`, {
+        const res = await fetch(`${BASE_URL}/orders`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,

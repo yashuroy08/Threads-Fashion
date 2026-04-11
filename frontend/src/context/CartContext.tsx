@@ -77,8 +77,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             if (!token) return;
             const newCart = await CartApi.updateQuantity(token, productId, quantity, size, color);
             setCart(newCart);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            const message = error.message || 'Failed to update quantity';
+            notify(message, 'error');
         }
     }
 

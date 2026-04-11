@@ -90,7 +90,7 @@ export default function AdminDashboard() {
                     ) : (
                         <div className="orders-list">
                             {data.latestOrders.map((order: any) => (
-                                <div key={order._id} className="order-list-item">
+                                <div key={order._id || order.id || order.orderId} className="order-list-item">
                                     <div className="order-list-left">
                                         <div className="order-id-text">{order.orderId}</div>
                                         <div className="order-date-text">{new Date(order.createdAt).toLocaleDateString()}</div>

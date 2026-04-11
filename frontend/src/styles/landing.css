@@ -263,7 +263,7 @@
    PRODUCTS SECTION (Formerly Categories)
    =============================== */
 .products-section {
-    padding: 6rem 5%;
+    padding: 4rem 5%;
     max-width: 1600px;
     margin: 0 auto;
 }
@@ -289,11 +289,24 @@
     letter-spacing: -0.02em;
 }
 
-.landing-products-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    /* 4 columns for rectangular grid */
-    gap: 2rem;
+.category-rail {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding-bottom: 1.25rem;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.category-rail::-webkit-scrollbar {
+    display: none;
+}
+
+.category-rail .landing-product-card {
+    min-width: 280px;
+    width: 280px;
+    flex-shrink: 0;
 }
 
 .landing-product-card {
@@ -310,8 +323,8 @@
 
 .landing-product-img-wrapper {
     width: 100%;
-    aspect-ratio: 3/4;
-    /* Classic product portrait ratio */
+    aspect-ratio: 4 / 5;
+    /* Slightly shorter than 3:4 for a denser grid */
     overflow: hidden;
     margin-bottom: 0;
     /* Removed margin as info is now inside/overlay */
@@ -324,7 +337,7 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 100%);
-    padding: 2rem;
+    padding: 1.25rem 1.1rem;
     display: flex;
     align-items: flex-end;
     justify-content: flex-start;
@@ -349,11 +362,11 @@
     display: block;
     color: white;
     font-family: 'Inter', sans-serif;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 500;
     letter-spacing: -0.02em;
     text-transform: capitalize;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -379,6 +392,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top center;
     transition: transform 0.5s ease;
 }
 
@@ -447,6 +461,14 @@
     border-radius: 50%;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     color: #111827;
+    transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.feature-item:hover .feature-icon {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    background: #111827;
+    color: #ffffff;
 }
 
 .feature-info h3 {
@@ -558,126 +580,199 @@
 }
 
 /* ===============================
-   PRODUCT SHOWCASE SECTIONS
+   EDITORIAL SHOWCASE SECTION
    =============================== */
-.product-showcase-section {
-    padding: 4rem 5%;
-    max-width: 1600px;
+.editorial-section {
+    padding: 6rem 5%;
+    max-width: 1400px;
     margin: 0 auto;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.product-showcase-section:last-of-type {
-    border-bottom: none;
-}
-
-.showcase-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    /* Align to baseline of text */
-    margin-bottom: 2rem;
-}
-
-.showcase-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #111827;
-    letter-spacing: -0.02em;
-}
-
-.btn-showcase-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: #111827;
-    text-decoration: none;
-    border-bottom: 1px solid #111827;
-    padding-bottom: 2px;
-    transition: all 0.3s ease;
-}
-
-.btn-showcase-cta:hover {
-    color: #4b5563;
-    border-color: #4b5563;
-}
-
-.product-rail {
-    display: flex;
-    gap: 1.5rem;
-    overflow-x: auto;
-    padding-bottom: 2rem;
-    /* Space for scroll / shadows */
-    scroll-behavior: smooth;
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
-}
-
-.product-rail::-webkit-scrollbar {
-    display: none;
-}
-
-.showcase-card {
-    min-width: 250px;
-    /* Fixed width for consistency */
-    width: 250px;
-    text-decoration: none;
-    color: inherit;
     display: flex;
     flex-direction: column;
+    gap: 3rem;
 }
 
-.showcase-img-wrapper {
+/* Subtle background alternating to break up "blankness" */
+.editorial-section:nth-of-type(even) {
+    background-color: #fafaf9; /* A very warm, luxury off-white */
+    border-top: 1px solid #f3f4f6;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+
+
+.editorial-featured {
     width: 100%;
-    aspect-ratio: 3/4;
+}
+
+.editorial-featured-link {
+    display: block;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 21 / 9;
     background: #f3f4f6;
     overflow: hidden;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    position: relative;
 }
 
-.showcase-img {
+.editorial-main-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    object-position: top center;
+    transition: transform 1.2s cubic-bezier(0.2, 1, 0.3, 1), filter 0.8s ease;
 }
 
-.showcase-card:hover .showcase-img {
-    transform: scale(1.05);
-    /* Gentle zoom */
+.editorial-featured-link:hover .editorial-main-img {
+    transform: scale(1.03);
+    filter: brightness(0.9);
 }
 
-.showcase-info h4 {
+.editorial-featured-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.editorial-featured-link:hover .editorial-featured-overlay {
+    opacity: 1;
+}
+
+.editorial-shop-btn {
+    background: white;
+    color: black;
     font-family: 'Inter', sans-serif;
-    font-size: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.8rem 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.editorial-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.editorial-reversed .editorial-content-wrapper {
+    direction: rtl; /* simple way to reverse columns physically */
+}
+
+.editorial-reversed .editorial-content-wrapper > * {
+    direction: ltr; /* reset content text direction */
+}
+
+.editorial-story {
+    padding-top: 1rem;
+}
+
+.editorial-subtitle {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+}
+
+.editorial-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 400;
+    color: #111827;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+}
+
+.editorial-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: #6b7280;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+}
+
+.editorial-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
     font-weight: 600;
     color: #111827;
-    margin: 0 0 0.25rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid #111827;
+    padding-bottom: 4px;
+    transition: opacity 0.3s ease;
+    text-decoration: none;
+}
+
+.editorial-cta-btn:hover {
+    opacity: 0.6;
+}
+
+.editorial-side-products {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.editorial-small-card {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.editorial-small-card .img-wrap {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    background: #f3f4f6;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+
+.editorial-small-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.editorial-small-card:hover .img-wrap {
+    box-shadow: 0 15px 30px -10px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+.editorial-small-card:hover .editorial-small-img {
+    transform: scale(1.08);
+}
+
+.editorial-small-info h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #111827;
+    margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.showcase-info p {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.9rem;
-    color: #6b7280;
-    margin: 0;
 }
 
 /* ===============================
    RESPONSIVE DESIGN
    =============================== */
 @media (max-width: 1024px) {
-    .landing-products-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+/* Removed grid overrides for category-rail */
 
     .hero-title {
         font-size: 3.5rem;
@@ -710,14 +805,35 @@
         margin-bottom: 2.5rem;
     }
 
-    .landing-products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+/* Removed grid overrides for category-rail */
+
+    .editorial-section {
+        padding: 4rem 1.5rem;
+        gap: 2rem;
     }
 
-    .products-section {
-        padding: 4rem 1rem;
+    .editorial-content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 2rem;
     }
+
+    .editorial-title {
+        font-size: 2.2rem;
+    }
+
+    .editorial-side-products {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+        margin-right: -1.5rem; /* allow scroll bleed */
+        padding-right: 1.5rem;
+    }
+
+    .editorial-small-card {
+        min-width: 140px;
+    }
+
 
 
     .features-section {
@@ -744,6 +860,11 @@
         display: none;
     }
 
+    .category-rail .landing-product-card {
+        min-width: 220px;
+        width: 220px;
+    }
+
     .showcase-title {
         font-size: 1.5rem;
     }
@@ -760,6 +881,10 @@
     .product-showcase-section {
         padding: 3rem 1rem;
     }
+    
+    .editorial-featured-link {
+        aspect-ratio: 4 / 3;
+    }
 }
 
 @keyframes fadeIn {
@@ -767,9 +892,25 @@
         opacity: 0;
         transform: translateY(20px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ===============================
+   SCROLL REVEAL ANIMATIONS
+   =============================== */
+.reveal-on-scroll {
+    opacity: 0;
+    filter: blur(5px);
+    transform: translateY(40px) scale(0.98);
+    transition: opacity 0.8s cubic-bezier(0.2, 1, 0.3, 1), transform 0.8s cubic-bezier(0.2, 1, 0.3, 1), filter 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+    will-change: opacity, transform, filter;
+}
+
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
 }

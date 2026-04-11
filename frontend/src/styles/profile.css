@@ -72,11 +72,6 @@
     box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
 }
 
-.form-input-bold::placeholder {
-    font-weight: 400;
-    color: #9ca3af;
-}
-
 .email-display-row {
     display: flex;
     align-items: center;
@@ -177,7 +172,6 @@
     padding: 1.5rem;
     margin-bottom: 1rem;
     display: none;
-    /* Hidden on desktop */
 }
 
 .user-info-section {
@@ -269,15 +263,10 @@
 .tab-btn.active {
     color: #111827;
     border-bottom-color: #6b7280;
-    /* Greyish border bottom as per image */
 }
 
 .tab-btn:hover:not(.active) {
     color: #4b5563;
-}
-
-.tab-btn span {
-    margin-top: 2px;
 }
 
 /* ===============================
@@ -303,6 +292,10 @@
     color: #6b7280;
     margin: 0.25rem 0 0 0;
 }
+
+/* ===============================
+   HELP SECTION
+   =============================== */
 
 .help-card {
     background: #fff;
@@ -341,13 +334,12 @@
     font-size: 1.1rem;
     font-weight: 700;
     color: #111827;
-    margin: 0;
 }
 
 .help-subtitle {
     font-size: 0.85rem;
     color: #6b7280;
-    margin: 0.25rem 0 0 3.75rem;
+    margin-left: 3.75rem;
 }
 
 .help-expanded-content {
@@ -356,38 +348,6 @@
     padding: 1rem;
     background: #f9fafb;
     border-radius: 12px;
-}
-
-.help-expanded-inner p {
-    margin: 0 0 1rem;
-    line-height: 1.5;
-    color: #4b5563;
-    font-size: 0.9rem;
-}
-
-.contact-info-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.9rem;
-    color: #111827;
-    margin-bottom: 0.5rem;
-}
-
-.contact-info-row a {
-    color: #3b82f6;
-    text-decoration: underline;
-}
-
-.help-list-ul {
-    padding-left: 1.25rem;
-    margin: 0;
-    color: #4b5563;
-    font-size: 0.9rem;
-}
-
-.help-list-ul li {
-    margin-bottom: 1rem;
 }
 
 /* ===============================
@@ -434,13 +394,14 @@
 
 .order-status {
     padding: 0.35rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
 }
 
+/* Status Colors */
 .order-status.pending {
     background: #fef3c7;
     color: #92400e;
@@ -461,246 +422,191 @@
     color: #1e40af;
 }
 
-.order-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid #f3f4f6;
+.order-status.shipped {
+    background: #fef3c7;
+    color: #92400e;
 }
 
-.order-items-count {
-    font-size: 0.85rem;
-    color: #6b7280;
+.order-status.placed,
+.order-status.confirmed {
+    background: #e0e7ff;
+    color: #3730a3;
 }
+
+.order-status.paid {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.order-status.failed {
+    background: #ffe4e6;
+    color: #9f1239;
+}
+
+.order-status.return-requested,
+.order-status.exchange-requested {
+    background: #fff7ed;
+    color: #9a3412;
+}
+
+.order-status.return-approved,
+.order-status.exchange-approved {
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.order-status.return-rejected,
+.order-status.exchange-rejected {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
 
 .order-total {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: 800;
     color: #111827;
 }
 
-.view-details-btn {
-    padding: 0.5rem 1.25rem;
-    background: white;
-    border: 2px solid #d1d5db;
-    border-radius: 8px;
+/* ===============================
+   ORDER ACTIONS
+   =============================== */
+
+.order-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.order-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
     font-weight: 600;
-    font-size: 0.85rem;
-    color: #111827;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1.5px solid #e5e7eb;
+    text-decoration: none;
+    gap: 0.4rem;
+    min-height: 42px;
+    background: #ffffff;
+    color: #374151;
 }
 
-.view-details-btn:hover {
-    background: #f9fafb;
-    border-color: #9ca3af;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.order-action-btn.primary {
+    grid-column: span 2;
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
+.order-action-btn.full-width {
+    grid-column: span 2;
+}
+
+.order-action-btn:hover {
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* ===============================
-   HELP SECTION
-   =============================== */
+.order-action-btn.primary {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
 
-/* ===============================
-   HELP TAB NEW DESIGN
-   =============================== */
-.help-tab-content {
+.order-action-btn.secondary {
+    background: #ffffff;
+    color: #374151;
+    border-color: #e5e7eb;
+}
+
+.order-action-btn.secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.order-action-btn.danger {
+    background: #ffffff;
+    color: #dc2626;
+    border-color: #fee2e2;
+}
+
+.order-action-btn.danger:hover {
+    background: #fff1f2;
+    border-color: #fecaca;
+}
+
+.order-action-btn.warning {
+    background: #ffffff;
+    color: #d97706;
+    border-color: #fef3c7;
+}
+
+.order-action-btn.warning:hover {
+    background: #fffbeb;
+}
+
+.order-action-btn.success {
+    background: #ffffff;
+    color: #16a34a;
+    border-color: #dcfce7;
+}
+
+.order-action-btn.success:hover {
+    background: #f0fdf4;
+}
+
+.delivery-otp-container {
+    width: 100%;
+    margin-top: 0.5rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    max-width: 600px;
-    margin: 0 auto;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
 }
 
-.help-tab-header {
-    text-align: center;
-    margin-bottom: 2.5rem;
-}
-
-.help-main-title {
-    font-size: 2.25rem;
-    font-weight: 800;
-    color: #000;
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
-}
-
-.support-status-pill {
-    display: inline-flex;
+.otp-label {
+    display: flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 1.25rem;
-    background: #cffce3;
-    /* Light green from image */
-    border-radius: 30px;
-    color: #000;
+    gap: 0.5rem;
+    color: #475569;
+    font-size: 0.85rem;
     font-weight: 600;
-    font-size: 0.95rem;
 }
 
-.status-dot {
-    width: 10px;
-    height: 10px;
-    background: #10b981;
-    /* Green dot */
-    border-radius: 50%;
+.otp-code-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 0.75rem;
+    gap: 0.25rem;
 }
 
-.help-list-container {
-    background: #fff;
-    margin-bottom: 3rem;
-}
-
-.help-footer-card {
-    background: #fff;
-    padding: 2.5rem 1.5rem;
-    border-radius: 24px;
-    text-align: center;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-}
-
-.help-footer-title {
+.otp-code {
+    font-family: 'JetBrains Mono', monospace;
     font-size: 1.5rem;
     font-weight: 800;
-    color: #000;
-    margin-bottom: 1.5rem;
+    letter-spacing: 0.5rem;
+    color: #111827;
+    padding-left: 0.5rem;
 }
 
-.btn-chat-support {
-    width: 100%;
-    max-width: 320px;
-    height: 56px;
-    background: #000;
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.btn-chat-support:active {
-    transform: scale(0.98);
-}
-
-/* ===============================
-   RESPONSIVE - MOBILE
-   =============================== */
-
-@media (max-width: 768px) {
-    .profile-page {
-        padding-top: 80px;
-        padding-bottom: 110px;
-        /* Increased for mobile navbar + safety */
-        overflow-x: hidden;
-    }
-
-    .profile-container {
-        padding: 1rem;
-    }
-
-    /* Hide desktop header */
-    .profile-header {
-        display: none;
-    }
-
-    /* Show mobile user card */
-    .user-card {
-        display: block;
-        padding: 1.25rem;
-    }
-
-    .logout-btn-mobile {
-        width: auto;
-        padding: 0.5rem 1.5rem;
-        margin: 0 auto;
-        min-width: 140px;
-        font-size: 0.9rem;
-    }
-
-    /* Adjust tabs for mobile */
-    .profile-tabs {
-        gap: 0;
-        margin-bottom: 0.75rem;
-    }
-
-    .tab-btn {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.8rem;
-    }
-
-    .tab-btn svg {
-        width: 20px;
-        height: 20px;
-    }
-
-    .section-title {
-        font-size: 1.1rem;
-    }
-
-    .section-subtitle {
-        font-size: 0.85rem;
-    }
-
-    .menu-item {
-        padding: 0.875rem;
-    }
-
-    .menu-icon {
-        width: 36px;
-        height: 36px;
-    }
-
-    .menu-title {
-        font-size: 0.9rem;
-    }
-
-    .menu-description {
-        font-size: 0.75rem;
-    }
-
-    .order-card {
-        padding: 1rem;
-    }
-
-    .order-id {
-        font-size: 0.85rem;
-    }
-
-    .order-date {
-        font-size: 0.75rem;
-    }
-
-    .order-status {
-        font-size: 0.7rem;
-        padding: 0.3rem 0.6rem;
-    }
-
-    .order-total {
-        font-size: 0.95rem;
-    }
-
-    .view-details-btn {
-        font-size: 0.8rem;
-        padding: 0.45rem 1rem;
-    }
-}
-
-/* Desktop specific */
-@media (min-width: 769px) {
-    .logout-btn-mobile {
-        display: none;
-    }
-
-    .user-avatar {
-        width: 50px;
-        height: 50px;
-        font-size: 1.25rem;
-    }
+.otp-helper {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
 }
 
 /* ===============================
@@ -709,13 +615,13 @@
 
 .empty-state {
     text-align: center;
-    padding: 3rem 1rem;
+    padding: 4rem 1rem;
 }
 
 .empty-state-icon {
     width: 80px;
     height: 80px;
-    margin: 0 auto 1rem;
+    margin: 0 auto 1.5rem;
     background: #f3f4f6;
     border-radius: 50%;
     display: flex;
@@ -725,38 +631,22 @@
 }
 
 .empty-state-title {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: #111827;
     margin-bottom: 0.5rem;
 }
 
-.empty-state-description {
-    font-size: 0.9rem;
-    color: #6b7280;
-    margin-bottom: 1.5rem;
-}
-
 .empty-state-action {
     display: inline-block;
-    padding: 0.75rem 1.5rem;
+    padding: 0.85rem 2rem;
     background: #111827;
     color: white;
-    border-radius: 8px;
+    border-radius: 12px;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
+    margin-top: 1.5rem;
     transition: all 0.2s;
-}
-
-.empty-state-action:hover {
-    color: white;
-    transform: translateY(-1px);
-}
-
-@keyframes spin {
-    to {
-        transform: translateY(-50%) rotate(360deg);
-    }
 }
 
 /* ===============================
@@ -764,24 +654,23 @@
    =============================== */
 .status-message {
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 12px;
     margin-bottom: 1.5rem;
     font-weight: 600;
-    font-size: 0.95rem;
     text-align: center;
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.3s ease-out;
 }
 
 .status-message.error {
-    background-color: #fee2e2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fee2e2;
 }
 
 .status-message.success {
-    background-color: #d1fae5;
-    color: #047857;
-    border: 1px solid #a7f3d0;
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
 }
 
 @keyframes fadeIn {
@@ -793,5 +682,30 @@
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+    .profile-page {
+        padding-top: 80px;
+        padding-bottom: 110px;
+    }
+
+    .profile-container {
+        padding: 1rem;
+    }
+
+    .profile-header {
+        display: none;
+    }
+
+    .user-card {
+        display: block;
+    }
+
+    .tab-btn {
+        padding: 0.75rem 0.25rem;
+        font-size: 0.75rem;
     }
 }

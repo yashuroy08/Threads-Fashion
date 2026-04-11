@@ -30,18 +30,19 @@ export default function Categories() {
                 const childrenMap: Record<string, any[]> = {};
 
                 parents.forEach((p: any) => {
-                    childrenMap[p._id] = allCats.filter((c: any) => c.parentId === p._id);
+                    const pid = p._id || p.id;
+                    childrenMap[pid] = allCats.filter((c: any) => c.parentId === pid);
                 });
 
                 setCategories({ parents, childrenMap });
                 if (parents.length > 0) {
-                    setSelectedParent(parents[0]._id);
+                    setSelectedParent(parents[0]._id || parents[0].id);
                 }
             })
             .catch(err => console.error(err));
     }, []);
 
-    const activeParent = categories.parents.find(p => p._id === selectedParent);
+    const activeParent = categories.parents.find(p => (p._id || p.id) === selectedParent);
 
     return (
         <div className="categories-page">
@@ -57,16 +58,17 @@ export default function Categories() {
                         <X size={24} />
                     </button>
                 </div>
-                {categories.parents.map(parent => (
+                {categories.parents.map((parent, index) => (
                     <div
-                        key={parent._id}
+                        key={parent._id || parent.id || index}
                         onClick={() => {
-                            setSelectedParent(parent._id);
+                            const pid = parent._id || parent.id;
+                            setSelectedParent(pid);
                             setIsSidebarOpen(false);
                         }}
-                        className={`category-parent-item ${selectedParent === parent._id ? 'active' : ''}`}
+                        className={`category-parent-item ${(selectedParent === parent._id || selectedParent === parent.id) ? 'active' : ''}`}
                     >
-                        {selectedParent === parent._id && <div className="active-indicator" />}
+                        {(selectedParent === parent._id || selectedParent === parent.id) && <div className="active-indicator" />}
                         {parent.name}
                     </div>
                 ))}
@@ -113,9 +115,9 @@ export default function Categories() {
                             </Link>
 
                             {/* Subcategories */}
-                            {categories.childrenMap[selectedParent]?.map(child => (
+                            {(categories.childrenMap?.[selectedParent] || []).map((child: any, idx: number) => (
                                 <Link
-                                    key={child._id}
+                                    key={child._id || child.id || `child-${idx}`}
                                     to={`/products?childCategory=${child.slug}`}
                                     className="category-child-item"
                                 >

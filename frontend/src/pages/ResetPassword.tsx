@@ -7,7 +7,7 @@ import '../styles/auth.css';
 export default function ResetPassword() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { userId, email, otp } = location.state || {};
+    const { email, otp } = location.state || {};
 
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,7 +16,7 @@ export default function ResetPassword() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
-    if (!userId) {
+    if (!email) {
         return (
             <div className="auth-container">
                 <div className="auth-card">
@@ -40,7 +40,7 @@ export default function ResetPassword() {
         setLoading(true);
         setError(null);
         try {
-            await resetPassword({ userId, newPassword: password, otp });
+            await resetPassword({ email, newPassword: password, otp });
             setSuccess(true);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err: any) {

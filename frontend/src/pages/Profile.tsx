@@ -24,7 +24,12 @@ import {
     CheckCircle2,
     Trash2,
     Pencil,
-    MapPin
+    MapPin,
+    ShieldCheck,
+    CheckCircle,
+    ShoppingBag,
+    RefreshCw,
+    XCircle
 } from 'lucide-react';
 import '../styles/profile.css'
 import '../styles/auth.css';
@@ -118,7 +123,6 @@ type ProfileAction =
     | { type: 'SET_PINCODE_LOADING'; payload: boolean }
     | { type: 'OPEN_MODAL'; payload: { type: 'cancel' | 'return' | 'exchange' | 'verifyPhone'; orderId?: string | null } }
     | { type: 'CLOSE_MODAL' }
-    | { type: 'TOGGLE_HELP'; payload: string }
     | { type: 'TOGGLE_HELP'; payload: string }
     | { type: 'SET_SUPPORT_STATUS'; payload: 'online' | 'offline' }
     | { type: 'OPEN_EDIT_ADDRESS'; payload: any }
@@ -440,9 +444,9 @@ function Profile() {
             const headers = { 'Authorization': `Bearer ${token}` };
 
             const [profileRes, ordersRes, settingsRes] = await Promise.all([
-                fetch('/api/v1/profile/me', { headers }),
-                fetch('/api/v1/orders/my-orders', { headers }),
-                fetch('/api/v1/settings/public')
+                fetch('/api/profile/me', { headers }),
+                fetch('/api/orders/my-orders', { headers }),
+                fetch('/api/settings/public')
             ]);
 
             if (!profileRes.ok) throw new Error('Failed to fetch profile');
@@ -476,7 +480,7 @@ function Profile() {
         dispatch({ type: 'UPDATE_START' });
         try {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const res = await fetch('/api/v1/profile/me', {
+            const res = await fetch('/api/profile/me', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)
@@ -572,7 +576,7 @@ function Profile() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             if (!token) throw new Error('Not authenticated');
 
-            const res = await fetch(`/api/v1/profile/me/addresses/${type}`, {
+            const res = await fetch(`/api/profile/me/addresses/${type}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -601,7 +605,7 @@ function Profile() {
 
         try {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            let res = await fetch(`/api/v1/profile/me/addresses/${address.addressType}`, {
+            let res = await fetch(`/api/profile/me/addresses/${address.addressType}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(address)
@@ -609,7 +613,7 @@ function Profile() {
 
             // If entry doesn't exist (404), try creating it instead
             if (res.status === 404) {
-                res = await fetch(`/api/v1/profile/me/addresses`, {
+                res = await fetch(`/api/profile/me/addresses`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(address)
@@ -1091,17 +1095,29 @@ function Profile() {
                                 <div className="orders-container">
                                     {state.orders.map((order: any) => {
                                         const firstItem = order.items?.[0];
-                                        const status = order.status?.toUpperCase() || 'PENDING';
+                                        const status = (order.status || 'PENDING').trim().toUpperCase();
+                                        const isCancelled = status === 'CANCELLED';
+                                        const isDelivered = status === 'DELIVERED';
+                                        const isShipped = status === 'SHIPPED';
+                                        const isFailed = status === 'FAILED';
+                                        
+                                        // Actions logic
+                                        const canBuyAgain = isDelivered || isCancelled;
+                                        const canCancel = ['PENDING', 'PLACED', 'PAID', 'CONFIRMED', 'PROCESSING'].includes(status);
+                                        const canTrack = ['PLACED', 'PAID', 'CONFIRMED', 'SHIPPED', 'OUT_FOR_DELIVERY', 'PROCESSING'].includes(status) && !isDelivered && !isCancelled;
+                                        const canReturn = isDelivered;
+                                        const isReturning = ['RETURN_REQUESTED', 'RETURN_APPROVED', 'PICKUP_SCHEDULED', 'PICKED_UP', 'RETURNED', 'REFUND_INITIATED', 'REFUNDED'].includes(status);
+                                        const isExchanging = ['EXCHANGE_REQUESTED', 'EXCHANGE_APPROVED', 'EXCHANGE_SHIPPED', 'EXCHANGED'].includes(status);
 
                                         return (
-                                            <div key={order.orderId} className="order-card">
+                                            <div key={order._id || order.orderId} className="order-card">
                                                 {/* Order Header */}
                                                 <div className="order-header">
                                                     <div className="order-id-section">
-                                                        <div className="order-id">{order.orderId}</div>
-                                                        <div className="order-date">{new Date(order.createdAt).toLocaleDateString()}</div>
+                                                        <div className="order-id">#{order.orderId}</div>
+                                                        <div className="order-date">{new Date(order.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</div>
                                                     </div>
-                                                    <span className={`order-status ${status.toLowerCase()}`}>{status}</span>
+                                                    <span className={`order-status ${status.toLowerCase().replace(/_/g, '-')}`}>{status.replace(/_/g, ' ')}</span>
                                                 </div>
 
                                                 {/* Product Preview (First Item) */}
@@ -1111,16 +1127,22 @@ function Profile() {
                                                         style={{ display: 'flex', gap: '1rem', padding: '1rem 0', borderBottom: '1px solid #f3f4f6', textDecoration: 'none', cursor: 'pointer', color: 'inherit' }}
                                                     >
                                                         <div style={{ width: '80px', height: '80px', background: '#f3f4f6', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
-                                                            {firstItem.product?.images?.[0]?.url ? (
-                                                                <img src={firstItem.product.images[0].url} alt={firstItem.product.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                            ) : (
-                                                                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
-                                                                    <Package size={24} />
-                                                                </div>
-                                                            )}
+                                                            {(() => {
+                                                                const imageUrl = firstItem.image || 
+                                                                    (firstItem as any).product?.images?.[0]?.url || 
+                                                                    (firstItem as any).images?.[0]?.url;
+                                                                
+                                                                return imageUrl ? (
+                                                                    <img src={imageUrl} alt={firstItem.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                                ) : (
+                                                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
+                                                                        <Package size={24} />
+                                                                    </div>
+                                                                );
+                                                            })()}
                                                         </div>
                                                         <div style={{ flex: 1 }}>
-                                                            <div style={{ fontWeight: '600', color: '#111827', marginBottom: '0.25rem' }}>{firstItem.product?.title || 'Item Unavailable'}</div>
+                                                            <div style={{ fontWeight: '600', color: '#111827', marginBottom: '0.25rem' }}>{firstItem.title || 'Item Unavailable'}</div>
                                                             <div style={{ fontSize: '0.85rem', color: '#6b7280', display: 'flex', gap: '0.75rem', marginBottom: '0.25rem' }}>
                                                                 {firstItem.size && <span>Size: <span style={{ color: '#374151' }}>{firstItem.size}</span></span>}
                                                                 {firstItem.color && <span>Color: <span style={{ color: '#374151' }}>{firstItem.color}</span></span>}
@@ -1142,49 +1164,88 @@ function Profile() {
                                                         <div className="order-total">₹{(order.total / 100).toFixed(2)}</div>
                                                     </div>
 
-                                                    <div className="order-actions-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                                                        <Link to={`/order-tracking/${order.orderId}`} className="view-details-btn" style={{ textAlign: 'center', textDecoration: 'none', background: 'white', border: '1px solid #e5e7eb', color: '#111827' }}>
-                                                            View Details
-                                                        </Link>
+                                                    <div className="order-actions-grid">
+                                                        {canTrack ? (
+                                                            <Link 
+                                                                to={`/order-tracking/${order.orderId}`}
+                                                                className="order-action-btn primary"
+                                                            >
+                                                                <Truck size={18} /> Track Order
+                                                            </Link>
+                                                        ) : canBuyAgain ? (
+                                                            <button 
+                                                                className="order-action-btn primary" 
+                                                                onClick={() => handleBuyAgain(order)}
+                                                            >
+                                                                <ShoppingBag size={18} /> Buy Again
+                                                            </button>
+                                                        ) : null}
 
-                                                        {status === 'PENDING' && (
-                                                            <button className="view-details-btn" onClick={() => dispatch({ type: 'OPEN_MODAL', payload: { type: 'cancel', orderId: order.orderId } })} style={{ background: '#fee2e2', border: '1px solid #fecaca', color: '#991b1b' }}>
-                                                                Cancel Order
-                                                            </button>
-                                                        )}
-                                                        {status === 'DELIVERED' && (
-                                                            <button
-                                                                className="view-details-btn"
-                                                                style={{ background: '#111827', color: 'white', border: 'none', cursor: 'pointer' }}
-                                                                onClick={() => handleBuyAgain(order)}
+                                                        {!canTrack && (
+                                                            <Link 
+                                                                to={`/order-tracking/${order.orderId}`} 
+                                                                className="order-action-btn secondary"
                                                             >
-                                                                Buy Again
-                                                            </button>
+                                                                View Details
+                                                            </Link>
                                                         )}
-                                                        {status === 'CANCELLED' && (
-                                                            <button
-                                                                className="view-details-btn"
-                                                                style={{ background: '#111827', color: 'white', border: 'none', cursor: 'pointer' }}
-                                                                onClick={() => handleBuyAgain(order)}
+
+                                                        {canCancel && (
+                                                            <button 
+                                                                className="order-action-btn danger" 
+                                                                onClick={() => dispatch({ type: 'OPEN_MODAL', payload: { type: 'cancel', orderId: order.orderId } })}
                                                             >
-                                                                Buy Again
+                                                                <XCircle size={18} /> Cancel
                                                             </button>
                                                         )}
-                                                        {status === 'PROCESSING' && (
-                                                            <button className="view-details-btn" style={{ background: '#dbeafe', border: '1px solid #93c5fd', color: '#1e40af' }}>
-                                                                Track Order
-                                                            </button>
+
+                                                        {(canReturn && !isReturning && !isExchanging) && (
+                                                            <>
+                                                                <button 
+                                                                    className="order-action-btn secondary" 
+                                                                    onClick={() => dispatch({ type: 'OPEN_MODAL', payload: { type: 'return', orderId: order.orderId } })} 
+                                                                    style={{ color: '#d97706', borderColor: '#fef3c7' }}
+                                                                >
+                                                                    <RotateCcw size={18} /> Return
+                                                                </button>
+                                                                <button 
+                                                                    className="order-action-btn secondary" 
+                                                                    onClick={() => dispatch({ type: 'OPEN_MODAL', payload: { type: 'exchange', orderId: order.orderId } })} 
+                                                                    style={{ color: '#059669', borderColor: '#dcfce7' }}
+                                                                >
+                                                                    <RefreshCw size={18} /> Exchange
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        
+                                                        {isShipped && (
+                                                            <div className="delivery-otp-container" style={{ gridColumn: 'span 2' }}>
+                                                                <div className="otp-label">
+                                                                    <ShieldCheck size={16} />
+                                                                    <span>Delivery Verification Required</span>
+                                                                </div>
+                                                                <div className="otp-code-box">
+                                                                    <span className="otp-code">
+                                                                        {order.orderId ? (order.orderId.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) % 9000 + 1000) : '4823'}
+                                                                    </span>
+                                                                    <span className="otp-helper">Share only with delivery partner</span>
+                                                                </div>
+                                                            </div>
                                                         )}
                                                     </div>
 
-                                                    {status === 'DELIVERED' && (
-                                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginTop: '0.75rem' }}>
-                                                            <button className="view-details-btn" onClick={() => dispatch({ type: 'OPEN_MODAL', payload: { type: 'return', orderId: order.orderId } })} style={{ background: '#fed7aa', border: '1px solid #fdba74', color: '#92400e' }}>
-                                                                Return
-                                                            </button>
-                                                            <button className="view-details-btn" onClick={() => dispatch({ type: 'OPEN_MODAL', payload: { type: 'exchange', orderId: order.orderId } })} style={{ background: '#d1fae5', border: '1px solid #a7f3d0', color: '#065f46' }}>
-                                                                Exchange
-                                                            </button>
+                                                    {(isReturning || isExchanging) && (
+                                                        <div style={{ 
+                                                            marginTop: '0.75rem', 
+                                                            padding: '0.75rem', 
+                                                            background: status.includes('REJECTED') ? '#fef2f2' : '#f0fdf4', 
+                                                            borderRadius: '12px',
+                                                            fontSize: '0.85rem',
+                                                            color: status.includes('REJECTED') ? '#991b1b' : '#166534',
+                                                            textAlign: 'center',
+                                                            fontWeight: 600
+                                                        }}>
+                                                            {status.replace(/_/g, ' ')} IN PROGRESS
                                                         </div>
                                                     )}
                                                 </div>
@@ -1206,81 +1267,77 @@ function Profile() {
                                     <span>Support Online</span>
                                 </div>
                             </div>
-
-                            <div className="help-list-container">
+                            <div className="help-cards-list">
                                 <HelpCard
-                                    id="contact"
-                                    title="Contact Support"
-                                    subtitle="Reach out to our customer service"
-                                    icon={Mail}
+                                    id="returns"
+                                    title="Returns & Refunds"
+                                    icon={RotateCcw}
+                                    subtitle="Manage your returns, tracking, and refund status"
                                 >
-                                    <div className="help-expanded-inner">
-                                        <p>We are available 24/7 to assist you.</p>
-                                        <div className="contact-info-row">
-                                            <Mail size={16} /> <a href="mailto:threadsfashion@zohoin.com">threadsfashion@zohoin.com</a>
-                                        </div>
-                                        <div className="contact-info-row">
-                                            <Phone size={16} /> <span>{state.settings?.supportPhone || '+1 (555) 123-4567'}</span>
-                                        </div>
-                                    </div>
-                                </HelpCard>
-
-                                <HelpCard
-                                    id="faq"
-                                    title="FAQs"
-                                    subtitle="Common questions answered"
-                                    icon={MessageCircle}
-                                >
-                                    <div className="help-expanded-inner">
-                                        <ul className="help-list-ul">
-                                            <li><strong>How do I track my order?</strong><br />Go to "My Orders" and click "View Details".</li>
-                                            <li><strong>Can I change my address?</strong><br />Yes, update it in the Account Settings tab.</li>
-                                            <li><strong>Do you ship internationally?</strong><br />Currently only within India.</li>
+                                    <div className="help-detail-content" style={{ color: '#4b5563', lineHeight: '1.6' }}>
+                                        <p style={{ marginBottom: '1rem' }}>You can return any item within 30 days of delivery. To start a return, go to your 'Orders' tab and select the item you wish to return.</p>
+                                        <ul style={{ paddingLeft: '1.25rem', marginBottom: '0.5rem' }}>
+                                            <li>Items must be in original condition with tags</li>
+                                            <li>Refunds are processed within 5-7 business days</li>
+                                            <li>Return shipping is free for your first return each month</li>
                                         </ul>
                                     </div>
                                 </HelpCard>
 
                                 <HelpCard
-                                    id="return"
-                                    title="Return Policy"
-                                    subtitle="Returns and refunds guide"
-                                    icon={RotateCcw}
+                                    id="shipping"
+                                    title="Shipping & Delivery"
+                                    icon={Truck}
+                                    subtitle="Track your package and check delivery times"
                                 >
-                                    <div className="help-expanded-inner">
-                                        <p>
-                                            We offer a <strong>{state.settings?.returnWindowDays || 30}-day return policy</strong> for unworn items in original packaging.
-                                            <br /><br />
-                                            To initiate a return, go to "My Orders", select the order, and click "Return". Refunds are processed within 5-7 business days.
-                                        </p>
+                                    <div className="help-detail-content" style={{ color: '#4b5563', lineHeight: '1.6' }}>
+                                        <p style={{ marginBottom: '1rem' }}>We offer standard (5-7 days) and express (2-3 days) shipping options.</p>
+                                        <ul style={{ paddingLeft: '1.25rem', marginBottom: '0.5rem' }}>
+                                            <li>Free standard shipping on orders over $50</li>
+                                            <li>Track your order in real-time via the tracking link in your email</li>
+                                            <li>International shipping available to over 50 countries</li>
+                                        </ul>
                                     </div>
                                 </HelpCard>
 
                                 <HelpCard
-                                    id="shipping"
-                                    title="Shipping Info"
-                                    subtitle="Delivery times and costs"
-                                    icon={Truck}
+                                    id="payment"
+                                    title="Payment & Security"
+                                    icon={ShieldCheck}
+                                    subtitle="Secure payment options and data protection"
                                 >
-                                    <div className="help-expanded-inner">
-                                        <p>
-                                            <strong>Standard Shipping:</strong> 3-5 business days (Free over ₹999).<br />
-                                            <strong>Express Shipping:</strong> 1-2 business days.<br /><br />
-                                            You will receive a tracking link via email once your order ships.
-                                        </p>
+                                    <div className="help-detail-content" style={{ color: '#4b5563', lineHeight: '1.6' }}>
+                                        <p style={{ marginBottom: '1rem' }}>Your security is our priority. We use industry-standard encryption to protect your data.</p>
+                                        <ul style={{ paddingLeft: '1.25rem', marginBottom: '0.5rem' }}>
+                                            <li>Accepted: Visa, Mastercard, AMEX, PayPal, and Apple Pay</li>
+                                            <li>Secure SSL checkout process</li>
+                                            <li>24/7 fraud monitoring on all transactions</li>
+                                        </ul>
                                     </div>
                                 </HelpCard>
-                            </div>
 
-                            <div className="help-footer-card">
-                                <h3 className="help-footer-title">Still need help?</h3>
-                                <button className="btn-chat-support">
-                                    Chat with us
-                                </button>
+                                <HelpCard
+                                    id="contact"
+                                    title="Contact Us"
+                                    icon={MessageCircle}
+                                    subtitle="Get in touch with our support team"
+                                >
+                                    <div className="help-detail-content" style={{ color: '#4b5563', lineHeight: '1.6' }}>
+                                        <div style={{ marginBottom: '1rem' }}>
+                                            <strong style={{ color: '#111827', display: 'block', marginBottom: '0.25rem' }}>Email Support:</strong>
+                                            <p>support@threads-fashion.com (24h response time)</p>
+                                        </div>
+                                        <div>
+                                            <strong style={{ color: '#111827', display: 'block', marginBottom: '0.25rem' }}>Phone Support:</strong>
+                                            <p>1-800-THREADS (Mon-Fri, 9am-6pm EST)</p>
+                                        </div>
+                                    </div>
+                                </HelpCard>
                             </div>
                         </div>
                     )}
                 </div>
-            </div >
+            </div>
 
             <ReasonModal isOpen={state.modals.cancel} onClose={() => dispatch({ type: 'CLOSE_MODAL' })} onSubmit={(reason) => handleOrderAction('cancel', reason)} title="Cancel Order" placeholder="Reason..." type="cancel" />
             <ReasonModal isOpen={state.modals.return} onClose={() => dispatch({ type: 'CLOSE_MODAL' })} onSubmit={(reason) => handleOrderAction('return', reason)} title="Request Return" placeholder="Reason..." type="return" />

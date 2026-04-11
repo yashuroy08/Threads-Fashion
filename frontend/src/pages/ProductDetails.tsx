@@ -20,8 +20,8 @@ type ProductVariant = {
 
 export type Product = {
     slug: any;
-    _id: string; // Changed to match likely backend ID
-    id?: string; // Fallback
+    _id?: string;
+    id?: string;
     title: string;
     description: string;
     price: {
@@ -32,6 +32,9 @@ export type Product = {
     parentCategory?: { name: string; slug: string };
     childCategory?: { name: string; slug: string };
     parentCategoryId?: string;
+    childCategoryId?: string;
+    parentCategoryName?: string;
+    childCategoryName?: string;
     images?: { url: string; altText?: string; color?: string }[];
     sizes?: string[];
     colors?: string[];
@@ -44,6 +47,8 @@ export type Product = {
 
 // --- REUSABLE VIEW COMPONENT ---
 export function ProductDetailsView({ product, isPreview = false }: { product: Product | null; isPreview?: boolean }) {
+    if (!product) return <div className="p-10 text-center">Loading product details...</div>;
+
     const { addToCart, cart } = useCartContext();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
     const thumbnailRef = useRef<HTMLDivElement>(null);
@@ -68,6 +73,7 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
     const [error, setError] = useState<string>('');
     const [activeTab, setActiveTab] = useState<'description' | 'details'>('description');
     const [isAdded, setIsAdded] = useState(false);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
     // Find specific variant based on selection
     const currentVariant = useMemo(() => {
@@ -84,7 +90,7 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
         if (product?.variants?.length) {
             // If a specific variant is identified (Size + Color)
             if (currentVariant) {
-                return (currentVariant.availableStock || currentVariant.stock);
+                return (currentVariant.availableStock ?? currentVariant.stock ?? 0);
             }
 
             // If only Color is selected (or nothing), sum up stock for that color
@@ -93,7 +99,7 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
                 ? product.variants.filter(v => v.color.toLowerCase() === selectedColor.toLowerCase())
                 : product.variants;
 
-            return relevantVariants.reduce((acc, v) => acc + (v.availableStock || v.stock || 0), 0);
+            return relevantVariants.reduce((acc, v) => acc + (v.availableStock ?? v.stock ?? 0), 0);
         }
         return product?.stock || 0;
     }, [product, currentVariant, selectedColor]);
@@ -124,18 +130,24 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
         setIsAdded(false);
     }, [selectedSize, selectedColor, quantity]);
 
-    const filteredImages = (product?.images?.filter(img =>
-        !selectedColor || !img.color || img.color === selectedColor
-    ) || []).sort((a, b) => {
-        // Prioritize images that specifically match the selected color
-        if (selectedColor) {
-            const aMatch = a.color === selectedColor;
-            const bMatch = b.color === selectedColor;
-            if (aMatch && !bMatch) return -1;
-            if (!aMatch && bMatch) return 1;
-        }
-        return 0;
-    });
+    const filteredImages = useMemo(() => {
+        if (!product?.images) return [];
+        
+        let imgs = product.images.filter(img =>
+            !selectedColor || !img.color || img.color.toLowerCase() === selectedColor.toLowerCase()
+        );
+        
+        // Sort to prioritize images matching the color exactly to the front
+        return imgs.sort((a, b) => {
+            if (selectedColor) {
+                const aMatch = a.color?.toLowerCase() === selectedColor.toLowerCase();
+                const bMatch = b.color?.toLowerCase() === selectedColor.toLowerCase();
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+            }
+            return 0;
+        });
+    }, [product?.images, selectedColor]);
 
     const displayImages = filteredImages.length > 0 ? filteredImages : (product?.images || []);
 
@@ -208,8 +220,16 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
                     items={[
                         { label: 'Home', href: '/' },
                         { label: 'Shop', href: '/products' },
-                        ...(product.parentCategory ? [{ label: product.parentCategory.name, href: `/products?parentCategory=${product.parentCategory.slug}` }] : []),
-                        ...(product.childCategory ? [{ label: product.childCategory.name, href: `/products?childCategory=${product.childCategory.slug}` }] : []),
+                        ...(product.parentCategory
+                            ? [{ label: product.parentCategory.name, href: `/products?parentCategory=${product.parentCategory.slug}` }]
+                            : product.parentCategoryName
+                              ? [{ label: product.parentCategoryName, href: `/products?parentCategory=${encodeURIComponent(product.parentCategoryId || product.parentCategoryName)}` }]
+                              : []),
+                        ...(product.childCategory
+                            ? [{ label: product.childCategory.name, href: `/products?childCategory=${product.childCategory.slug}` }]
+                            : product.childCategoryName
+                              ? [{ label: product.childCategoryName, href: `/products?childCategory=${encodeURIComponent(product.childCategoryId || product.childCategoryName)}` }]
+                              : []),
                         { label: product.title, href: `/products/${product.slug}` } // Active
                     ]}
                 />
@@ -225,6 +245,8 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
                                     src={displayImages[activeImageIndex].url}
                                     alt={displayImages[activeImageIndex].altText || product.title}
                                     className="main-image"
+                                    onClick={() => !isPreview && setIsLightboxOpen(true)}
+                                    title="Click to zoom"
                                 />
                                 {displayImages.length > 1 && (
                                     <>
@@ -262,7 +284,15 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
                     <h1 className="product-title">{product.title}</h1>
 
                     <div className="product-price-row">
-                        <span className="current-price">₹{(product.price.amount / 100).toFixed(2)}</span>
+                        <span className="current-price">₹{((product?.price?.amount || 0) / 100).toFixed(2)}</span>
+                        {product.discountPercentage && product.discountPercentage > 0 && (
+                            <span className="original-price-details">
+                                ₹{Math.round(((product?.price?.amount || 0) / 100) * (100 / (100 - product.discountPercentage)))}
+                            </span>
+                        )}
+                        {product.discountPercentage && product.discountPercentage > 0 && (
+                            <span className="discount-tag">-{product.discountPercentage}% OFF</span>
+                        )}
                     </div>
 
                     <div className="product-meta-row">
@@ -271,11 +301,11 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
                         ) : (
                             <span className="stock-badge out-of-stock">Out of Stock</span>
                         )}
-                        <span className="sku-text">SKU: {product._id?.substring(0, 8).toUpperCase() || 'PREVIEW'}</span>
+                        <span className="sku-text">SKU: {(product._id || product.id || '').substring(0, 8).toUpperCase() || 'PREVIEW'}</span>
                     </div>
 
                     <p className="short-description">
-                        {product.description.substring(0, 150)}...
+                        {(product.description || '').substring(0, 150)}{(product.description || '').length > 150 ? '...' : ''}
                         <button className="read-more-link" onClick={() => {
                             setActiveTab('description');
                             document.getElementById('details-tabs')?.scrollIntoView({ behavior: 'smooth' });
@@ -284,7 +314,8 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
 
                     <div className="divider"></div>
 
-                    {/* SELECTIONS */}
+                    {/* SELECTIONS — grouped to align visually with gallery column */}
+                    <div className="product-purchase-panel">
                     <div className="selectors-container">
                         {/* COLOR */}
                         {product.colors && product.colors.length > 0 && (
@@ -367,21 +398,22 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
                                 </button>
                             )}
                         </div>
+                    </div>
+                    </div>
 
-                        {/* USPs */}
-                        <div className="usp-grid">
-                            <div className="usp-item">
-                                <Truck size={20} strokeWidth={1.5} />
-                                <span>Free Shipping</span>
-                            </div>
-                            <div className="usp-item">
-                                <ShieldCheck size={20} strokeWidth={1.5} />
-                                <span>Authentic</span>
-                            </div>
-                            <div className="usp-item">
-                                <RotateCcw size={20} strokeWidth={1.5} />
-                                <span>easy Returns</span>
-                            </div>
+                    {/* USPs */}
+                    <div className="usp-grid">
+                        <div className="usp-item">
+                            <Truck size={20} strokeWidth={1.5} />
+                            <span>Free Shipping</span>
+                        </div>
+                        <div className="usp-item">
+                            <ShieldCheck size={20} strokeWidth={1.5} />
+                            <span>Authentic</span>
+                        </div>
+                        <div className="usp-item">
+                            <RotateCcw size={20} strokeWidth={1.5} />
+                            <span>easy Returns</span>
                         </div>
                     </div>
                 </div>
@@ -422,7 +454,53 @@ export function ProductDetailsView({ product, isPreview = false }: { product: Pr
             </div>
 
             {!isPreview && (
-                <RelatedProducts currentProductId={product._id || product.id || ''} category={product.parentCategory?.slug || product.category} />
+                <RelatedProducts
+                    currentProductId={String(product.id || product._id || '')}
+                    parentCategoryId={product.parentCategoryId}
+                    childCategoryId={product.childCategoryId}
+                    parentCategorySlug={product.parentCategory?.slug}
+                    childCategorySlug={product.childCategory?.slug}
+                />
+            )}
+
+            {/* LIGHTBOX */}
+            {isLightboxOpen && displayImages.length > 0 && (
+                <div className="lightbox-overlay" onClick={() => setIsLightboxOpen(false)}>
+                    <button className="lightbox-close" onClick={() => setIsLightboxOpen(false)} aria-label="Close fullscreen view">
+                        ✕
+                    </button>
+                    <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+                        <img
+                            src={displayImages[activeImageIndex].url}
+                            alt="Full Screen Product"
+                            className="lightbox-image"
+                        />
+                        {displayImages.length > 1 && (
+                            <>
+                                <button className="lightbox-nav prev" onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}>
+                                    <ChevronLeft size={40} />
+                                </button>
+                                <button className="lightbox-nav next" onClick={(e) => { e.stopPropagation(); handleNextImage(); }}>
+                                    <ChevronRight size={40} />
+                                </button>
+                            </>
+                        )}
+                        {/* Lightbox Thumbnails */}
+                        {displayImages.length > 1 && (
+                            <div className="lightbox-thumbnails">
+                                {displayImages.map((img, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`lightbox-thumb ${idx === activeImageIndex ? 'active' : ''}`}
+                                        onClick={(e) => { e.stopPropagation(); setActiveImageIndex(idx); }}
+                                    >
+                                        <img src={img.url} alt={`Zoom view ${idx + 1}`} />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
             )}
         </div>
     );
@@ -437,13 +515,17 @@ export default function ProductDetails() {
     useEffect(() => {
         setLoading(true);
         fetch(`${API_BASE}/products/${id}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`Product not found (${res.status})`);
+                return res.json();
+            })
             .then(data => {
                 setProduct(data);
                 setLoading(false);
             })
             .catch(err => {
                 console.error(err);
+                setProduct(null);
                 setLoading(false);
             });
     }, [id]);

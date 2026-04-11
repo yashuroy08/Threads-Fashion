@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 export async function registerUser(payload: {
     email: string;
@@ -35,8 +35,8 @@ export async function loginUser(payload: {
     return data;
 }
 
-export async function verifyOTP(payload: { userId: string; otp: string; type: string }) {
-    const res = await fetch(`${API_BASE}/auth/otp/verify`, {
+export async function verifyOTP(payload: { email: string; otp: string; type: string }) {
+    const res = await fetch(`${API_BASE}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -46,8 +46,8 @@ export async function verifyOTP(payload: { userId: string; otp: string; type: st
     return data;
 }
 
-export async function resendOTP(payload: { userId: string; type: string }) {
-    const res = await fetch(`${API_BASE}/auth/otp/resend`, {
+export async function resendOTP(payload: { email: string; type: string }) {
+    const res = await fetch(`${API_BASE}/auth/resend-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -68,7 +68,7 @@ export async function forgotPassword(email: string) {
     return data;
 }
 
-export async function resetPassword(payload: any) {
+export async function resetPassword(payload: { email: string; otp: string; newPassword: string }) {
     const res = await fetch(`${API_BASE}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

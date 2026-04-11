@@ -19,3 +19,5 @@ frontend/dist/
 # Editor
 .vscode/
 .idea/
+
+process_logo.py

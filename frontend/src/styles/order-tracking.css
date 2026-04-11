@@ -197,6 +197,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: top center;
 }
 
 .item-details {
@@ -512,5 +513,70 @@
 @media (min-width: 769px) {
     .desktop-only {
         display: block !important;
+    }
+}
+
+
+/* Tracking Actions Bar */
+.tracking-actions-bar,
+.banner-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    width: 100%;
+}
+
+.action-button-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.action-button-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.action-button-pill.cancel {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.action-button-pill.warning {
+    background: #fffbeb;
+    color: #d97706;
+    border-color: #fef3c7;
+}
+
+.action-button-pill.info {
+    background: #e0f2fe;
+    color: #0284c7;
+    border-color: #bae6fd;
+}
+
+.action-button-pill.dark {
+    background: #111827;
+    color: #ffffff;
+    border-color: #1f2937;
+}
+
+@media (max-width: 768px) {
+    .tracking-actions-bar {
+        margin-bottom: 1.5rem;
+        justify-content: center;
+    }
+    
+    .action-button-pill {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
     }
 }

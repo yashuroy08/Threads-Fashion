@@ -44,11 +44,13 @@ export function Navbar() {
                     return;
                 }
                 const allCats = data;
-                const parents = allCats.filter((c: any) => !c.parentId);
+                // TEMPORARY: Disabled 'kids' category rendering intentionally
+                const parents = allCats.filter((c: any) => !c.parentId && c.slug !== 'kids' && c.name?.toLowerCase() !== 'kids');
                 const childrenMap: Record<string, any[]> = {};
 
                 parents.forEach((p: any) => {
-                    childrenMap[p._id] = allCats.filter((c: any) => c.parentId === p._id);
+                    const pid = p._id || p.id;
+                    childrenMap[pid] = allCats.filter((c: any) => c.parentId === pid);
                 });
 
                 setCategoryTree({ parents, childrenMap });
@@ -169,12 +171,13 @@ export function Navbar() {
 
                     <div className="desktop-links hidden lg:flex" style={{ gap: '2rem' }}>
                         {categoryTree.parents.map(parent => {
-                            const hasChildren = categoryTree.childrenMap[parent._id] && categoryTree.childrenMap[parent._id].length > 0;
-                            const isOpen = activeDropdown === parent._id;
+                            const pid = parent._id || parent.id;
+                            const hasChildren = categoryTree.childrenMap[pid] && categoryTree.childrenMap[pid].length > 0;
+                            const isOpen = activeDropdown === pid;
 
                             return (
                                 <div
-                                    key={parent._id}
+                                    key={parent._id || parent.id || `nav-parent-${parent.slug}`}
                                     className={`nav-dropdown-group ${isOpen ? 'active' : ''}`}
                                     style={{ position: 'relative' }}
                                 >
@@ -182,12 +185,12 @@ export function Navbar() {
                                         className="nav-link-wrapper"
                                         onClick={(e) => {
                                             if (hasChildren) {
-                                                toggleDropdown(parent._id, e);
+                                                toggleDropdown(pid, e);
                                             } else {
                                                 navigate(`/products?parentCategory=${parent.slug}`);
                                             }
                                         }}
-                                        onMouseEnter={() => hasChildren && setActiveDropdown(parent._id)}
+                                        onMouseEnter={() => hasChildren && setActiveDropdown(pid)}
                                         style={{
                                             cursor: 'pointer',
                                             display: 'flex',
@@ -222,6 +225,7 @@ export function Navbar() {
                                     {/* Dropdown Content */}
                                     {hasChildren && isOpen && (
                                         <div
+                                            className="dropdown-menu-content"
                                             onMouseLeave={() => setActiveDropdown(null)}
                                             style={{
                                                 position: 'absolute',
@@ -255,9 +259,9 @@ export function Navbar() {
                                             >
                                                 View All {parent.name}
                                             </Link>
-                                            {categoryTree.childrenMap[parent._id].map(child => (
+                                            {(categoryTree?.childrenMap?.[pid] || []).map(child => (
                                                 <Link
-                                                    key={child._id}
+                                                    key={child._id || child.id || `nav-child-${child.slug}`}
                                                     to={`/products?childCategory=${child.slug}`}
                                                     style={{
                                                         display: 'block',
@@ -449,9 +453,31 @@ export function Navbar() {
                         </div>
 
                         {/* Navigation Links */}
-                        <Link to="/" className="nav-link" style={{ fontSize: '1.1rem', padding: '0.75rem 0' }}>Home</Link>
-                        {/* Dynamic Links would optionally go here too, but for now fixed "Shop All" */}
-                        <Link to="/products" className="nav-link" style={{ fontSize: '1.1rem', padding: '0.75rem 0' }}>Shop All</Link>
+                        {/* Dynamic Links for Mobile Menu */}
+                        {categoryTree.parents.map(parent => (
+                            <div key={parent._id || parent.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                                <Link 
+                                    to={`/products?parentCategory=${parent.slug}`} 
+                                    className="nav-link" 
+                                    style={{ fontSize: '1.1rem', padding: '0.75rem 0', fontWeight: '600' }}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    {parent.name}
+                                </Link>
+                                <div style={{ paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    {categoryTree.childrenMap[parent._id || parent.id]?.map(child => (
+                                        <Link
+                                            key={child._id || child.id}
+                                            to={`/products?childCategory=${child.slug}`}
+                                            style={{ color: 'rgba(255, 255, 255, 0.6)', textDecoration: 'none', fontSize: '0.9rem' }}
+                                            onClick={() => setMobileMenuOpen(false)}
+                                        >
+                                            {child.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
 
                         {/* Divider */}
                         <div style={{ height: '1px', background: 'var(--fashion-border)', margin: '1rem 0' }}></div>

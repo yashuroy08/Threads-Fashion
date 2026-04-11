@@ -207,7 +207,7 @@ export default function AdminProductForm({ product, onDone }: any) {
                 title,
                 slug: product ? undefined : (slug || title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '')),
                 description,
-                price: { amount: Number(price) * 100, currency: 'INR' },
+                priceAmount: Number(price) * 100,
                 images: allImages,
                 thumbnailUrl: imageUrl,
                 stock: Number(stock),
@@ -387,8 +387,8 @@ export default function AdminProductForm({ product, onDone }: any) {
                 ...additionalImages
             ].filter(img => img.url),
             variants: variants,
-            parentCategory: parentCategories.find(c => c._id === parentCategory) ? { name: parentCategories.find(c => c._id === parentCategory).name, slug: 'cat' } : undefined,
-            childCategory: childCategories.find(c => c._id === childCategory) ? { name: childCategories.find(c => c._id === childCategory).name, slug: 'subcat' } : undefined,
+            parentCategory: parentCategories.find(c => (c._id || c.id) === parentCategory) ? { name: parentCategories.find(c => (c._id || c.id) === parentCategory).name, slug: 'cat' } : undefined,
+            childCategory: childCategories.find(c => (c._id || c.id) === childCategory) ? { name: childCategories.find(c => (c._id || c.id) === childCategory).name, slug: 'subcat' } : undefined,
         };
         return preview;
     };
@@ -529,7 +529,7 @@ export default function AdminProductForm({ product, onDone }: any) {
                                     >
                                         <option value="">Select Parent...</option>
                                         {parentCategories.map(cat => (
-                                            <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                            <option key={cat._id || cat.id} value={cat._id || cat.id}>{cat.name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -545,7 +545,7 @@ export default function AdminProductForm({ product, onDone }: any) {
                                     >
                                         <option value="">Select Child...</option>
                                         {childCategories.map(cat => (
-                                            <option key={cat._id} value={cat._id}>{cat.name}</option>
+                                            <option key={cat._id || cat.id} value={cat._id || cat.id}>{cat.name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -748,7 +748,7 @@ export default function AdminProductForm({ product, onDone }: any) {
                                                     {QUICK_COLORS.map(c => (
                                                         <div
                                                             key={c.name}
-                                                            className="color-swatch-btn"
+                                                            className="admin-color-swatch-btn"
                                                             onClick={() => updateImage(index, 'color', c.name)}
                                                             style={image.color === c.name ? { borderColor: 'var(--admin-primary)', background: '#f0f9ff' } : {}}
                                                         >
