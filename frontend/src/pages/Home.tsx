@@ -44,10 +44,81 @@ interface Product {
     slug: string;
 }
 
-const EditorialShowcase = ({ title, categorySlug, products, isReversed }: { title: string, categorySlug: string, products: Product[], isReversed: boolean }) => {
+// Caching Utility
+const CACHE_KEY = 'THREADS_HOME_CACHE';
+const CACHE_DURATION = 1000 * 60 * 30; // 30 minutes
+
+const getCachedData = (key: string) => {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+    const { data, timestamp } = JSON.parse(cached);
+    if (Date.now() - timestamp > CACHE_DURATION) return null;
+    return data[key];
+};
+
+const setCachedData = (key: string, value: any) => {
+    const cached = localStorage.getItem(CACHE_KEY);
+    const prevData = cached ? JSON.parse(cached).data : {};
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: { ...prevData, [key]: value },
+        timestamp: Date.now()
+    }));
+};
+
+const useMediaQuery = (query: string) => {
+    const [matches, setMatches] = useState(false);
+    useEffect(() => {
+        const media = window.matchMedia(query);
+        if (media.matches !== matches) setMatches(media.matches);
+        const listener = () => setMatches(media.matches);
+        media.addEventListener('change', listener);
+        return () => media.removeEventListener('change', listener);
+    }, [matches, query]);
+    return matches;
+};
+
+const CategorySkeleton = ({ isMobile }: { isMobile: boolean }) => (
+    <div className="category-skeleton-grid">
+        {(isMobile ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8]).map((i) => (
+            <div key={i} className="skeleton skeleton-category-card" />
+        ))}
+    </div>
+);
+
+const ProductSkeleton = () => (
+    <div className="product-card-skeleton">
+        <div className="skeleton skeleton-img" />
+        <div className="skeleton skeleton-text" style={{ width: '80%', height: '1rem', marginTop: '1rem' }} />
+        <div className="skeleton skeleton-text" style={{ width: '40%', height: '1rem', marginTop: '0.5rem' }} />
+    </div>
+);
+
+const EditorialSkeleton = () => (
+    <section className="editorial-section skeleton-editorial">
+        <div className="skeleton editorial-featured-skeleton" />
+        <div className="editorial-content-wrapper">
+            <div className="editorial-story">
+                <div className="skeleton skeleton-title" style={{ width: '80%' }} />
+                <div className="skeleton skeleton-text" />
+                <div className="skeleton skeleton-text" style={{ width: '90%' }} />
+                <div className="skeleton skeleton-button" style={{ marginTop: '2rem' }} />
+            </div>
+            <div className="editorial-side-products">
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="editorial-small-card">
+                        <div className="skeleton img-wrap" style={{ aspectRatio: '3/4', width: '100%' }} />
+                        <div className="skeleton skeleton-text" style={{ width: '60%' }} />
+                    </div>
+                ))}
+            </div>
+        </div>
+    </section>
+);
+
+const EditorialShowcase = ({ title, categorySlug, products, isReversed, isLoading }: { title: string, categorySlug: string, products: Product[], isReversed: boolean, isLoading: boolean }) => {
+    if (isLoading) return <EditorialSkeleton />;
     if (products.length === 0) return null;
     
-    // Pick the first product as the "Featured" lifestyle product
     const featuredProduct = products[0];
     const otherProducts = products.slice(1, 4);
 
@@ -56,7 +127,12 @@ const EditorialShowcase = ({ title, categorySlug, products, isReversed }: { titl
              <div className="editorial-featured reveal-on-scroll">
                  <Link to={`/products/${featuredProduct.slug}`} className="editorial-featured-link">
                      {featuredProduct.images?.[0]?.url ? (
-                         <img src={featuredProduct.images[0].url} alt={featuredProduct.title} className="editorial-main-img" />
+                         <img 
+                            src={featuredProduct.images[0].url} 
+                            alt={featuredProduct.title} 
+                            className="editorial-main-img" 
+                            loading="lazy"
+                         />
                      ) : (
                          <div className="editorial-main-img placeholder" />
                      )}
@@ -68,7 +144,6 @@ const EditorialShowcase = ({ title, categorySlug, products, isReversed }: { titl
 
              <div className="editorial-content-wrapper">
                  <div className="editorial-story reveal-on-scroll" style={{ transitionDelay: '0.2s' }}>
-                      <span className="editorial-subtitle">Curated Collection</span>
                       <h2 className="editorial-title">{title}</h2>
                       <p className="editorial-text">
                         Discover our new arrivals tailored for excellence. Blending classic design with a modern edge to redefine your everyday style.
@@ -83,7 +158,12 @@ const EditorialShowcase = ({ title, categorySlug, products, isReversed }: { titl
                          <Link to={`/products/${product.slug}`} key={product.id} className="editorial-small-card reveal-on-scroll" style={{ transitionDelay: `${0.3 + idx * 0.15}s` }}>
                             <div className="img-wrap">
                                 {product.images?.[0]?.url ? (
-                                    <img src={product.images[0].url} alt={product.title} className="editorial-small-img" />
+                                    <img 
+                                        src={product.images[0].url} 
+                                        alt={product.title} 
+                                        className="editorial-small-img" 
+                                        loading="lazy"
+                                    />
                                 ) : (
                                     <div className="editorial-small-img placeholder" />
                                 )}
@@ -100,7 +180,11 @@ const EditorialShowcase = ({ title, categorySlug, products, isReversed }: { titl
 };
 
 export default function Home() {
+    const isMobile = useMediaQuery('(max-width: 768px)');
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [loadingCategories, setLoadingCategories] = useState(true);
+    const [loadingMen, setLoadingMen] = useState(true);
+    const [loadingWomen, setLoadingWomen] = useState(true);
     const [categoryCards, setCategoryCards] = useState<{
         childId: string;
         childName: string;
@@ -109,26 +193,39 @@ export default function Home() {
         parentName: string;
         parentSlug: string;
         image: string;
-    }[]>([]);
+    }[]>(() => getCachedData('categoryCards') || []);
 
-    const [menProducts, setMenProducts] = useState<Product[]>([]);
-    const [womenProducts, setWomenProducts] = useState<Product[]>([]);
+    const [menProducts, setMenProducts] = useState<Product[]>(() => getCachedData('menProducts') || []);
+    const [womenProducts, setWomenProducts] = useState<Product[]>(() => getCachedData('womenProducts') || []);
 
     useEffect(() => {
-        const fetchCategoryProducts = async (category: string, setter: (products: Product[]) => void) => {
+        const fetchCategoryProducts = async (category: string, setter: (products: Product[]) => void, loader: (val: boolean) => void) => {
+            const cached = getCachedData(`${category}Products`);
+            if (cached) {
+                setter(cached);
+                loader(false);
+                return;
+            }
+
             try {
                 const res = await fetch(`${API_BASE}/products?parentCategory=${category}&limit=8&sortBy=newest`);
                 const data = await res.json();
                 const items = data.content || data.items || (Array.isArray(data) ? data : []);
                 setter(items);
+                setCachedData(`${category}Products`, items);
             } catch (err) {
                 console.error(`Failed to fetch ${category} products:`, err);
+            } finally {
+                loader(false);
             }
         };
 
-        fetchCategoryProducts('men', setMenProducts);
-        fetchCategoryProducts('women', setWomenProducts);
-    }, []);
+        if (menProducts.length === 0) fetchCategoryProducts('men', setMenProducts, setLoadingMen);
+        else setLoadingMen(false);
+
+        if (womenProducts.length === 0) fetchCategoryProducts('women', setWomenProducts, setLoadingWomen);
+        else setLoadingWomen(false);
+    }, [menProducts.length, womenProducts.length]);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -142,8 +239,6 @@ export default function Home() {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
-                    // Optional: stop observing once revealed
-                    // observer.unobserve(entry.target); 
                 }
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
@@ -165,11 +260,10 @@ export default function Home() {
     const [touchStart, setTouchStart] = useState<number | null>(null);
     const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
-    // Minimum swipe distance (in px)
     const minSwipeDistance = 50;
 
     const onTouchStart = (e: React.TouchEvent) => {
-        setTouchEnd(null); // Reset touch end
+        setTouchEnd(null);
         setTouchStart(e.targetTouches[0].clientX);
     };
 
@@ -193,12 +287,17 @@ export default function Home() {
     };
 
     useEffect(() => {
-        // Fetch a larger set to ensure we get a diverse range of categories
+        const cached = getCachedData('categoryCards');
+        if (cached) {
+            setCategoryCards(cached);
+            setLoadingCategories(false);
+            return;
+        }
+
         fetch(`${API_BASE}/products?limit=50&sortBy=newest`)
             .then(res => res.json())
             .then(data => {
                 const items = data.content || data.items || (Array.isArray(data) ? data : []);
-
                 const uniqueCategories = new Map();
 
                 items.forEach((p: any) => {
@@ -208,17 +307,14 @@ export default function Home() {
                     if ((hasClassicPopulated || hasFlatPopulated) && p.images && p.images.length > 0 && p.images[0].url) {
                         const childId = p.childCategory?._id || p.childCategory?.id || p.childCategoryId;
                         const childName = p.childCategory?.name || p.childCategoryName || '';
-                        // Prefer API slug; never derive from name alone — "T-Shirts" -> t-shirts does not match DB slugs like kids-tshirts.
                         const childSlug = p.childCategory?.slug || '';
 
                         const parentId = p.parentCategory?._id || p.parentCategory?.id || p.parentCategoryId;
                         const parentName = p.parentCategory?.name || p.parentCategoryName || '';
                         const parentSlug = p.parentCategory?.slug || (p.parentCategoryName || '').toLowerCase().replace(/ /g, '-');
 
-                        // Dedupe by stable child id when present (avoids collisions on duplicate display names).
                         const key = (childId && String(childId)) || childSlug || childName;
                         if (key && childId && parentId && !uniqueCategories.has(key)) {
-                            // Filter out 'kids' temporarily
                             if (parentSlug !== 'kids' && parentName.toLowerCase() !== 'kids') {
                                 uniqueCategories.set(key, {
                                     childId: String(childId),
@@ -234,10 +330,15 @@ export default function Home() {
                     }
                 });
 
-                // Convert map to array and slice to 8 for the grid
-                setCategoryCards(Array.from(uniqueCategories.values()).slice(0, 8));
+                const dataArray = Array.from(uniqueCategories.values()).slice(0, 8);
+                setCategoryCards(dataArray);
+                setCachedData('categoryCards', dataArray);
+                setLoadingCategories(false);
             })
-            .catch(err => console.error('Failed to fetch products for categories:', err));
+            .catch(err => {
+                console.error('Failed to fetch products for categories:', err);
+                setLoadingCategories(false);
+            });
     }, []);
 
     return (
@@ -258,6 +359,7 @@ export default function Home() {
                             src={slide.image}
                             alt="Hero Background"
                             className="hero-image"
+                            loading={index === 0 ? "eager" : "lazy"}
                         />
                         <div className="hero-overlay">
                             <div className="hero-content">
@@ -310,17 +412,15 @@ export default function Home() {
             </section>
 
             {/* CHILD CATEGORIES GRID */}
-            <section className="products-section reveal-on-scroll">
-                <div className="section-header">
-                    <span className="section-subtitle">Curated Styles</span>
-                    <h2 className="section-title">Trending Categories</h2>
+            <section className="category-grid-section reveal-on-scroll">
+                <div className="section-header-minimal">
+                    <h2 className="minimal-title">Shop by Category</h2>
                 </div>
-
-                <div className="category-rail">
-                    {categoryCards.length === 0 ? (
-                        <p className="loading-text">Loading categories...</p>
-                    ) : (
-                        categoryCards.map((cat) => (
+                {loadingCategories && categoryCards.length === 0 ? (
+                    <CategorySkeleton isMobile={isMobile} />
+                ) : (
+                    <div className="category-rail">
+                        {categoryCards.map((cat) => (
                             <Link
                                 to={`/products?parentCategory=${encodeURIComponent(cat.parentId)}&childCategory=${encodeURIComponent(cat.childId)}`}
                                 key={cat.childId}
@@ -331,6 +431,7 @@ export default function Home() {
                                         src={cat.image}
                                         alt={cat.childName}
                                         className="landing-product-img"
+                                        loading="lazy"
                                     />
                                     <div className="category-visual-overlay">
                                         <div className="cat-info">
@@ -342,20 +443,49 @@ export default function Home() {
                                     </div>
                                 </div>
                             </Link>
-                        ))
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
 
-                <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-                    <Link to="/products" className="btn-hero btn-primary" style={{ border: '1px solid #000', color: '#000', background: 'transparent' }}>
-                        View All Collections
+                <div className="view-all-container">
+                    <Link to="/products" className="btn-view-all">
+                        View All Collections <ArrowRight size={18} />
                     </Link>
                 </div>
             </section>
 
+            {/* NEW ARRIVALS SECTION */}
+            <section className="new-arrivals-section reveal-on-scroll">
+                <div className="section-header-minimal">
+                    <h2 className="minimal-title">New Arrivals</h2>
+                    <Link to="/products?sortBy=newest" className="minimal-link">View All <ArrowRight size={16} /></Link>
+                </div>
+                <div className="arrivals-horizontal-scroll">
+                    {loadingMen || loadingWomen ? (
+                        [1, 2, 3, 4, 5].map(i => <ProductSkeleton key={i} />)
+                    ) : (
+                        [...menProducts, ...womenProducts].slice(0, 10).map((product) => (
+                            <Link to={`/products/${product.slug}`} key={product.id} className="arrival-card">
+                                <div className="arrival-img-wrapper">
+                                    <img 
+                                        src={product.images?.[0]?.url || 'https://via.placeholder.com/400x500'} 
+                                        alt={product.title} 
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <div className="arrival-info">
+                                    <h3>{product.title}</h3>
+                                    <p>₹{product.price.amount}</p>
+                                </div>
+                            </Link>
+                        ))
+                    )}
+                </div>
+            </section>
+
             {/* CATEGORY PRODUCT SHOWCASES */}
-            <EditorialShowcase title="Men's Edit" categorySlug="men" products={menProducts} isReversed={false} />
-            <EditorialShowcase title="Women's Edit" categorySlug="women" products={womenProducts} isReversed={true} />
+            <EditorialShowcase title="Men's Edit" categorySlug="men" products={menProducts} isReversed={false} isLoading={loadingMen} />
+            <EditorialShowcase title="Women's Edit" categorySlug="women" products={womenProducts} isReversed={true} isLoading={loadingWomen} />
 
             {/* FEATURES SECTION */}
             <section className="features-section reveal-on-scroll">
@@ -411,3 +541,4 @@ export default function Home() {
         </div>
     );
 }
+
