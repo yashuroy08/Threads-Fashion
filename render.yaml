@@ -8,11 +8,11 @@ services:
     dockerfilePath: Dockerfile
     envVars:
       - key: MONGO_URI
-        value: mongodb+srv://yash-user-08:yashuroy08@cluster0.1keupot.mongodb.net/threads-fashion?retryWrites=true&w=majority
+        sync: false
       - key: MONGO_DB
         value: threads-fashion
       - key: JWT_SECRET 
-        value: replace_me_with_jwt_secret
+        sync: false
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
