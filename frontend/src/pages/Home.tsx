@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Truck, ShieldCheck, RefreshCw, Headphones, ArrowRight, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Truck, ShieldCheck, RefreshCw, Headphones, ArrowRight, Mail, ChevronLeft, ChevronRight, Star, Sparkles } from 'lucide-react';
 import '../styles/global.css';
 import '../styles/landing.css';
 import { API_BASE } from '../config/api.config';
@@ -77,9 +77,10 @@ const useMediaQuery = (query: string) => {
     return matches;
 };
 
+/* ========== SKELETONS ========== */
 const CategorySkeleton = ({ isMobile }: { isMobile: boolean }) => (
     <div className="category-skeleton-grid">
-        {(isMobile ? [1, 2, 3, 4] : [1, 2, 3, 4, 5, 6, 7, 8]).map((i) => (
+        {Array.from({ length: isMobile ? 4 : 8 }).map((_, i) => (
             <div key={i} className="skeleton skeleton-category-card" />
         ))}
     </div>
@@ -88,8 +89,7 @@ const CategorySkeleton = ({ isMobile }: { isMobile: boolean }) => (
 const ProductSkeleton = () => (
     <div className="product-card-skeleton">
         <div className="skeleton skeleton-img" />
-        <div className="skeleton skeleton-text" style={{ width: '80%', height: '1rem', marginTop: '1rem' }} />
-        <div className="skeleton skeleton-text" style={{ width: '40%', height: '1rem', marginTop: '0.5rem' }} />
+        <div className="skeleton skeleton-text" style={{ width: '70%', height: '0.85rem', marginTop: '0.75rem' }} />
     </div>
 );
 
@@ -115,53 +115,54 @@ const EditorialSkeleton = () => (
     </section>
 );
 
+/* ========== EDITORIAL SHOWCASE ========== */
 const EditorialShowcase = ({ title, categorySlug, products, isReversed, isLoading }: { title: string, categorySlug: string, products: Product[], isReversed: boolean, isLoading: boolean }) => {
     if (isLoading) return <EditorialSkeleton />;
     if (products.length === 0) return null;
-    
+
     const featuredProduct = products[0];
     const otherProducts = products.slice(1, 4);
 
     return (
         <section className={`editorial-section ${isReversed ? 'editorial-reversed' : ''}`}>
-             <div className="editorial-featured reveal-on-scroll">
-                 <Link to={`/products/${featuredProduct.slug}`} className="editorial-featured-link">
-                     {featuredProduct.images?.[0]?.url ? (
-                         <img 
-                            src={featuredProduct.images[0].url} 
-                            alt={featuredProduct.title} 
-                            className="editorial-main-img" 
+            <div className="editorial-featured reveal-on-scroll">
+                <Link to={`/products/${featuredProduct.slug}`} className="editorial-featured-link">
+                    {featuredProduct.images?.[0]?.url ? (
+                        <img
+                            src={featuredProduct.images[0].url}
+                            alt={featuredProduct.title}
+                            className="editorial-main-img"
                             loading="lazy"
-                         />
-                     ) : (
-                         <div className="editorial-main-img placeholder" />
-                     )}
-                     <div className="editorial-featured-overlay">
-                         <span className="editorial-shop-btn">Shop The Look</span>
-                     </div>
-                 </Link>
-             </div>
+                        />
+                    ) : (
+                        <div className="editorial-main-img placeholder" />
+                    )}
+                    <div className="editorial-featured-overlay">
+                        <span className="editorial-shop-btn">Shop The Look</span>
+                    </div>
+                </Link>
+            </div>
 
-             <div className="editorial-content-wrapper">
-                 <div className="editorial-story reveal-on-scroll" style={{ transitionDelay: '0.2s' }}>
-                      <h2 className="editorial-title">{title}</h2>
-                      <p className="editorial-text">
+            <div className="editorial-content-wrapper">
+                <div className="editorial-story reveal-on-scroll" style={{ transitionDelay: '0.2s' }}>
+                    <h2 className="editorial-title">{title}</h2>
+                    <p className="editorial-text">
                         Discover our new arrivals tailored for excellence. Blending classic design with a modern edge to redefine your everyday style.
-                      </p>
-                      <Link to={`/products?parentCategory=${categorySlug}`} className="editorial-cta-btn">
-                           Explore {title.split("'")[0]}
-                      </Link>
-                 </div>
+                    </p>
+                    <Link to={`/products?parentCategory=${categorySlug}`} className="editorial-cta-btn">
+                        Explore {title.split("'")[0]}
+                    </Link>
+                </div>
 
-                 <div className="editorial-side-products">
-                     {otherProducts.map((product, idx) => (
-                         <Link to={`/products/${product.slug}`} key={product.id} className="editorial-small-card reveal-on-scroll" style={{ transitionDelay: `${0.3 + idx * 0.15}s` }}>
+                <div className="editorial-side-products">
+                    {otherProducts.map((product, idx) => (
+                        <Link to={`/products/${product.slug}`} key={product.id} className="editorial-small-card reveal-on-scroll" style={{ transitionDelay: `${0.3 + idx * 0.15}s` }}>
                             <div className="img-wrap">
                                 {product.images?.[0]?.url ? (
-                                    <img 
-                                        src={product.images[0].url} 
-                                        alt={product.title} 
-                                        className="editorial-small-img" 
+                                    <img
+                                        src={product.images[0].url}
+                                        alt={product.title}
+                                        className="editorial-small-img"
                                         loading="lazy"
                                     />
                                 ) : (
@@ -171,14 +172,38 @@ const EditorialShowcase = ({ title, categorySlug, products, isReversed, isLoadin
                             <div className="editorial-small-info">
                                 <h4>{product.title}</h4>
                             </div>
-                         </Link>
-                     ))}
-                 </div>
-             </div>
+                        </Link>
+                    ))}
+                </div>
+            </div>
         </section>
     );
 };
 
+/* ========== TRUST MARQUEE ========== */
+const TrustMarquee = () => {
+    const items = [
+        "✦ Premium Quality",
+        "✦ Free Shipping",
+        "✦ Secure Checkout",
+        "✦ 30-Day Returns",
+        "✦ Sustainably Made",
+        "✦ Trusted by 10K+ Customers",
+    ];
+    const doubled = [...items, ...items];
+
+    return (
+        <div className="trust-marquee">
+            <div className="trust-marquee-track">
+                {doubled.map((item, i) => (
+                    <span key={i} className="trust-marquee-item">{item}</span>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+/* ========== MAIN HOME ========== */
 export default function Home() {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -197,6 +222,7 @@ export default function Home() {
 
     const [menProducts, setMenProducts] = useState<Product[]>(() => getCachedData('menProducts') || []);
     const [womenProducts, setWomenProducts] = useState<Product[]>(() => getCachedData('womenProducts') || []);
+    const arrivalsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchCategoryProducts = async (category: string, setter: (products: Product[]) => void, loader: (val: boolean) => void) => {
@@ -286,6 +312,13 @@ export default function Home() {
         }
     };
 
+    const scrollArrivals = (direction: 'left' | 'right') => {
+        if (arrivalsRef.current) {
+            const scrollAmount = direction === 'left' ? -280 : 280;
+            arrivalsRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    };
+
     useEffect(() => {
         const cached = getCachedData('categoryCards');
         if (cached) {
@@ -303,7 +336,7 @@ export default function Home() {
                 items.forEach((p: any) => {
                     const hasClassicPopulated = p.childCategory && p.parentCategory;
                     const hasFlatPopulated = p.childCategoryId && p.parentCategoryId;
-                    
+
                     if ((hasClassicPopulated || hasFlatPopulated) && p.images && p.images.length > 0 && p.images[0].url) {
                         const childId = p.childCategory?._id || p.childCategory?.id || p.childCategoryId;
                         const childName = p.childCategory?.name || p.childCategoryName || '';
@@ -363,7 +396,7 @@ export default function Home() {
                         />
                         <div className="hero-overlay">
                             <div className="hero-content">
-                                <span className="hero-badge" style={{ animationDelay: '0.2s' }}>{slide.badge}</span>
+                                <span className="hero-badge">{slide.badge}</span>
                                 <h1 className="hero-title">
                                     {slide.title.split('\n').map((line, i) => (
                                         <span key={i} style={{ display: 'block' }}>{line}</span>
@@ -381,7 +414,7 @@ export default function Home() {
                                         </Link>
                                     )}
                                     {slide.ctaSecondary && (
-                                        <Link to={slide.linkSecondary} className="btn-hero btn-secondary">
+                                        <Link to={slide.linkSecondary!} className="btn-hero btn-secondary">
                                             {slide.ctaSecondary}
                                         </Link>
                                     )}
@@ -411,7 +444,10 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* CHILD CATEGORIES GRID */}
+            {/* TRUST MARQUEE - builds credibility immediately after hero */}
+            <TrustMarquee />
+
+            {/* CATEGORY GRID */}
             <section className="category-grid-section reveal-on-scroll">
                 <div className="section-header-minimal">
                     <h2 className="minimal-title">Shop by Category</h2>
@@ -420,11 +456,12 @@ export default function Home() {
                     <CategorySkeleton isMobile={isMobile} />
                 ) : (
                     <div className="category-rail">
-                        {categoryCards.map((cat) => (
+                        {categoryCards.map((cat, idx) => (
                             <Link
                                 to={`/products?parentCategory=${encodeURIComponent(cat.parentId)}&childCategory=${encodeURIComponent(cat.childId)}`}
                                 key={cat.childId}
-                                className="landing-product-card category-visual-card"
+                                className="landing-product-card category-visual-card reveal-on-scroll"
+                                style={{ transitionDelay: `${idx * 0.08}s` }}
                             >
                                 <div className="landing-product-img-wrapper">
                                     <img
@@ -437,7 +474,7 @@ export default function Home() {
                                         <div className="cat-info">
                                             <span className="visual-cat-name">{cat.childName}</span>
                                             <span className="visual-cat-action">
-                                                Explore Collection <ArrowRight size={14} />
+                                                Explore <ArrowRight size={14} />
                                             </span>
                                         </div>
                                     </div>
@@ -454,67 +491,104 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* NEW ARRIVALS SECTION */}
+            {/* NEW ARRIVALS — No prices shown, compact cards on mobile */}
             <section className="new-arrivals-section reveal-on-scroll">
                 <div className="section-header-minimal">
                     <h2 className="minimal-title">New Arrivals</h2>
                     <Link to="/products?sortBy=newest" className="minimal-link">View All <ArrowRight size={16} /></Link>
                 </div>
-                <div className="arrivals-horizontal-scroll">
-                    {loadingMen || loadingWomen ? (
-                        [1, 2, 3, 4, 5].map(i => <ProductSkeleton key={i} />)
-                    ) : (
-                        [...menProducts, ...womenProducts].slice(0, 10).map((product) => (
-                            <Link to={`/products/${product.slug}`} key={product.id} className="arrival-card">
-                                <div className="arrival-img-wrapper">
-                                    <img 
-                                        src={product.images?.[0]?.url || 'https://via.placeholder.com/400x500'} 
-                                        alt={product.title} 
-                                        loading="lazy"
-                                    />
-                                </div>
-                                <div className="arrival-info">
-                                    <h3>{product.title}</h3>
-                                    <p>₹{product.price.amount}</p>
-                                </div>
-                            </Link>
-                        ))
+                <div className="arrivals-scroll-wrapper">
+                    {!isMobile && (
+                        <button className="arrivals-scroll-btn arrivals-scroll-left" onClick={() => scrollArrivals('left')} aria-label="Scroll left">
+                            <ChevronLeft size={20} />
+                        </button>
+                    )}
+                    <div className="arrivals-horizontal-scroll" ref={arrivalsRef}>
+                        {loadingMen || loadingWomen ? (
+                            Array.from({ length: 5 }).map((_, i) => <ProductSkeleton key={i} />)
+                        ) : (
+                            [...menProducts, ...womenProducts].slice(0, 10).map((product) => (
+                                <Link to={`/products/${product.slug}`} key={product.id} className="arrival-card">
+                                    <div className="arrival-img-wrapper">
+                                        <img
+                                            src={product.images?.[0]?.url || 'https://via.placeholder.com/400x500'}
+                                            alt={product.title}
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                    <div className="arrival-info">
+                                        <h3>{product.title}</h3>
+                                    </div>
+                                </Link>
+                            ))
+                        )}
+                    </div>
+                    {!isMobile && (
+                        <button className="arrivals-scroll-btn arrivals-scroll-right" onClick={() => scrollArrivals('right')} aria-label="Scroll right">
+                            <ChevronRight size={20} />
+                        </button>
                     )}
                 </div>
             </section>
 
-            {/* CATEGORY PRODUCT SHOWCASES */}
+            {/* EDITORIAL SHOWCASES */}
             <EditorialShowcase title="Men's Edit" categorySlug="men" products={menProducts} isReversed={false} isLoading={loadingMen} />
             <EditorialShowcase title="Women's Edit" categorySlug="women" products={womenProducts} isReversed={true} isLoading={loadingWomen} />
 
-            {/* FEATURES SECTION */}
-            <section className="features-section reveal-on-scroll">
-                <div className="feature-item">
-                    <div className="feature-icon"><Truck size={24} /></div>
-                    <div className="feature-info">
+            {/* TRUST / FEATURES SECTION — redesigned with micro-animations */}
+            <section className="trust-section reveal-on-scroll">
+                <div className="trust-grid">
+                    <div className="trust-card">
+                        <div className="trust-icon-wrap">
+                            <Truck size={22} strokeWidth={1.5} />
+                        </div>
                         <h3>Free Shipping</h3>
-                        <p>On orders over ₹1000</p>
+                        <p>On all eligible orders</p>
                     </div>
-                </div>
-                <div className="feature-item">
-                    <div className="feature-icon"><ShieldCheck size={24} /></div>
-                    <div className="feature-info">
+                    <div className="trust-card">
+                        <div className="trust-icon-wrap">
+                            <ShieldCheck size={22} strokeWidth={1.5} />
+                        </div>
                         <h3>Secure Payment</h3>
                         <p>100% secure transactions</p>
                     </div>
-                </div>
-                <div className="feature-item">
-                    <div className="feature-icon"><RefreshCw size={24} /></div>
-                    <div className="feature-info">
+                    <div className="trust-card">
+                        <div className="trust-icon-wrap">
+                            <RefreshCw size={22} strokeWidth={1.5} />
+                        </div>
                         <h3>Easy Returns</h3>
                         <p>30-day return policy</p>
                     </div>
-                </div>
-                <div className="feature-item">
-                    <div className="feature-icon"><Headphones size={24} /></div>
-                    <div className="feature-info">
+                    <div className="trust-card">
+                        <div className="trust-icon-wrap">
+                            <Headphones size={22} strokeWidth={1.5} />
+                        </div>
                         <h3>24/7 Support</h3>
                         <p>Dedicated customer care</p>
+                    </div>
+                </div>
+            </section>
+
+            {/* SOCIAL PROOF STRIP */}
+            <section className="social-proof-strip reveal-on-scroll">
+                <div className="social-proof-inner">
+                    <div className="proof-item">
+                        <Star size={16} fill="#111" stroke="#111" />
+                        <Star size={16} fill="#111" stroke="#111" />
+                        <Star size={16} fill="#111" stroke="#111" />
+                        <Star size={16} fill="#111" stroke="#111" />
+                        <Star size={16} fill="#111" stroke="#111" />
+                        <span>Rated 4.9/5 by customers</span>
+                    </div>
+                    <div className="proof-divider" />
+                    <div className="proof-item">
+                        <Sparkles size={16} />
+                        <span>10,000+ happy customers</span>
+                    </div>
+                    <div className="proof-divider" />
+                    <div className="proof-item">
+                        <ShieldCheck size={16} />
+                        <span>Verified secure checkout</span>
                     </div>
                 </div>
             </section>
@@ -541,4 +615,3 @@ export default function Home() {
         </div>
     );
 }
-
