@@ -5,7 +5,7 @@
             "destination": "https://threads-fashion-backend-1m77.onrender.com/api/:path*"
         },
         {
-            "source": "/(.*)",
+            "source": "/((?!.*\\.).*)",
             "destination": "/index.html"
         }
     ]

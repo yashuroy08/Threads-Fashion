@@ -80,23 +80,28 @@ export default function Categories() {
                     <div>
                         {/* Header */}
                         <div className="category-header">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <button
-                                    className="menu-toggle-btn"
-                                    onClick={() => setIsSidebarOpen(true)}
-                                >
-                                    <Menu size={24} />
-                                </button>
-                                <h2 className="category-title">
-                                    {activeParent?.name}
-                                </h2>
-                            </div>
+                            <h2 className="category-title">
+                                {activeParent?.name}
+                            </h2>
                             <Link
                                 to={`/products?parentCategory=${activeParent?.slug}`}
                                 className="view-all-link"
                             >
                                 View All
                             </Link>
+                        </div>
+
+                        {/* Mobile Category Tray (Horizontal Scroll) */}
+                        <div className="mobile-category-tray">
+                            {categories.parents.map((parent) => (
+                                <button
+                                    key={parent._id || parent.id}
+                                    onClick={() => setSelectedParent(parent._id || parent.id)}
+                                    className={`tray-item ${(selectedParent === parent._id || selectedParent === parent.id) ? 'active' : ''}`}
+                                >
+                                    {parent.name}
+                                </button>
+                            ))}
                         </div>
 
                         {/* Grid */}

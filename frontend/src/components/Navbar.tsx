@@ -142,7 +142,7 @@ export function Navbar() {
             <nav className="navbar-inner">
                 {/* LEFT: Logo & Categories */}
                 <div className="nav-left">
-                    {location.pathname !== '/profile' && (
+                    {!['/', '/categories', '/products', '/profile'].includes(location.pathname.replace(/\/$/, '') || '/') && (
                         <button
                             className="mobile-menu-trigger lg:hidden"
                             onClick={() => setMobileMenuOpen(true)}
