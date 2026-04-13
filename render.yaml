@@ -41,4 +41,4 @@ services:
     publishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://threads-fashion-backend.onrender.com
+        value: https://threads-fashion-backend-1m77.onrender.com/api
