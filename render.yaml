@@ -31,3 +31,14 @@ services:
         value: https://threads-fashion.vercel.app
       - key: PORT
         value: 8081
+
+  # Frontend Service (Static Web App)
+  - type: web
+    name: threads-fashion-frontend
+    env: static
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    publishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://threads-fashion-backend.onrender.com
