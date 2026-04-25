@@ -46,23 +46,32 @@ The system follows a standard modern client-server architecture. Below is a high
 
 ```mermaid
 graph TD
-    Client([Client / Web Browser]) -->|HTTPS| Frontend
+    Client([Client / Web Browser])
     
     subgraph Client-Side
         Frontend[React + Vite Frontend]
     end
 
     subgraph Server-Side
-        Frontend -->|RESTful JSON APIs| Backend[Spring Boot Backend]
-        Backend -->|Authentication| Security[Spring Security & JWT]
+        Backend[Spring Boot Backend]
+        Security[Spring Security & JWT]
     end
 
     subgraph External Services
-        Backend -->|Data Persistence| Database[(MongoDB Atlas)]
-        Backend -->|SMS OTPs| Twilio[Twilio SMS Gateway]
-        Backend -->|Transactional Emails| Zoho[Zoho SMTP Mail]
-        Backend -->|Payment Processing| Razorpay[Razorpay API]
+        Database[(MongoDB Atlas)]
+        Twilio[Twilio SMS Gateway]
+        Zoho[Zoho SMTP Mail]
+        Razorpay[Razorpay API]
     end
+
+    %% Connections
+    Client -->|HTTPS| Frontend
+    Frontend -->|RESTful JSON APIs| Backend
+    Backend -->|Authentication| Security
+    Backend -->|Data Persistence| Database
+    Backend -->|SMS OTPs| Twilio
+    Backend -->|Transactional Emails| Zoho
+    Backend -->|Payment Processing| Razorpay
 ```
 
 ### 🗂️ Project Structure
