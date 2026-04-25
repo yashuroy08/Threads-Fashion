@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shirt, Footprints, Watch, Glasses, ShoppingBag, Scissors, Briefcase, Menu, X } from 'lucide-react';
+import { Shirt, Footprints, Watch, Glasses, ShoppingBag, Scissors, Briefcase, X } from 'lucide-react';
 import '../styles/categories.css';
 import { API_BASE } from '../config/api.config';
 
