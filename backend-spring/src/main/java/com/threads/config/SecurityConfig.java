@@ -41,6 +41,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/api/health").permitAll()
                         // Public auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Swagger UI and API Docs
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                         // Public catalog endpoints (GET only)
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()

@@ -91,6 +91,8 @@ ecommerce-platform/
 - **Stateless Authentication**: Uses JWT (JSON Web Tokens) for managing authentication state securely without server-side memory bloat.
 - **Role-Based Access Control (RBAC)**: Fine-grained access control restricting administrative endpoints strictly to `ADMIN` roles.
 - **Context API & Custom Hooks**: For global state management (cart, user session) on the React frontend.
+- **Responsive Web Design**: Mobile-first styling utilizing CSS frameworks to adapt to any device format.
+- **Containerization**: Dockerized backend to maintain parity between development and production environments.
 - **Global Exception Handling**: Uses Spring's `@ControllerAdvice` to intercept errors and standardize API error responses.
 - **Data Transfer Objects (DTOs)**: Isolates database entity models from API responses to prevent data leaks.
 
