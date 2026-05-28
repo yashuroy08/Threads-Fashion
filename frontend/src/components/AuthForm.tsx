@@ -130,6 +130,7 @@ export function AuthForm({ mode, onSubmit, loading, error, success }: Props) {
                         name="email"
                         placeholder="Enter your email"
                         required
+                        autoComplete="username"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
@@ -144,6 +145,7 @@ export function AuthForm({ mode, onSubmit, loading, error, success }: Props) {
                         type={showPassword ? "text" : "password"}
                         name="password"
                         required
+                        autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onFocus={() => setPasswordFocused(true)}
@@ -196,6 +198,7 @@ export function AuthForm({ mode, onSubmit, loading, error, success }: Props) {
                                 type="password"
                                 name="confirmPassword"
                                 placeholder="Confirm your password"
+                                autoComplete="new-password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
