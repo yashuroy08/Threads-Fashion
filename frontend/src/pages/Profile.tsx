@@ -8,6 +8,7 @@ import { DashboardSkeleton } from '../components/SkeletonLoader';
 
 import ReasonModal from '../components/ReasonModal';
 import { OrderApi } from '../api/orders.api';
+import { API_BASE } from '../config/api.config';
 import {
     User,
     Package,
@@ -444,9 +445,9 @@ function Profile() {
             const headers = { 'Authorization': `Bearer ${token}` };
 
             const [profileRes, ordersRes, settingsRes] = await Promise.all([
-                fetch('/api/profile/me', { headers }),
-                fetch('/api/orders/my-orders', { headers }),
-                fetch('/api/settings/public')
+                fetch(`${API_BASE}/profile/me`, { headers }),
+                fetch(`${API_BASE}/orders/my-orders`, { headers }),
+                fetch(`${API_BASE}/settings/public`)
             ]);
 
             if (!profileRes.ok) throw new Error('Failed to fetch profile');
@@ -480,7 +481,7 @@ function Profile() {
         dispatch({ type: 'UPDATE_START' });
         try {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const res = await fetch('/api/profile/me', {
+            const res = await fetch(`${API_BASE}/profile/me`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(payload)
@@ -576,7 +577,7 @@ function Profile() {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             if (!token) throw new Error('Not authenticated');
 
-            const res = await fetch(`/api/profile/me/addresses/${type}`, {
+            const res = await fetch(`${API_BASE}/profile/me/addresses/${type}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -605,7 +606,7 @@ function Profile() {
 
         try {
             const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            let res = await fetch(`/api/profile/me/addresses/${address.addressType}`, {
+            let res = await fetch(`${API_BASE}/profile/me/addresses/${address.addressType}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(address)
@@ -613,7 +614,7 @@ function Profile() {
 
             // If entry doesn't exist (404), try creating it instead
             if (res.status === 404) {
-                res = await fetch(`/api/profile/me/addresses`, {
+                res = await fetch(`${API_BASE}/profile/me/addresses`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(address)
@@ -744,7 +745,7 @@ function Profile() {
                 </div>
 
                 {/* Content */}
-                <div>
+                <div className="profile-content">
                     {/* Account Settings Tab */}
                     {state.activeTab === 'profile' && (
                         <div>

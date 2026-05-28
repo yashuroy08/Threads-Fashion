@@ -87,6 +87,7 @@ public class Product {
     @Builder.Default
     private String sellerZipCode = "110001";
 
+    @Indexed
     @CreatedDate
     private Instant createdAt;
 

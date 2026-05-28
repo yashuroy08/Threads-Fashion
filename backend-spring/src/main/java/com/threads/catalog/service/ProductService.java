@@ -37,7 +37,9 @@ public class ProductService {
     private final MongoTemplate mongoTemplate;
 
     public Page<ProductDTO> findAll(Pageable pageable) {
-        return productRepository.findByIsActiveTrue(pageable).map(this::toDTO);
+        Page<Product> page = productRepository.findByIsActiveTrue(pageable);
+        List<ProductDTO> dtos = toDTOList(page.getContent());
+        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
     /**
@@ -129,7 +131,7 @@ public class ProductService {
 
         Query pagedQuery = new Query(top).with(pageable);
         List<Product> list = mongoTemplate.find(pagedQuery, Product.class);
-        List<ProductDTO> dtos = list.stream().map(this::toDTO).collect(Collectors.toList());
+        List<ProductDTO> dtos = toDTOList(list);
         return new PageImpl<>(dtos, pageable, total);
     }
 
@@ -203,18 +205,22 @@ public class ProductService {
     }
 
     public Page<ProductDTO> search(String keyword, Pageable pageable) {
-        return productRepository.searchByTitle(keyword, pageable).map(this::toDTO);
+        Page<Product> page = productRepository.searchByTitle(keyword, pageable);
+        List<ProductDTO> dtos = toDTOList(page.getContent());
+        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
     public List<ProductDTO> findFeatured() {
-        return productRepository.findByIsFeaturedTrueAndIsActiveTrue()
-                .stream().map(this::toDTO).collect(Collectors.toList());
+        List<Product> list = productRepository.findByIsFeaturedTrueAndIsActiveTrue();
+        return toDTOList(list);
     }
 
     // ----- Admin operations -----
 
     public Page<ProductDTO> findAllAdmin(Pageable pageable) {
-        return productRepository.findAll(pageable).map(this::toDTO);
+        Page<Product> page = productRepository.findAll(pageable);
+        List<ProductDTO> dtos = toDTOList(page.getContent());
+        return new PageImpl<>(dtos, pageable, page.getTotalElements());
     }
 
     public ProductDTO create(CreateProductRequest req) {
@@ -325,16 +331,54 @@ public class ProductService {
 
     // ----- DTO Mapper -----
 
+    public List<ProductDTO> toDTOList(List<Product> products) {
+        if (products == null || products.isEmpty()) {
+            return List.of();
+        }
+        
+        List<String> categoryIds = new ArrayList<>();
+        for (Product p : products) {
+            if (p.getParentCategoryId() != null) categoryIds.add(p.getParentCategoryId());
+            if (p.getChildCategoryId() != null) categoryIds.add(p.getChildCategoryId());
+        }
+        
+        java.util.Map<String, String> categoryNameMap = new java.util.HashMap<>();
+        if (!categoryIds.isEmpty()) {
+            List<Category> categories = categoryRepository.findAllById(categoryIds);
+            for (Category c : categories) {
+                categoryNameMap.put(c.getId(), c.getName());
+            }
+        }
+        
+        return products.stream().map(p -> toDTO(p, categoryNameMap)).collect(Collectors.toList());
+    }
+
     public ProductDTO toDTO(Product p) {
+        return toDTO(p, new java.util.HashMap<>());
+    }
+
+    private ProductDTO toDTO(Product p, java.util.Map<String, String> categoryNameMap) {
         String parentCatName = null;
         String childCatName = null;
+        
         if (p.getParentCategoryId() != null) {
-            parentCatName = categoryRepository.findById(p.getParentCategoryId())
-                    .map(Category::getName).orElse(null);
+            if (categoryNameMap.containsKey(p.getParentCategoryId())) {
+                parentCatName = categoryNameMap.get(p.getParentCategoryId());
+            } else {
+                parentCatName = categoryRepository.findById(p.getParentCategoryId())
+                        .map(Category::getName).orElse(null);
+                categoryNameMap.put(p.getParentCategoryId(), parentCatName);
+            }
         }
+        
         if (p.getChildCategoryId() != null) {
-            childCatName = categoryRepository.findById(p.getChildCategoryId())
-                    .map(Category::getName).orElse(null);
+            if (categoryNameMap.containsKey(p.getChildCategoryId())) {
+                childCatName = categoryNameMap.get(p.getChildCategoryId());
+            } else {
+                childCatName = categoryRepository.findById(p.getChildCategoryId())
+                        .map(Category::getName).orElse(null);
+                categoryNameMap.put(p.getChildCategoryId(), childCatName);
+            }
         }
 
         return ProductDTO.builder()

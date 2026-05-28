@@ -37,6 +37,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
     useEffect(() => {
+        // Ping backend to wake it up if it's on a free tier
+        fetch(`${import.meta.env.VITE_API_URL || '/api'}/health`).catch(() => {});
+        
         // Check both storages
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
@@ -75,8 +78,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 localStorage.removeItem('token');
             }
 
-            const userData = await getMe(data.token);
-            setUser(userData);
+            setUser({
+                role: data.role as 'admin' | 'user',
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email
+            });
             setSuccess('Login successful');
             return true;
         } catch (e: any) {
@@ -112,7 +119,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const data = await googleAuth(userData);
             localStorage.setItem('token', data.token); // Google login defaults to remember usually, can be tweaked
-            setUser(data.user);
+            setUser({
+                role: data.role as 'admin' | 'user',
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email
+            });
             setSuccess('Google login successful');
             return true;
         } catch (e: any) {

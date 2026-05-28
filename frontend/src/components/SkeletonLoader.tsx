@@ -134,3 +134,44 @@ export const CartSkeleton = () => {
         </div>
     );
 };
+
+// 6. Order Tracking Skeleton
+export const OrderTrackingSkeleton = () => {
+    return (
+        <div className="tracking-container" style={{ padding: '4rem 5%', maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <Skeleton width="40%" height="2rem" />
+                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 60%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <Skeleton width="100%" height="8rem" style={{ borderRadius: '8px' }} />
+                        <Skeleton width="100%" height="16rem" style={{ borderRadius: '8px' }} />
+                    </div>
+                    <div style={{ flex: '1 1 30%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        <Skeleton width="100%" height="12rem" style={{ borderRadius: '8px' }} />
+                        <Skeleton width="100%" height="8rem" style={{ borderRadius: '8px' }} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// 7. Checkout Skeleton
+export const CheckoutSkeleton = () => {
+    return (
+        <div className="place-order-container" style={{ padding: '4rem 5%', maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 400px', gap: '4rem', alignItems: 'start' }}>
+                {/* Left Side (Forms) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+                    <Skeleton width="100%" height="16rem" style={{ borderRadius: '8px' }} />
+                    <Skeleton width="100%" height="12rem" style={{ borderRadius: '8px' }} />
+                </div>
+                
+                {/* Right Side (Order Summary) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <Skeleton width="100%" height="24rem" style={{ borderRadius: '8px' }} />
+                </div>
+            </div>
+        </div>
+    );
+};

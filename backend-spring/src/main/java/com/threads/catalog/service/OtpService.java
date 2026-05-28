@@ -80,6 +80,16 @@ public class OtpService {
         return emailSent || smsSent;
     }
 
+    @org.springframework.scheduling.annotation.Async
+    public void generateAndSendDualOTP(String userId, String type, String phoneNumber, String email) {
+        try {
+            String otpCode = generateOTP(userId, type);
+            sendDualOTP(phoneNumber, email, otpCode);
+        } catch (Exception e) {
+            log.error("Failed to generate and send OTP asynchronously", e);
+        }
+    }
+
     public String generateOTP(String userId, String type) {
         SecureRandom random = new SecureRandom();
         int num = 100000 + random.nextInt(900000);

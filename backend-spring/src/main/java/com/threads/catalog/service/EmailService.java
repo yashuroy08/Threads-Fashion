@@ -25,6 +25,9 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Value("${app.frontend.url:http://localhost:3000}")
+    private String frontendUrl;
+
     @PostConstruct
     public void logStatus() {
         if (fromEmail == null || fromEmail.isEmpty()) {
@@ -88,7 +91,7 @@ public class EmailService {
         String shipping = order.getShippingCharges() == 0 ? "FREE" : formatINR(order.getShippingCharges());
         String total = formatINR(order.getTotal());
         
-        String htmlBody = EmailTemplates.getOrderConfirmationTemplate(customerName, order.getOrderId(), subtotal, tax, shipping, total, itemsHtml);
+        String htmlBody = EmailTemplates.getOrderConfirmationTemplate(customerName, order.getOrderId(), subtotal, tax, shipping, total, itemsHtml, frontendUrl);
         sendEmail(user.getEmail(), subject, htmlBody, true);
     }
 
@@ -96,7 +99,7 @@ public class EmailService {
         String subject = "Order Update #" + order.getOrderId() + ": " + order.getStatus();
         String customerName = user.getFirstName() != null && !user.getFirstName().isEmpty() ? user.getFirstName() : "Valued Customer";
         
-        String htmlBody = EmailTemplates.getStatusUpdateTemplate(customerName, order.getOrderId(), order.getStatus());
+        String htmlBody = EmailTemplates.getStatusUpdateTemplate(customerName, order.getOrderId(), order.getStatus(), frontendUrl);
         sendEmail(user.getEmail(), subject, htmlBody, true);
     }
 }

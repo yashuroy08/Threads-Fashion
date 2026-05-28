@@ -38,13 +38,8 @@ public class AuthService {
 
         User saved = userRepository.save(user);
         
-        // Generate and send OTP during registration for email verify
-        try {
-            String otp = otpService.generateOTP(saved.getId(), "verify-email");
-            otpService.sendDualOTP(saved.getPhoneNumber(), saved.getEmail(), otp);
-        } catch (Exception e) {
-            log.warn("Failed to send initial OTP: {}", e.getMessage());
-        }
+        // Generate and send OTP during registration for email verify asynchronously
+        otpService.generateAndSendDualOTP(saved.getId(), "verify-email", saved.getPhoneNumber(), saved.getEmail());
 
         String token = jwtService.generateToken(saved.getEmail(), saved.getRole());
 
@@ -173,16 +168,14 @@ public class AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         String type = req.getType() != null && !req.getType().isEmpty() ? req.getType() : "verify-email";
-        String otp = otpService.generateOTP(user.getId(), type);
-        otpService.sendDualOTP(user.getPhoneNumber(), user.getEmail(), otp);
+        otpService.generateAndSendDualOTP(user.getId(), type, user.getPhoneNumber(), user.getEmail());
     }
 
     public void forgotPassword(com.threads.auth.dto.ForgotPasswordRequest req) {
         User user = userRepository.findByEmail(req.getEmail().toLowerCase().trim())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
-        String otp = otpService.generateOTP(user.getId(), "password-reset");
-        otpService.sendDualOTP(user.getPhoneNumber(), user.getEmail(), otp);
+        otpService.generateAndSendDualOTP(user.getId(), "password-reset", user.getPhoneNumber(), user.getEmail());
     }
 
     public void resetPassword(com.threads.auth.dto.ResetPasswordRequest req) {

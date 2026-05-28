@@ -89,6 +89,10 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   useEffect(() => {
+    // Wake up ping to backend (useful for free-tier Render instances that spin down)
+    const API_BASE = import.meta.env.VITE_API_URL || '/api';
+    fetch(`${API_BASE}/health`).catch(() => {});
+
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'

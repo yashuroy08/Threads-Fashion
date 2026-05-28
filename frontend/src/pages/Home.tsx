@@ -227,7 +227,7 @@ export default function Home() {
     useEffect(() => {
         const fetchCategoryProducts = async (category: string, setter: (products: Product[]) => void, loader: (val: boolean) => void) => {
             const cached = getCachedData(`${category}Products`);
-            if (cached) {
+            if (cached && cached.length > 0) {
                 setter(cached);
                 loader(false);
                 return;
@@ -235,10 +235,13 @@ export default function Home() {
 
             try {
                 const res = await fetch(`${API_BASE}/products?parentCategory=${category}&limit=8&sortBy=newest`);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
                 const data = await res.json();
                 const items = data.content || data.items || (Array.isArray(data) ? data : []);
                 setter(items);
-                setCachedData(`${category}Products`, items);
+                if (items.length > 0) {
+                    setCachedData(`${category}Products`, items);
+                }
             } catch (err) {
                 console.error(`Failed to fetch ${category} products:`, err);
             } finally {
@@ -246,12 +249,9 @@ export default function Home() {
             }
         };
 
-        if (menProducts.length === 0) fetchCategoryProducts('men', setMenProducts, setLoadingMen);
-        else setLoadingMen(false);
-
-        if (womenProducts.length === 0) fetchCategoryProducts('women', setWomenProducts, setLoadingWomen);
-        else setLoadingWomen(false);
-    }, [menProducts.length, womenProducts.length]);
+        fetchCategoryProducts('men', setMenProducts, setLoadingMen);
+        fetchCategoryProducts('women', setWomenProducts, setLoadingWomen);
+    }, []);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -321,7 +321,7 @@ export default function Home() {
 
     useEffect(() => {
         const cached = getCachedData('categoryCards');
-        if (cached) {
+        if (cached && cached.length > 0) {
             setCategoryCards(cached);
             setLoadingCategories(false);
             return;

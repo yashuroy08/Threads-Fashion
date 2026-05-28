@@ -8,6 +8,7 @@ import { useAuthContext } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { ChevronLeft, MapPin, ShieldCheck, Lock, Truck, Banknote, CheckCircle, Info, AlertCircle, Trash2, Pencil } from 'lucide-react';
 import { calculateDeliveryDate } from '../utils/shipping-calculator';
+import { CheckoutSkeleton } from '../components/SkeletonLoader';
 
 export default function PlaceOrder() {
     const [loading, setLoading] = useState(false);
@@ -429,6 +430,8 @@ export default function PlaceOrder() {
     const getDeliveryEstimation = (targetZip: string) => {
         return calculateDeliveryDate(warehouseZipCode, targetZip);
     };
+
+    if (profileLoading) return <CheckoutSkeleton />;
 
     if (!checkoutItems.length && !loading && !profileLoading) {
         return (

@@ -47,7 +47,7 @@ export type Product = {
 
 // --- REUSABLE VIEW COMPONENT ---
 export function ProductDetailsView({ product, isPreview = false }: { product: Product | null; isPreview?: boolean }) {
-    if (!product) return <div className="p-10 text-center">Loading product details...</div>;
+    if (!product) return <ProductDetailsSkeleton />;
 
     const { addToCart, cart } = useCartContext();
     const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();

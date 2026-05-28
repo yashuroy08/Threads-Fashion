@@ -193,7 +193,19 @@ public class OrderService {
         order.setStatus("CANCELLED");
         order.setCancellationReason(reason);
         auditService.log("ORDER_CANCELLED", userId, "Order cancelled: " + order.getOrderId());
-        return toDTO(orderRepository.save(order));
+        
+        Order saved = orderRepository.save(order);
+        
+        // Send cancellation email
+        try {
+            userRepository.findByEmail(saved.getUserId()).ifPresent(user -> {
+                emailService.sendOrderStatusUpdate(user, saved);
+            });
+        } catch (Exception e) {
+            log.error("Failed to send order cancellation email: {}", e.getMessage());
+        }
+        
+        return toDTO(saved);
     }
 
     public OrderDTO requestReturn(String userId, String orderId, String reason) {
@@ -203,7 +215,17 @@ public class OrderService {
 
         order.setStatus("RETURN_REQUESTED");
         order.setReturnReason(reason);
-        return toDTO(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        
+        try {
+            userRepository.findByEmail(saved.getUserId()).ifPresent(user -> {
+                emailService.sendOrderStatusUpdate(user, saved);
+            });
+        } catch (Exception e) {
+            log.error("Failed to send return request email: {}", e.getMessage());
+        }
+        
+        return toDTO(saved);
     }
 
     public OrderDTO requestExchange(String userId, String orderId, String reason) {
@@ -213,7 +235,17 @@ public class OrderService {
 
         order.setStatus("EXCHANGE_REQUESTED");
         order.setExchangeReason(reason);
-        return toDTO(orderRepository.save(order));
+        Order saved = orderRepository.save(order);
+        
+        try {
+            userRepository.findByEmail(saved.getUserId()).ifPresent(user -> {
+                emailService.sendOrderStatusUpdate(user, saved);
+            });
+        } catch (Exception e) {
+            log.error("Failed to send exchange request email: {}", e.getMessage());
+        }
+        
+        return toDTO(saved);
     }
 
     public void deleteOrder(String orderId) {

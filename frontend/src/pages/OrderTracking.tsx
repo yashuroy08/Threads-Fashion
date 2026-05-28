@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useSocket } from '../context/SocketContext';
 import { useAuthContext } from '../context/AuthContext';
 import ReasonModal from '../components/ReasonModal';
+import { OrderTrackingSkeleton } from '../components/SkeletonLoader';
 import { OrderApi } from '../api/orders.api';
 import { API_BASE } from '../config/api.config';
 import {
@@ -100,7 +101,7 @@ export default function OrderTracking() {
         };
     }, [socket, orderId]);
 
-    if (loading) return <div className="tracking-container" style={{ padding: '2rem' }}>Loading tracking info...</div>;
+    if (loading) return <OrderTrackingSkeleton />;
     if (!order) return <div className="tracking-container" style={{ padding: '2rem' }}>Order not found</div>;
 
     const userName = user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'Guest User';

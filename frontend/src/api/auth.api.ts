@@ -9,30 +9,52 @@ export async function registerUser(payload: {
     country?: string;
     phoneNumber?: string;
 }) {
-    const res = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Registration failed');
-    return data;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Registration failed');
+        return data;
+    } catch (err: any) {
+        clearTimeout(timeout);
+        if (err.name === 'AbortError') {
+            throw new Error('Registration timed out. The server might be waking up, please try again.');
+        }
+        throw err;
+    }
 }
 
 export async function loginUser(payload: {
     email: string;
     password: string;
 }) {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-    return data;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Login failed');
+        return data;
+    } catch (err: any) {
+        clearTimeout(timeout);
+        if (err.name === 'AbortError') {
+            throw new Error('Sign in timed out. The server might be waking up, please try again.');
+        }
+        throw err;
+    }
 }
 
 export async function verifyOTP(payload: { email: string; otp: string; type: string }) {
@@ -99,13 +121,24 @@ export async function googleAuth(payload: {
     firstName?: string;
     lastName?: string;
 }) {
-    const res = await fetch(`${API_BASE}/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Google authentication failed');
-    return data;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+        const res = await fetch(`${API_BASE}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Google authentication failed');
+        return data;
+    } catch (err: any) {
+        clearTimeout(timeout);
+        if (err.name === 'AbortError') {
+            throw new Error('Google sign in timed out. The server might be waking up, please try again.');
+        }
+        throw err;
+    }
 }

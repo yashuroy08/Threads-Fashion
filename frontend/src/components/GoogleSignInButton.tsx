@@ -11,6 +11,7 @@ interface GoogleButtonProps {
 
 export function GoogleSignInButton({ onSuccess, onError }: GoogleButtonProps) {
     const [loading, setLoading] = useState(false);
+    const [scriptFailed, setScriptFailed] = useState(false);
     const googleButtonRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -18,8 +19,14 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleButtonProps) {
             if (typeof google !== 'undefined' && googleButtonRef.current) {
                 try {
                     if (!(window as any).googleInitialized) {
+                        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+                        if (!clientId) {
+                            console.warn("Google Client ID is missing. Google Sign-In cannot be initialized.");
+                            setScriptFailed(true);
+                            return;
+                        }
                         google.accounts.id.initialize({
-                            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                            client_id: clientId,
                             callback: handleCredentialResponse,
                         });
                         (window as any).googleInitialized = true;
@@ -40,10 +47,17 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleButtonProps) {
 
         // Check if google script is loaded, if not wait for it
         if (typeof google === 'undefined') {
+            let retries = 0;
             const timer = setInterval(() => {
                 if (typeof google !== 'undefined') {
                     clearInterval(timer);
                     initializeGoogleSignIn();
+                } else {
+                    retries++;
+                    if (retries >= 20) {
+                        clearInterval(timer);
+                        setScriptFailed(true);
+                    }
                 }
             }, 500);
             return () => clearInterval(timer);
@@ -89,7 +103,13 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleButtonProps) {
 
     return (
         <div className="google-btn-wrapper" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <div ref={googleButtonRef} id="googleSignInButton"></div>
+            {scriptFailed ? (
+                <button type="button" className="auth-btn google" disabled style={{ opacity: 0.7, padding: '10px' }}>
+                    Sign in with Google unavailable
+                </button>
+            ) : (
+                <div ref={googleButtonRef} id="googleSignInButton"></div>
+            )}
             {loading && <div className="google-loading-overlay">Verifying...</div>}
         </div>
     );
