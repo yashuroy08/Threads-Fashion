@@ -31,50 +31,54 @@ public class OrderService {
     private final EmailService emailService;
     private final AuditService auditService;
 
-    public OrderDTO placeOrder(String userId, Order.ShippingAddress address, String paymentMethod) {
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+    public OrderDTO placeOrder(String userId, Order.ShippingAddress address, String paymentMethod, List<Order.OrderItem> directItems) {
+        List<Order.OrderItem> items;
+        Cart cart = cartRepository.findByUserId(userId).orElse(null);
 
-        if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            throw new IllegalStateException("Cannot place order with empty cart");
+        if (directItems != null && !directItems.isEmpty()) {
+            items = directItems;
+        } else {
+            if (cart == null || cart.getItems() == null || cart.getItems().isEmpty()) {
+                throw new IllegalStateException("Cannot place order with empty cart and no direct items");
+            }
+            
+            // Collect all product IDs to batch-fetch product data
+            List<String> productIds = cart.getItems().stream()
+                    .map(Cart.CartItem::getProductId)
+                    .toList();
+            Map<String, Product> productMap = new HashMap<>();
+            try {
+                List<Product> products = productRepository.findAllById(productIds);
+                products.forEach(p -> productMap.put(p.getId(), p));
+            } catch (Exception e) {
+                log.warn("Could not fetch products for order enrichment: {}", e.getMessage());
+            }
+
+            items = cart.getItems().stream()
+                    .map(ci -> {
+                        Product product = productMap.get(ci.getProductId());
+                        // Use cart snapshots first, fall back to product data
+                        String title = ci.getTitleSnapshot();
+                        if (title == null || title.isBlank()) {
+                            title = product != null ? product.getTitle() : "Product";
+                        }
+                        String image = ci.getImageSnapshot();
+                        if (image == null || image.isBlank()) {
+                            image = (product != null && product.getImages() != null && !product.getImages().isEmpty())
+                                    ? product.getImages().get(0).getUrl() : null;
+                        }
+                        return Order.OrderItem.builder()
+                                .productId(ci.getProductId())
+                                .title(title)
+                                .quantity(ci.getQuantity())
+                                .price(ci.getPriceSnapshot())
+                                .size(ci.getSize())
+                                .color(ci.getColor())
+                                .image(image)
+                                .build();
+                    })
+                    .toList();
         }
-
-        // Collect all product IDs to batch-fetch product data
-        List<String> productIds = cart.getItems().stream()
-                .map(Cart.CartItem::getProductId)
-                .toList();
-        Map<String, Product> productMap = new HashMap<>();
-        try {
-            List<Product> products = productRepository.findAllById(productIds);
-            products.forEach(p -> productMap.put(p.getId(), p));
-        } catch (Exception e) {
-            log.warn("Could not fetch products for order enrichment: {}", e.getMessage());
-        }
-
-        List<Order.OrderItem> items = cart.getItems().stream()
-                .map(ci -> {
-                    Product product = productMap.get(ci.getProductId());
-                    // Use cart snapshots first, fall back to product data
-                    String title = ci.getTitleSnapshot();
-                    if (title == null || title.isBlank()) {
-                        title = product != null ? product.getTitle() : "Product";
-                    }
-                    String image = ci.getImageSnapshot();
-                    if (image == null || image.isBlank()) {
-                        image = (product != null && product.getImages() != null && !product.getImages().isEmpty())
-                                ? product.getImages().get(0).getUrl() : null;
-                    }
-                    return Order.OrderItem.builder()
-                            .productId(ci.getProductId())
-                            .title(title)
-                            .quantity(ci.getQuantity())
-                            .price(ci.getPriceSnapshot())
-                            .size(ci.getSize())
-                            .color(ci.getColor())
-                            .image(image)
-                            .build();
-                })
-                .toList();
 
         long subtotal = items.stream()
                 .mapToLong(i -> i.getPrice() * i.getQuantity())
@@ -92,11 +96,15 @@ public class OrderService {
 
         // Get seller zip code from first product for distance tracking
         String sellerZip = "110001"; // default Delhi
-        if (!productMap.isEmpty()) {
-            Product firstProduct = productMap.values().iterator().next();
-            if (firstProduct.getSellerZipCode() != null && !firstProduct.getSellerZipCode().isBlank()) {
-                sellerZip = firstProduct.getSellerZipCode();
+        try {
+            if (!items.isEmpty()) {
+                Product firstProduct = productRepository.findById(items.get(0).getProductId()).orElse(null);
+                if (firstProduct != null && firstProduct.getSellerZipCode() != null && !firstProduct.getSellerZipCode().isBlank()) {
+                    sellerZip = firstProduct.getSellerZipCode();
+                }
             }
+        } catch (Exception e) {
+            log.warn("Could not fetch product for seller zip: {}", e.getMessage());
         }
 
         // Estimate distance from seller zip to buyer zip
@@ -125,12 +133,16 @@ public class OrderService {
         Order saved = orderRepository.save(order);
 
         // Clear the cart
-        cart.getItems().clear();
-        cartRepository.save(cart);
+        if (directItems == null || directItems.isEmpty()) {
+            if (cart != null) {
+                cart.getItems().clear();
+                cartRepository.save(cart);
+            }
+        }
 
         // Send confirmation email
         try {
-            userRepository.findByEmail(userId).ifPresent(user -> {
+            userRepository.findById(userId).ifPresent(user -> {
                 emailService.sendOrderConfirmation(user, saved);
             });
         } catch (Exception e) {
@@ -170,7 +182,7 @@ public class OrderService {
 
         // Send status update email
         try {
-            userRepository.findByEmail(saved.getUserId()).ifPresent(user -> {
+            userRepository.findById(saved.getUserId()).ifPresent(user -> {
                 emailService.sendOrderStatusUpdate(user, saved);
             });
         } catch (Exception e) {
@@ -198,7 +210,7 @@ public class OrderService {
         
         // Send cancellation email
         try {
-            userRepository.findByEmail(saved.getUserId()).ifPresent(user -> {
+            userRepository.findById(saved.getUserId()).ifPresent(user -> {
                 emailService.sendOrderStatusUpdate(user, saved);
             });
         } catch (Exception e) {
@@ -218,7 +230,7 @@ public class OrderService {
         Order saved = orderRepository.save(order);
         
         try {
-            userRepository.findByEmail(saved.getUserId()).ifPresent(user -> {
+            userRepository.findById(saved.getUserId()).ifPresent(user -> {
                 emailService.sendOrderStatusUpdate(user, saved);
             });
         } catch (Exception e) {
@@ -238,7 +250,7 @@ public class OrderService {
         Order saved = orderRepository.save(order);
         
         try {
-            userRepository.findByEmail(saved.getUserId()).ifPresent(user -> {
+            userRepository.findById(saved.getUserId()).ifPresent(user -> {
                 emailService.sendOrderStatusUpdate(user, saved);
             });
         } catch (Exception e) {

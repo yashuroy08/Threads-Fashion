@@ -412,7 +412,6 @@ function Profile() {
     useEffect(() => {
         if (state.success || state.orderSuccess || state.error || state.orderError) {
             // If it's the specific "already registered" error, do NOT auto-clear it.
-            // It should only clear when the user fixes it (handleFormChange).
             if (state.error && state.error.includes('already registered')) {
                 return;
             }
@@ -420,22 +419,6 @@ function Profile() {
             return () => clearTimeout(timer);
         }
     }, [state.success, state.orderSuccess, state.error, state.orderError]);
-
-    // Update form data when gender changes
-    useEffect(() => {
-        if (!isInitialMount.current && formRef.current) {
-            // Manually trigger form change logic since hidden input change doesn't bubble React event
-            // Create a synthetic event object
-            const syntheticEvent = { currentTarget: formRef.current } as React.FormEvent<HTMLFormElement>;
-            handleFormChange(syntheticEvent);
-        }
-    }, [gender]);
-
-    // Auto-save logic
-    useEffect(() => {
-        if (isInitialMount.current) { isInitialMount.current = false; return; }
-        if (debouncedPayload) { autoSaveProfile(debouncedPayload); }
-    }, [debouncedPayload]);
 
     const loadAllData = async () => {
         dispatch({ type: 'FETCH_START' });
@@ -477,52 +460,7 @@ function Profile() {
         }
     };
 
-    const autoSaveProfile = async (payload: any) => {
-        dispatch({ type: 'UPDATE_START' });
-        try {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const res = await fetch(`${API_BASE}/profile/me`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify(payload)
-            });
-            if (!res.ok) {
-                const errorData = await res.json().catch(() => ({}));
-                throw new Error(errorData.message || 'Update failed');
-            }
-            dispatch({ type: 'UPDATE_LOCAL_PROFILE', payload });
-            dispatch({ type: 'UPDATE_SUCCESS', payload: 'Changes auto-saved' });
-        } catch (err: any) {
-            dispatch({ type: 'UPDATE_ERROR', payload: err.message || 'Auto-save failed' });
-        }
-    };
-
-    const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
-        // Clear any existing errors when user starts typing
-        if (state.error) dispatch({ type: 'CLEAR_MESSAGES' });
-
-        const data = new FormData(e.currentTarget);
-        const rawData = Object.fromEntries(data.entries());
-
-        let phone = rawData.phoneNumber as string;
-        // Strip non-digits
-        phone = phone.replace(/\D/g, '');
-        // Append +91 if we have 10 digits (and it's not empty)
-        if (phone.length === 10) {
-            phone = '+91' + phone;
-        } else if (phone.length > 0) {
-            // If user somehow managed to get weird input, don't break, but it won't be valid
-            // Ideally we only save valid numbers.
-        }
-
-        const payload = {
-            firstName: rawData.firstName,
-            lastName: rawData.lastName,
-            phoneNumber: phone || undefined, // Send undefined if empty to avoid partial updates if not intended
-            gender: rawData.gender
-        };
-        setLocalFormData(payload);
-    };
+    // Removed autoSaveProfile and handleFormChange as we use explicit Save button now
 
     const handleOrderAction = async (action: 'cancel' | 'return' | 'exchange', reason: string) => {
         const orderId = state.modals.selectedOrderId;
@@ -795,7 +733,39 @@ function Profile() {
 
 
 
-                            <form ref={formRef} onChange={handleFormChange} onSubmit={(e) => e.preventDefault()}>
+                            <form ref={formRef} onSubmit={async (e) => {
+                                e.preventDefault();
+                                const data = new FormData(e.currentTarget);
+                                const rawData = Object.fromEntries(data.entries());
+                                let phone = rawData.phoneNumber as string;
+                                phone = phone.replace(/\D/g, '');
+                                if (phone.length === 10) phone = '+91' + phone;
+
+                                const payload = {
+                                    firstName: rawData.firstName,
+                                    lastName: rawData.lastName,
+                                    phoneNumber: phone || undefined,
+                                    gender: rawData.gender
+                                };
+
+                                dispatch({ type: 'UPDATE_START' });
+                                try {
+                                    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                                    const res = await fetch(`${API_BASE}/profile/me`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                        body: JSON.stringify(payload)
+                                    });
+                                    if (!res.ok) {
+                                        const errorData = await res.json().catch(() => ({}));
+                                        throw new Error(errorData.message || 'Update failed');
+                                    }
+                                    dispatch({ type: 'UPDATE_LOCAL_PROFILE', payload });
+                                    dispatch({ type: 'UPDATE_SUCCESS', payload: 'Profile saved successfully' });
+                                } catch (err: any) {
+                                    dispatch({ type: 'UPDATE_ERROR', payload: err.message || 'Save failed' });
+                                }
+                            }}>
                                 <div className="form-grid-responsive">
                                     <div className="form-item-container">
                                         <label className="form-label">First Name</label>
@@ -855,10 +825,7 @@ function Profile() {
                                                 maxLength={10}
                                                 style={{ paddingLeft: '5.2rem', paddingRight: '100px' }}
                                                 onChange={(e) => {
-                                                    // Allow only numbers
                                                     e.target.value = e.target.value.replace(/\D/g, '');
-                                                    // Trigger parent change
-                                                    e.currentTarget.form?.dispatchEvent(new Event('change', { bubbles: true }));
                                                 }}
                                             />
 
@@ -922,7 +889,25 @@ function Profile() {
                                     </div>
                                 </div>
 
-                                <div className="address-section" style={{ marginTop: '2.5rem', paddingTop: '2rem', borderTop: '1px solid #f3f4f6' }}>
+                                <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'flex-end', borderBottom: '1px solid #f3f4f6', paddingBottom: '2.5rem' }}>
+                                    <button type="submit" disabled={state.updating} style={{
+                                        background: state.updating ? '#9ca3af' : '#0f172a',
+                                        color: '#fff',
+                                        padding: '0.75rem 2.5rem',
+                                        borderRadius: '12px',
+                                        fontWeight: 600,
+                                        border: 'none',
+                                        cursor: state.updating ? 'not-allowed' : 'pointer',
+                                        boxShadow: state.updating ? 'none' : '0 4px 12px rgba(15, 23, 42, 0.15)',
+                                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        fontSize: '0.95rem',
+                                        letterSpacing: '0.01em'
+                                    }}>
+                                        {state.updating ? 'Saving...' : 'Save Profile'}
+                                    </button>
+                                </div>
+
+                                <div className="address-section" style={{ marginTop: '0', paddingTop: '2.5rem' }}>
                                     <div className="section-header" style={{ marginBottom: '2rem', textAlign: 'center' }}>
                                         <div>
                                             <h2 className="section-title">Saved Addresses</h2>

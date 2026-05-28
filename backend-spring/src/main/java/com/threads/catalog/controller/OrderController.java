@@ -38,8 +38,25 @@ public class OrderController {
                 .build();
         String paymentMethod = (String) body.getOrDefault("paymentMethod", "card");
 
+        List<Order.OrderItem> parsedItems = null;
+        if (body.containsKey("items")) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> itemsList = (List<Map<String, Object>>) body.get("items");
+            if (itemsList != null && !itemsList.isEmpty()) {
+                parsedItems = itemsList.stream().map(m -> Order.OrderItem.builder()
+                        .productId((String) m.get("productId"))
+                        .title((String) m.get("title"))
+                        .quantity(m.get("quantity") instanceof Number ? ((Number) m.get("quantity")).intValue() : 1)
+                        .price(m.get("price") instanceof Number ? ((Number) m.get("price")).longValue() : 0L)
+                        .size((String) m.get("size"))
+                        .color((String) m.get("color"))
+                        .image((String) m.get("image"))
+                        .build()).toList();
+            }
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.placeOrder(user.getUsername(), address, paymentMethod));
+                .body(orderService.placeOrder(user.getUsername(), address, paymentMethod, parsedItems));
     }
 
     @GetMapping("/my-orders")
