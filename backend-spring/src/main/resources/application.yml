@@ -14,6 +14,15 @@ spring:
       mail.smtp.ssl.protocols: TLSv1.2
       mail.debug: true
 
+brevo:
+  api-key: ${BREVO_API_KEY:}
+  from-email: ${BREVO_FROM_EMAIL:royalyashwanth65@gmail.com}
+  from-name: ${BREVO_FROM_NAME:Threads Fashion}
+
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
+
 jwt:
   secret: ${JWT_SECRET:defaultDevSecretKeyThatShouldBeChangedInProduction123456}
   expiration: 86400000  # 24 hours in ms

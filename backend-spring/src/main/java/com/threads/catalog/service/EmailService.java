@@ -4,63 +4,99 @@ import com.threads.catalog.model.Order;
 import com.threads.catalog.model.User;
 import com.threads.catalog.util.EmailTemplates;
 import jakarta.annotation.PostConstruct;
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class EmailService {
 
-    private final JavaMailSender javaMailSender;
+    @Value("${brevo.api-key:}")
+    private String brevoApiKey;
 
-    @Value("${spring.mail.username}")
+    @Value("${brevo.from-email:threadsfashion@zohomail.in}")
     private String fromEmail;
+
+    @Value("${brevo.from-name:Threads Fashion}")
+    private String fromName;
 
     @Value("${app.frontend.url:http://localhost:3000}")
     private String frontendUrl;
 
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return "****";
+        return email.substring(0, Math.min(2, email.indexOf("@"))) + "****" + email.substring(email.indexOf("@"));
+    }
+
     @PostConstruct
     public void logStatus() {
-        if (fromEmail == null || fromEmail.isEmpty()) {
-            log.warn("EmailService: spring.mail.username is EMPTY. Emails will be MOCKED.");
+        if (brevoApiKey == null || brevoApiKey.isEmpty()) {
+            log.warn("EmailService: brevo.api-key is EMPTY. Emails will be MOCKED.");
         } else {
-            log.info("EmailService: host=smtp.zoho.in, from={}", fromEmail);
+            String maskedKey = brevoApiKey.length() > 12
+                    ? brevoApiKey.substring(0, 8) + "..." + brevoApiKey.substring(brevoApiKey.length() - 4)
+                    : "***";
+            log.info("EmailService: using Brevo API, from='{}' <{}>, apiKey={}", fromName, fromEmail, maskedKey);
         }
     }
 
     @Async
     public void sendEmail(String to, String subject, String content, boolean isHtml) {
+        String masked = maskEmail(to);
         try {
-            if (fromEmail == null || fromEmail.isEmpty()) {
-                String maskedTo = to != null && to.contains("@") ? to.substring(0, 2) + "****" + to.substring(to.indexOf("@")) : "****";
-                log.warn("[Email Mock] Sent to: {}, Subject: {}, IsHtml: {}", 
-                    maskedTo, subject, isHtml);
+            if (brevoApiKey == null || brevoApiKey.isEmpty()) {
+                log.warn("[Email Mock] to={}, subject='{}', isHtml={}", masked, subject, isHtml);
                 return;
             }
 
-            MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            log.info("[Brevo] Sending email to={}, from={}, subject='{}'", masked, fromEmail, subject);
 
-            helper.setFrom(fromEmail, "Threads Fashion");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(content, isHtml);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", brevoApiKey);
 
-            javaMailSender.send(message);
-            String maskedTo = to != null && to.contains("@") ? to.substring(0, 2) + "****" + to.substring(to.indexOf("@")) : "****";
-            log.info("Email sent successfully to {}", maskedTo);
+            Map<String, Object> sender = new HashMap<>();
+            sender.put("name", fromName);
+            sender.put("email", fromEmail);
+
+            Map<String, String> recipient = new HashMap<>();
+            recipient.put("email", to);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("sender", sender);
+            body.put("to", List.of(recipient));
+            body.put("subject", subject);
+            if (isHtml) {
+                body.put("htmlContent", content);
+            } else {
+                body.put("textContent", content);
+            }
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "https://api.brevo.com/v3/smtp/email", request, String.class);
+
+            log.info("[Brevo] SUCCESS to={}, status={}, response={}", masked, response.getStatusCode(), response.getBody());
+
+        } catch (HttpClientErrorException e) {
+            log.error("[Brevo] API ERROR to={}, status={}, body={}", masked, e.getStatusCode(), e.getResponseBodyAsString(), e);
         } catch (Exception e) {
-            String maskedTo = to != null && to.contains("@") ? to.substring(0, 2) + "****" + to.substring(to.indexOf("@")) : "****";
-            log.error("Failed to send email to {}", maskedTo, e);
+            log.error("[Brevo] FAILED to={}, error={}", masked, e.getMessage(), e);
         }
     }
 
