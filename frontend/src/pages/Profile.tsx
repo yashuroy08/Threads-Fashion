@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../context/AuthContext';
 import { useCartContext } from '../context/CartContext';
 import { useNotification } from '../context/NotificationContext';
-import { useDebounce } from '../hooks/useDebounce';
+
 import { DashboardSkeleton } from '../components/SkeletonLoader';
 
 import ReasonModal from '../components/ReasonModal';
@@ -339,9 +339,7 @@ function Profile() {
     const { notify } = useNotification();
     const navigate = useNavigate();
     const [state, dispatch] = useReducer(profileReducer, initialState);
-    const [localFormData, setLocalFormData] = useState<any>(null);
-    const debouncedPayload = useDebounce(localFormData, 1000);
-    const isInitialMount = useRef(true);
+
     const formRef = useRef<HTMLFormElement>(null);
 
 
@@ -371,21 +369,7 @@ function Profile() {
             setLastName(state.profile.lastName);
         }
 
-        // Auto-fix malformed phone numbers (e.g. missing +91)
-        if (state.profile?.phoneNumber) {
-            const phone = state.profile.phoneNumber;
-            const digits = phone.replace(/\\D/g, '');
-            // If it has 10 digits but doesn't start with +91, fix it
-            if (digits.length === 10 && phone !== `+91${digits}`) {
-                // We must ensure we don't cause an infinite loop. 
-                // autoSaveProfile updates state.profile.
-                // This matches only if prefix is WRONG. 
-                // Once saved, it will be +91... and this won't trigger.
-                autoSaveProfile({ phoneNumber: `+91${digits}` });
-                // Update local state immediately to reflect in UI
-                dispatch({ type: 'UPDATE_LOCAL_PROFILE', payload: { phoneNumber: `+91${digits}` } });
-            }
-        }
+        // Auto-fix malformed phone numbers removed for manual save flow
     }, [state.profile?.gender, state.profile?.phoneNumber, state.profile?.firstName, state.profile?.lastName]);
 
     // Handle URL query parameters for tab navigation
@@ -742,10 +726,10 @@ function Profile() {
                                 if (phone.length === 10) phone = '+91' + phone;
 
                                 const payload = {
-                                    firstName: rawData.firstName,
-                                    lastName: rawData.lastName,
+                                    firstName: rawData.firstName as string,
+                                    lastName: rawData.lastName as string,
                                     phoneNumber: phone || undefined,
-                                    gender: rawData.gender
+                                    gender: rawData.gender as 'male' | 'female' | 'other' | undefined
                                 };
 
                                 dispatch({ type: 'UPDATE_START' });
@@ -837,17 +821,17 @@ function Profile() {
                                                         <button
                                                             type="button"
                                                             // Disable if there's an error, saving, or the phone number in form doesn't match saved profile (unsaved changes/invalid)
-                                                            disabled={!!state.error || state.loading || (localFormData?.phoneNumber && localFormData.phoneNumber !== state.profile?.phoneNumber)}
+                                                            disabled={!!state.error || state.loading}
                                                             onClick={() => navigate('/verify-phone')}
                                                             style={{
-                                                                background: (!!state.error || state.loading || (localFormData?.phoneNumber && localFormData.phoneNumber !== state.profile?.phoneNumber)) ? '#9ca3af' : '#111827',
+                                                                background: (!!state.error || state.loading) ? '#9ca3af' : '#111827',
                                                                 color: 'white',
                                                                 border: 'none',
                                                                 borderRadius: '4px',
                                                                 padding: '6px 12px',
                                                                 fontSize: '0.75rem',
                                                                 fontWeight: '600',
-                                                                cursor: (!!state.error || state.loading || (localFormData?.phoneNumber && localFormData.phoneNumber !== state.profile?.phoneNumber)) ? 'not-allowed' : 'pointer'
+                                                                cursor: (!!state.error || state.loading) ? 'not-allowed' : 'pointer'
                                                             }}
                                                         >
                                                             Verify
