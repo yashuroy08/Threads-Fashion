@@ -61,7 +61,9 @@
 }
 
 @media (max-width: 1024px) {
-    .admin-main, .admin-main.collapsed {
+
+    .admin-main,
+    .admin-main.collapsed {
         margin-left: 0 !important;
     }
 }
@@ -151,7 +153,7 @@
         transform: translateX(-100%);
         width: 280px !important;
     }
-    
+
     .admin-sidebar.open {
         transform: translateX(0);
     }
@@ -167,6 +169,7 @@
 
 /* Improved Mobile UI: Hide Sidebar and Breadcrumb on Mobile */
 @media (max-width: 768px) {
+
     /* Effectively hide the sidebar and its toggle to give maximum space */
     .admin-sidebar,
     .mobile-toggle,
@@ -181,7 +184,7 @@
         margin: 0 !important;
         pointer-events: none !important;
         position: absolute !important;
-        clip: rect(0,0,0,0) !important;
+        clip: rect(0, 0, 0, 0) !important;
     }
 
     .admin-main {
@@ -512,9 +515,9 @@
 }
 
 .btn-secondary {
-    background: transparent;
-    color: #000;
-    border: 1px solid #000;
+    background: red;
+    color: #fff;
+    border: 1px solid red;
     padding: 0.5rem 1rem;
     border-radius: 12px;
     font-size: 0.85rem;

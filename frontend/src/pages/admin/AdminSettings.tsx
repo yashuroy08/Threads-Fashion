@@ -277,9 +277,11 @@ export default function AdminSettings() {
                     </div>
                 </div>
 
-                <div className="form-actions" style={{ marginTop: '2rem' }}>
-                    <button type="button" className="btn-secondary" onClick={fetchSettings}>Discard Changes</button>
-                    <button type="submit" className="btn-primary" disabled={saving}>
+                <div className="form-actions" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                    <button type="button" onClick={fetchSettings} style={{ padding: '0.75rem 1.5rem', backgroundColor: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}>
+                        Discard Changes
+                    </button>
+                    <button type="submit" disabled={saving} style={{ padding: '0.75rem 1.5rem', backgroundColor: '#111827', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'background-color 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {saving ? 'Saving...' : (
                             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <Save size={18} /> Save Settings

@@ -17,7 +17,7 @@ export default function AdminAudit() {
         try {
             const token = localStorage.getItem('token');
             const query = new URLSearchParams({
-                page: page.toString(),
+                page: (page - 1).toString(),
                 limit: '20',
                 ...filters
             });
@@ -29,7 +29,10 @@ export default function AdminAudit() {
 
             // Handle different response structures if route differs, 
             // but we updated admin.controller to return { logs, pagination }
-            if (data.logs) {
+            if (data.content) {
+                setLogs(data.content);
+                setPagination({ pages: data.totalPages, current: data.number + 1 });
+            } else if (data.logs) {
                 setLogs(data.logs);
                 setPagination(data.pagination);
             } else {
@@ -85,7 +88,7 @@ export default function AdminAudit() {
                             placeholder="e.g. ORDER_CANCELLED"
                         />
                     </div>
-                    <button type="submit" className="btn-primary" style={{ padding: '0.6rem 1.2rem' }}>Filter</button>
+                    <button type="submit" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#111827', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'background-color 0.2s' }}>Apply Filters</button>
                 </form>
             </div>
 

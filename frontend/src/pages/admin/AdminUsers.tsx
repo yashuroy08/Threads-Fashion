@@ -76,14 +76,14 @@ export default function AdminUsers() {
                 <h2 className="admin-title">User Management</h2>
             </header>
 
-            <div className="admin-search-container" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', background: '#fff', padding: '0.75rem 1rem', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                <Search size={20} color="#6b7280" style={{ marginRight: '0.75rem' }} />
+            <div className="admin-search-container" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', background: '#f9fafb', padding: '0.85rem 1.25rem', borderRadius: '12px', border: '1px solid #e5e7eb', transition: 'all 0.3s ease', boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.02)' }}>
+                <Search size={20} color="#4b5563" style={{ marginRight: '0.75rem' }} />
                 <input 
                     type="text" 
                     placeholder="Search users by name, email, or UUID..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem' }}
+                    style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem', background: 'transparent', color: '#111827' }}
                 />
             </div>
 
