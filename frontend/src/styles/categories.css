@@ -259,22 +259,7 @@
 /* Media Queries */
 @media (max-width: 768px) {
     .categories-sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        /* Full height */
-        bottom: 0;
-        width: 280px;
-        max-width: 80vw;
-        border-right: 1px solid #e5e7eb;
-        transform: translateX(-100%);
-        padding-bottom: 20px;
-        z-index: 2000;
-    }
-
-    .categories-sidebar.open {
-        transform: translateX(0);
-        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+        display: none !important;
     }
 
     .mobile-sidebar-header {
@@ -299,7 +284,7 @@
 }
 
 /* Media Queries */
-@media (min-width: 768px) {
+@media (min-width: 769px) {
     .categories-sidebar {
         width: 240px;
         max-width: none;
