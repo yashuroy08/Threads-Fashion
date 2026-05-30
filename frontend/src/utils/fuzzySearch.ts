@@ -59,7 +59,27 @@ export function levenshtein(a: string, b: string): number {
   return prev[lb];
 }
 
-/* ─── Tokenisation ──────────────────────────────────────── */
+/* ─── Tokenisation & Normalisation ──────────────────────── */
+
+export function normalizeString(text: string): string {
+  if (!text) return '';
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, ''); // strip ALL symbols and spaces
+}
+
+/**
+ * Clean up symbols, brackets, and extra spaces for professional display,
+ * similar to how Amazon and Flipkart keep product listings clean in search dropdowns.
+ */
+export function cleanDisplayString(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/[®™*\[\]{}()]/g, '') // remove trademark, registered, brackets, parens
+    .replace(/[-_/\\]+/g, ' ')     // replace hyphens, underscores, slashes with spaces
+    .replace(/\s+/g, ' ')          // collapse multiple spaces
+    .trim();
+}
 
 function tokenise(text: string): string[] {
   return text
@@ -96,13 +116,13 @@ function scoreTokenAgainstTarget(
     return { score: 0.6 + ratio * 0.3, type: 'prefix', boundaryBonus };
   }
 
-  // Fuzzy match – Levenshtein distance ≤ 2
-  if (queryToken.length >= 3) {
+  // Fuzzy match / nearest match with length-proportional typo tolerance
+  if (queryToken.length >= 4) {
     const dist = levenshtein(queryToken, targetToken);
-    const maxAllowed = queryToken.length <= 4 ? 1 : 2;
+    const maxAllowed = queryToken.length <= 6 ? 1 : 2;
     if (dist <= maxAllowed) {
       const similarity = 1 - dist / Math.max(queryToken.length, targetToken.length);
-      return { score: similarity * 0.6, type: 'fuzzy', boundaryBonus };
+      return { score: similarity * 0.7, type: 'fuzzy', boundaryBonus };
     }
   }
 
@@ -121,8 +141,22 @@ function scoreProduct(product: Product, query: string): ScoredProduct | null {
   let bestScore = 0;
   let bestType: ScoredProduct['matchType'] = 'fuzzy-desc';
 
-  // ── Title scoring ──
+  // ── 1. Whole-string normalized matching ──
+  // This bypasses spacing/symbol differences (e.g. "t-shirt" vs "tshirt" vs "T Shirt")
+  const normQuery = normalizeString(query);
+  const normTitle = normalizeString(product.title || '');
+  const normDesc = normalizeString(product.description || '');
 
+  if (normTitle === normQuery) {
+    bestScore = 100;
+    bestType = 'exact-title';
+  } else if (normTitle.includes(normQuery) && normQuery.length >= 3) {
+    // If the normalized query is directly inside the title (e.g. "airmax" inside "nikeairmax")
+    bestScore = 95;
+    bestType = 'exact-title';
+  }
+
+  // ── 2. Title token scoring (handling reordering and partial nearest matches) ──
   let titleAccum = 0;
   let titleMatchCount = 0;
 
@@ -149,29 +183,28 @@ function scoreProduct(product: Product, query: string): ScoredProduct | null {
     const coverage = titleMatchCount / queryTokens.length;
     const avgScore = titleAccum / queryTokens.length;
 
-    // Check match quality for type assignment
-    const fullQueryLower = query.toLowerCase().trim();
-    const titleLower = (product.title || '').toLowerCase();
+    // Nearest matches logic: score scale accounts for both matched token quality and overall coverage.
+    const tokenScore = (avgScore * 0.6 + coverage * 0.4) * 100;
 
-    if (titleLower.includes(fullQueryLower) || fullQueryLower === titleLower) {
-      // Full exact substring match in title
-      bestScore = 100;
-      bestType = 'exact-title';
-    } else if (coverage >= 1.0 && avgScore >= 0.8) {
-      bestScore = 80 + avgScore * 10;
-      bestType = 'prefix-title';
-    } else if (coverage >= 0.5) {
-      bestScore = 60 + avgScore * coverage * 15;
-      bestType = avgScore >= 0.5 ? 'prefix-title' : 'fuzzy-title';
-    } else {
-      bestScore = 40 + avgScore * coverage * 20;
-      bestType = 'fuzzy-title';
+    if (tokenScore > bestScore) {
+      bestScore = tokenScore;
+      if (coverage >= 1.0 && avgScore >= 0.9) {
+        bestType = 'exact-title';
+      } else if (coverage >= 0.8) {
+        bestType = 'prefix-title';
+      } else {
+        bestType = 'fuzzy-title';
+      }
     }
   }
 
-  // ── Description scoring (only if title score is low) ──
-
+  // ── 3. Description scoring (only if title score is low) ──
   if (bestScore < 60) {
+    if (normDesc.includes(normQuery) && normQuery.length >= 4) {
+      bestScore = Math.max(bestScore, 50);
+      bestType = 'exact-desc';
+    }
+
     let descAccum = 0;
     let descMatchCount = 0;
 
@@ -197,27 +230,11 @@ function scoreProduct(product: Product, query: string): ScoredProduct | null {
     if (descMatchCount > 0) {
       const coverage = descMatchCount / queryTokens.length;
       const avgScore = descAccum / queryTokens.length;
+      const tokenScore = (avgScore * 0.5 + coverage * 0.5) * 50; // Description matches capped at 50
 
-      const fullQueryLower = query.toLowerCase().trim();
-      const descLower = (product.description || '').toLowerCase();
-
-      let descScore: number;
-      let descType: ScoredProduct['matchType'];
-
-      if (descLower.includes(fullQueryLower)) {
-        descScore = 40 + avgScore * 10;
-        descType = 'exact-desc';
-      } else if (coverage >= 0.5) {
-        descScore = 20 + avgScore * coverage * 20;
-        descType = 'fuzzy-desc';
-      } else {
-        descScore = avgScore * coverage * 20;
-        descType = 'fuzzy-desc';
-      }
-
-      if (descScore > bestScore) {
-        bestScore = descScore;
-        bestType = descType;
+      if (tokenScore > bestScore) {
+        bestScore = tokenScore;
+        bestType = 'fuzzy-desc';
       }
     }
   }
@@ -275,7 +292,6 @@ export function groupSearchResults(scored: ScoredProduct[]): GroupedResults {
     } else if (item.score >= 20) {
       related.push(item);
     }
-    // score < 20 → too weak, discard
   }
 
   return { bestMatches, related };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingBag, X, ChevronDown, User, Heart, LayoutDashboard, LogOut, Command } from 'lucide-react';
+import { Search, ShoppingBag, X, ChevronDown, User, Heart, LayoutDashboard, LogOut } from 'lucide-react';
 import { useAuthContext } from '../context/AuthContext';
 import { useCartContext } from '../context/CartContext';
 import '../styles/navbar.css';
@@ -10,6 +10,7 @@ import {
     groupSearchResults,
     cacheProducts,
     getCachedProducts,
+    cleanDisplayString,
     type ScoredProduct,
     type GroupedResults,
 } from '../utils/fuzzySearch';
@@ -202,7 +203,6 @@ export function Navbar() {
         setMobileSearchOpen(false);
     }, []);
 
-    const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
     const totalResults = groupedResults.bestMatches.length + groupedResults.related.length;
 
     // Render a search result item
@@ -221,7 +221,7 @@ export function Navbar() {
                 />
             )}
             <div className="search-result-info">
-                <div className="search-result-title">{product.title}</div>
+                <div className="search-result-title">{cleanDisplayString(product.title)}</div>
                 <div className="search-result-price">
                     {product.price.currency} {(product.price.amount / 100).toLocaleString()}
                 </div>
@@ -470,7 +470,7 @@ export function Navbar() {
                                 }
                             }}
                         />
-                        {searchTerm ? (
+                        {searchTerm && (
                             <button
                                 className="search-clear-btn"
                                 onClick={() => {
@@ -480,11 +480,6 @@ export function Navbar() {
                             >
                                 <X size={16} />
                             </button>
-                        ) : (
-                            <kbd className="search-shortcut-hint">
-                                {isMac ? <Command size={11} /> : 'Ctrl'}
-                                <span>K</span>
-                            </kbd>
                         )}
 
                         {/* Search Results Dropdown */}
