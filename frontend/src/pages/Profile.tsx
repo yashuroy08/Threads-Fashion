@@ -4,7 +4,7 @@ import { useAuthContext } from '../context/AuthContext';
 import { useCartContext } from '../context/CartContext';
 import { useNotification } from '../context/NotificationContext';
 
-import { DashboardSkeleton, ProfileSkeleton } from '../components/SkeletonLoader';
+import { ProfileSkeleton } from '../components/SkeletonLoader';
 
 import ReasonModal from '../components/ReasonModal';
 import { OrderApi } from '../api/orders.api';
