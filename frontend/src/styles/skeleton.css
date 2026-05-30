@@ -89,13 +89,41 @@
 }
 
 /* ===============================
-   SKELETON GRID
+   SKELETON GRID & CARDS
    =============================== */
 
 .skeleton-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
+}
+
+.skeleton-product-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeleton-product-img-wrap {
+    aspect-ratio: 3 / 4;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.skeleton-product-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.skeleton-product-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.skeleton-product-subtitle {
+    margin-top: 0.5rem;
 }
 
 .skeleton-grid-item {
@@ -118,6 +146,26 @@
    SKELETON TABLE
    =============================== */
 
+.skeleton-table-container {
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.skeleton-table-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.skeleton-table-row {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid #f1f1f1;
+    padding: 1.5rem 0;
+    align-items: center;
+}
+
 .skeleton-table {
     width: 100%;
     border-collapse: collapse;
@@ -137,10 +185,6 @@
     padding: 1rem 1.5rem;
 }
 
-.skeleton-table-row {
-    border-bottom: 1px solid #f1f3f5;
-}
-
 .skeleton-table-cell {
     height: 1rem;
     width: 80%;
@@ -149,6 +193,14 @@
 /* ===============================
    SKELETON PRODUCT DETAILS
    =============================== */
+
+.skeleton-details-container {
+    padding: 6rem 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
 .skeleton-details-grid {
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
@@ -156,11 +208,50 @@
     align-items: start;
 }
 
-@media (max-width: 850px) {
-    .skeleton-details-grid {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-    }
+.skeleton-gallery {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.skeleton-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.skeleton-main-img {
+    flex: 1;
+    height: 700px;
+    border-radius: 12px;
+}
+
+.skeleton-details-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 1rem;
+}
+
+.skeleton-details-desc {
+    margin-top: 2rem;
+}
+
+.skeleton-details-desc-line {
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-details-sizes {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.skeleton-details-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
 }
 
 /* ===============================
@@ -171,6 +262,25 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+}
+
+.skeleton-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.skeleton-dashboard-card {
+    padding: 1.5rem;
+    border: 1px solid #f1f1f1;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.skeleton-dashboard-card-label {
+    margin-bottom: 1rem;
 }
 
 .skeleton-stats {
@@ -199,10 +309,159 @@
 }
 
 /* ===============================
-   RESPONSIVE
+   SKELETON CART
    =============================== */
 
+.skeleton-cart-container {
+    padding: 4rem 0;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.skeleton-cart-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+}
+
+.skeleton-cart-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.skeleton-cart-title {
+    margin-bottom: 1rem;
+}
+
+.skeleton-cart-item {
+    display: flex;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.skeleton-cart-img {
+    width: 100px;
+    height: 130px;
+    flex-shrink: 0;
+    border-radius: 8px;
+}
+
+.skeleton-cart-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+}
+
+.skeleton-cart-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 1rem;
+}
+
+/* ===============================
+   SKELETON TRACKING & CHECKOUT
+   =============================== */
+
+.skeleton-tracking-container {
+    padding: 4rem 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.skeleton-tracking-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.skeleton-tracking-grid {
+    display: flex;
+    gap: 2rem;
+}
+
+.skeleton-tracking-main {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.skeleton-tracking-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.skeleton-checkout-container {
+    padding: 4rem 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.skeleton-checkout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 4rem;
+    align-items: start;
+}
+
+.skeleton-checkout-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.skeleton-checkout-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ===============================
+   RESPONSIVE & DYNAMIC MEDIA QUERIES
+   =============================== */
+
+@media (max-width: 1024px) {
+    .skeleton-checkout-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+}
+
+@media (max-width: 850px) {
+    .skeleton-details-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+}
+
 @media (max-width: 768px) {
+    /* Padding Reductions for Mobile Screens */
+    .skeleton-details-container {
+        padding: 2rem 1rem;
+    }
+    
+    .skeleton-tracking-container {
+        padding: 2rem 1rem;
+    }
+    
+    .skeleton-checkout-container {
+        padding: 2rem 1rem;
+    }
+    
+    .skeleton-cart-container {
+        padding: 2rem 0.5rem;
+    }
+
     .skeleton-grid {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 1rem;
@@ -210,5 +469,64 @@
 
     .skeleton-stats {
         grid-template-columns: 1fr;
+    }
+
+    /* Product details responsive adjustments */
+    .skeleton-gallery {
+        flex-direction: column-reverse;
+        gap: 1rem;
+    }
+
+    .skeleton-thumbs {
+        flex-direction: row;
+        width: 100%;
+        height: 60px;
+    }
+
+    .skeleton-thumbs > div {
+        height: 60px !important;
+        width: 60px !important;
+    }
+
+    .skeleton-main-img {
+        height: 400px;
+    }
+
+    /* Table columns collapse to stacked rows on mobile for UX */
+    .skeleton-table-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 1.25rem 0;
+    }
+
+    .skeleton-table-row > div {
+        width: 100% !important;
+    }
+
+    /* Order tracking grid collapses to single column */
+    .skeleton-tracking-grid {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .skeleton-tracking-main,
+    .skeleton-tracking-side {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .skeleton-cart-item {
+        gap: 1rem;
+    }
+
+    .skeleton-cart-img {
+        width: 80px;
+        height: 104px;
+    }
+
+    .skeleton-cart-actions {
+        margin-top: 1rem;
     }
 }

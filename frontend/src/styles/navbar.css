@@ -664,10 +664,9 @@
    MOBILE - SHOW NAVBAR, BUT HIDE DESKTOP LINKS
    =============================== */
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .navbar-wrapper {
         display: flex;
-        /* Changed from none */
         padding: 0;
     }
 
@@ -679,52 +678,106 @@
     }
 
     .nav-left {
-        gap: 0 !important;
-        /* margin-left: -0.5rem;  Already close enough with reduced padding */
+        gap: 0.5rem !important;
     }
 
     .nav-brand {
-        font-size: 1.4rem;
+        font-size: 1.3rem; /* Slightly smaller for all mobiles */
     }
 
-    /* Adjust spacing for mobile right icons */
+    /* Actions positioning and sizing */
     .nav-right {
-        gap: 0.5rem;
+        gap: 0.35rem; /* Tighter gap */
         width: auto;
         justify-content: flex-end;
         padding-right: 0;
     }
-}
 
-@media (max-width: 480px) {
-    .nav-brand {
-        font-size: 1.3rem;
-        /* Slightly smaller logo */
+    .nav-actions {
+        gap: 0.35rem !important; /* Visual gap tight */
     }
 
+    /* Shrink the size of icon buttons on mobile */
+    .nav-icon-btn {
+        padding: 0.35rem !important;
+    }
+
+    .nav-icon-btn svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    /* Shrink the cart badge to match the smaller icon */
+    .cart-badge {
+        top: -3px;
+        right: -6px;
+        min-width: 14px;
+        height: 14px;
+        font-size: 0.55rem;
+        padding: 1px;
+    }
+
+    /* Shrink the sign in button on mobile */
     .nav-signin-btn {
         display: inline-flex !important;
-        padding: 0.35rem 0.85rem;
-        font-size: 0.75rem;
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important; /* Slightly less heavy to look cleaner */
+        letter-spacing: 0.02em !important;
+        min-height: 32px !important;
+        align-items: center;
+        justify-content: center;
     }
 
-    .nav-icon-btn {
-        padding: 0.2rem;
-        /* Reduce hit area slightly visually, keep touch target manageable via flex */
-    }
-}
-
-@media (max-width: 768px) {
     .mobile-hidden {
         display: none !important;
     }
 }
 
+/* Specific overrides for smaller phone screens (under 400px) */
+@media (max-width: 400px) {
+    .navbar-inner {
+        padding: 0 0.5rem;
+    }
+
+    .nav-brand {
+        font-size: 1.15rem; /* More compact logo */
+    }
+
+    .nav-right {
+        gap: 0.2rem;
+    }
+
+    .nav-actions {
+        gap: 0.2rem !important;
+    }
+
+    .nav-icon-btn {
+        padding: 0.25rem !important;
+    }
+
+    .nav-icon-btn svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .nav-signin-btn {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.68rem !important;
+        min-height: 28px !important;
+        letter-spacing: 0.01em !important;
+    }
+
+    .cart-badge {
+        top: -4px;
+        right: -5px;
+        min-width: 12px;
+        height: 12px;
+        font-size: 0.5rem;
+    }
+}
 
 /* Force hide mobile menu trigger on profile page - targeting via body attribute set in JS or local check */
-/* Note: Since we can't easily use :has() everywhere yet, and we are using inline styles in React, 
-   the React fix should have worked. However, if 'display: flex !important' is overriding it in media query... */
-
 .mobile-menu-trigger[style*="display: none"] {
     display: none !important;
 }
