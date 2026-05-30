@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthContext } from '../../context/AuthContext';
 import AdminLayout from '../../components/AdminLayout';
+import { TableSkeleton } from '../../components/SkeletonLoader';
 import { API_BASE } from '../../config/api.config';
 
 export default function AdminAudit() {
@@ -53,7 +54,7 @@ export default function AdminAudit() {
         fetchLogs();
     };
 
-    if (loading && page === 1 && logs.length === 0) return <AdminLayout><div>Loading logs...</div></AdminLayout>;
+    if (loading && page === 1 && logs.length === 0) return <AdminLayout><TableSkeleton /></AdminLayout>;
 
     return (
         <AdminLayout>

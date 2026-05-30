@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Save, AlertTriangle, MapPin, AlertCircle } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
+import { DashboardSkeleton } from '../../components/SkeletonLoader';
 import { useSocket } from '../../context/SocketContext';
 import { useNotification } from '../../context/NotificationContext';
 import { API_BASE } from '../../config/api.config';
@@ -115,7 +116,7 @@ export default function AdminSettings() {
 
     if (loading) return (
         <AdminLayout>
-            <div className="reveal">Loading Settings...</div>
+            <DashboardSkeleton />
         </AdminLayout>
     );
 

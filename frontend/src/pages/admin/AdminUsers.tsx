@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import { TableSkeleton } from '../../components/SkeletonLoader';
 import '../../styles/admin.css';
 import { useNotification } from '../../context/NotificationContext';
 import { API_BASE } from '../../config/api.config';
@@ -55,7 +56,7 @@ export default function AdminUsers() {
         loadUsers();
     }, []);
 
-    if (loading) return <AdminLayout><div>Loading...</div></AdminLayout>;
+    if (loading) return <AdminLayout><TableSkeleton /></AdminLayout>;
 
     return (
         <AdminLayout>

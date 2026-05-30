@@ -7,8 +7,8 @@
 .profile-page {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     min-height: 100vh;
-    padding-top: 100px;
-    padding-bottom: 60px;
+    padding-top: 90px;
+    padding-bottom: 40px;
     font-family: 'Inter', sans-serif;
     position: relative;
     overflow: hidden;
@@ -97,7 +97,7 @@
         grid-template-areas: 
             "header header"
             "sidebar content";
-        gap: 3rem;
+        gap: 2rem;
         align-items: start;
     }
 
@@ -153,10 +153,10 @@
         background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(20px);
         border-radius: 16px;
-        padding: 3rem;
+        padding: 2rem;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
         border: 1px solid rgba(255, 255, 255, 0.8);
-        min-height: 600px;
+        min-height: 500px;
     }
 }
 
@@ -304,7 +304,7 @@
 .form-grid-responsive {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -387,8 +387,9 @@
    =============================== */
 
 .address-section {
-    margin-top: 3rem;
-    padding-top: 2.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .address-row-responsive {
@@ -661,7 +662,7 @@
    =============================== */
 @media (max-width: 1023px) {
     .profile-page {
-        padding-top: 80px;
+        padding-top: 70px;
         background: #f8f9fa; /* Simplify background on mobile */
     }
     .profile-page::before, .profile-page::after {

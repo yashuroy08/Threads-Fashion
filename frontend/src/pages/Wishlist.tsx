@@ -4,6 +4,7 @@ import { useCartContext } from '../context/CartContext';
 import { Trash2, Heart, ArrowLeft, ArrowRight } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumb';
 import SwipeableItem from '../components/SwipeableItem';
+import { ProductGridSkeleton } from '../components/SkeletonLoader';
 import '../styles/wishlist.css';
 
 export default function Wishlist() {
@@ -25,8 +26,8 @@ export default function Wishlist() {
 
     if (loading) {
         return (
-            <div className="container wishlist-loading">
-                <p>Loading wishlist...</p>
+            <div className="container" style={{ paddingTop: '100px', paddingBottom: '60px' }}>
+                <ProductGridSkeleton />
             </div>
         );
     }

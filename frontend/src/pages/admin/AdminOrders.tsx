@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
+import { TableSkeleton } from '../../components/SkeletonLoader';
 import { useSocket } from '../../context/SocketContext';
 import { Trash2 } from 'lucide-react';
 import { API_BASE } from '../../config/api.config';
@@ -167,7 +168,7 @@ export default function AdminOrders() {
         return true;
     });
 
-    if (loading) return <AdminLayout><div>Loading...</div></AdminLayout>;
+    if (loading) return <AdminLayout><TableSkeleton /></AdminLayout>;
 
     return (
         <AdminLayout>

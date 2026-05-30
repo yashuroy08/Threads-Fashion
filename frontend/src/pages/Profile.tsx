@@ -4,7 +4,7 @@ import { useAuthContext } from '../context/AuthContext';
 import { useCartContext } from '../context/CartContext';
 import { useNotification } from '../context/NotificationContext';
 
-import { DashboardSkeleton } from '../components/SkeletonLoader';
+import { DashboardSkeleton, ProfileSkeleton } from '../components/SkeletonLoader';
 
 import ReasonModal from '../components/ReasonModal';
 import { OrderApi } from '../api/orders.api';
@@ -585,7 +585,7 @@ function Profile() {
         }
     };
 
-    if (state.loading) return <div className="auth-container"><DashboardSkeleton /></div>;
+    if (state.loading) return <div className="profile-page"><ProfileSkeleton /></div>;
 
     // --- Helper Components for Help Section ---
     const HelpCard = ({

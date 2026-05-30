@@ -94,7 +94,7 @@ export const TableSkeleton = () => {
     );
 };
 
-// 4. Profile/Dashboard Skeleton
+// 4. Dashboard / Generic Skeleton
 export const DashboardSkeleton = () => {
     return (
         <div className="skeleton-dashboard-grid">
@@ -104,6 +104,28 @@ export const DashboardSkeleton = () => {
                     <Skeleton height="2rem" width="70%" />
                 </div>
             ))}
+        </div>
+    );
+};
+
+// 4.5. Profile Skeleton
+export const ProfileSkeleton = () => {
+    return (
+        <div className="profile-container" style={{ paddingTop: '2rem' }}>
+            <div className="profile-header" style={{ marginBottom: '2rem' }}>
+                <Skeleton width="200px" height="2.5rem" />
+            </div>
+            <div className="skeleton-details-grid" style={{ gap: '2rem' }}>
+                <div className="skeleton-side" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '280px' }}>
+                    <Skeleton width="100%" height="3.5rem" style={{ borderRadius: '8px' }} />
+                    <Skeleton width="100%" height="3.5rem" style={{ borderRadius: '8px' }} />
+                    <Skeleton width="100%" height="3.5rem" style={{ borderRadius: '8px' }} />
+                </div>
+                <div className="skeleton-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <Skeleton width="100%" height="15rem" style={{ borderRadius: '16px' }} />
+                    <Skeleton width="100%" height="15rem" style={{ borderRadius: '16px' }} />
+                </div>
+            </div>
         </div>
     );
 };
