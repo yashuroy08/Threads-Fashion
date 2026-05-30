@@ -24,6 +24,10 @@ public class User {
     private String id;
 
     @Builder.Default
+    @Indexed(unique = true)
+    private String uuid = java.util.UUID.randomUUID().toString();
+
+    @Builder.Default
     private String firstName = "";
 
     @Builder.Default

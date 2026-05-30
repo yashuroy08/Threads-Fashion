@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Search } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { TableSkeleton } from '../../components/SkeletonLoader';
 import '../../styles/admin.css';
@@ -10,6 +11,7 @@ export default function AdminUsers() {
     const [loading, setLoading] = useState(true);
     const [editingUser, setEditingUser] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const { notify } = useNotification();
 
     async function loadUsers() {
@@ -58,16 +60,38 @@ export default function AdminUsers() {
 
     if (loading) return <AdminLayout><TableSkeleton /></AdminLayout>;
 
+    const filteredUsers = users.filter(user => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase().trim();
+        const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+        const email = (user.email || '').toLowerCase();
+        const uid = (user.uuid || user._id || user.id || '').toLowerCase();
+        
+        return fullName.includes(query) || email.includes(query) || uid.includes(query);
+    });
+
     return (
         <AdminLayout>
             <header className="admin-header">
                 <h2 className="admin-title">User Management</h2>
             </header>
 
+            <div className="admin-search-container" style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', background: '#fff', padding: '0.75rem 1rem', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <Search size={20} color="#6b7280" style={{ marginRight: '0.75rem' }} />
+                <input 
+                    type="text" 
+                    placeholder="Search users by name, email, or UUID..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ border: 'none', outline: 'none', width: '100%', fontSize: '0.95rem' }}
+                />
+            </div>
+
             <div className="table-container">
                 <table className="admin-table">
                     <thead>
                         <tr>
+                            <th>UUID</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
@@ -76,8 +100,11 @@ export default function AdminUsers() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user: any) => (
+                        {filteredUsers.map((user: any) => {
+                            const displayId = user.uuid || (user._id || user.id || '').substring(0, 8);
+                            return (
                             <tr key={user._id || user.id}>
+                                <td style={{ fontFamily: 'monospace', color: '#6b7280' }}>{displayId}</td>
                                 <td>{user.firstName} {user.lastName}</td>
                                 <td>{user.email}</td>
                                 <td>
@@ -98,7 +125,8 @@ export default function AdminUsers() {
                                     </button>
                                 </td>
                             </tr>
-                        ))}
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
