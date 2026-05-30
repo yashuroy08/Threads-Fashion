@@ -1,10 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingBag, X, ChevronDown, User, Heart, LayoutDashboard, LogOut } from 'lucide-react';
+import { Search, ShoppingBag, X, ChevronDown, User, Heart, LayoutDashboard, LogOut, Command } from 'lucide-react';
 import { useAuthContext } from '../context/AuthContext';
 import { useCartContext } from '../context/CartContext';
 import '../styles/navbar.css';
 import { API_BASE } from '../config/api.config';
+import {
+    fuzzySearchProducts,
+    groupSearchResults,
+    cacheProducts,
+    getCachedProducts,
+    type ScoredProduct,
+    type GroupedResults,
+} from '../utils/fuzzySearch';
 
 export function Navbar() {
     const { user } = useAuthContext();
@@ -15,26 +23,30 @@ export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Search State
-    const [searchExpanded, setSearchExpanded] = useState(false);
+    const [searchFocused, setSearchFocused] = useState(false);
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
     const [searchLoading, setSearchLoading] = useState(false);
     const [showSearchResults, setShowSearchResults] = useState(false);
+    const [groupedResults, setGroupedResults] = useState<GroupedResults>({ bestMatches: [], related: [] });
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const mobileSearchInputRef = useRef<HTMLInputElement>(null);
 
     // Dropdown State
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-    // Create a hierarchy map to avoid performance issues on render
+    // Category tree
     const [categoryTree, setCategoryTree] = useState<{ parents: any[], childrenMap: Record<string, any[]> }>({ parents: [], childrenMap: {} });
 
     // Close interactions when route changes
     useEffect(() => {
         setMobileMenuOpen(false);
         setActiveDropdown(null);
-        // Don't auto-close search on navigation if it leads to search page, handled separately
+        setMobileSearchOpen(false);
+        setShowSearchResults(false);
     }, [location]);
 
+    // Fetch categories
     useEffect(() => {
         fetch(`${API_BASE}/categories`)
             .then(res => res.json())
@@ -58,68 +70,104 @@ export function Navbar() {
             .catch(err => console.error('Navbar category fetch error:', err));
     }, []);
 
+    // Scroll handler
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Focus input when search expands
+    // Ctrl+K / Cmd+K keyboard shortcut
     useEffect(() => {
-        if (searchExpanded && searchInputRef.current) {
-            searchInputRef.current.focus();
-        }
-    }, [searchExpanded]);
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+            if (e.key === 'Escape') {
+                setShowSearchResults(false);
+                setSearchFocused(false);
+                setMobileSearchOpen(false);
+                searchInputRef.current?.blur();
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     // Handle clicks outside to close dropdowns and search
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
 
-            // Close dropdowns
             if (!target.closest('.nav-dropdown-group')) {
                 setActiveDropdown(null);
             }
 
-            // Close search if clicked outside
-            if (!target.closest('.nav-search-container') && searchExpanded && !searchTerm) {
-                setSearchExpanded(false);
-            }
-
-            // Close search results
-            if (!target.closest('.nav-search-container')) {
+            if (!target.closest('.nav-search-center') && !target.closest('.mobile-search-overlay')) {
                 setShowSearchResults(false);
+                setSearchFocused(false);
             }
         };
 
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
-    }, [searchExpanded, searchTerm]);
+    }, []);
 
-    // Debounced search effect
+    // Debounced heuristic search
     useEffect(() => {
         const timer = setTimeout(async () => {
             if (searchTerm.trim().length > 1) {
                 setSearchLoading(true);
                 try {
+                    // Fetch from API
                     const response = await fetch(
-                        `${API_BASE}/products/search?q=${encodeURIComponent(searchTerm)}&limit=5`
+                        `${API_BASE}/products/search?q=${encodeURIComponent(searchTerm)}&limit=15`
                     );
                     const data = await response.json();
-                    const items = Array.isArray(data.items) ? data.items : [];
-                    const filtered = items.filter(
-                        (p: any) => Array.isArray(p.images) && p.images[0] && !!p.images[0].url
+                    const apiItems = Array.isArray(data.items) ? data.items
+                        : Array.isArray(data.content) ? data.content
+                        : [];
+
+                    // Cache API results for future local searches
+                    cacheProducts(apiItems);
+
+                    // Merge API results with local cache for broader matching
+                    const cachedProducts = getCachedProducts();
+                    const allCandidates = [...apiItems];
+                    const apiIds = new Set(apiItems.map((p: any) => p.id || p._id));
+                    for (const cached of cachedProducts) {
+                        const cid = cached.id || cached._id;
+                        if (cid && !apiIds.has(cid)) {
+                            allCandidates.push(cached);
+                        }
+                    }
+
+                    // Apply heuristic fuzzy search scoring
+                    const scored = fuzzySearchProducts(allCandidates, searchTerm);
+
+                    // Filter to only products with images
+                    const withImages = scored.filter(
+                        (p: ScoredProduct) => Array.isArray(p.images) && p.images[0] && !!p.images[0].url
                     );
-                    setSearchResults(filtered);
+
+                    // Group results
+                    const groups = groupSearchResults(withImages);
+
+                    // Limit display count
+                    groups.bestMatches = groups.bestMatches.slice(0, 5);
+                    groups.related = groups.related.slice(0, 3);
+
+                    setGroupedResults(groups);
                     setShowSearchResults(true);
                 } catch (error) {
                     console.error('Search error:', error);
-                    setSearchResults([]);
+                    setGroupedResults({ bestMatches: [], related: [] });
                 } finally {
                     setSearchLoading(false);
                 }
             } else {
-                setSearchResults([]);
+                setGroupedResults({ bestMatches: [], related: [] });
                 setShowSearchResults(false);
             }
         }, 300);
@@ -135,6 +183,107 @@ export function Navbar() {
         e.preventDefault();
         e.stopPropagation();
         setActiveDropdown(prev => prev === id ? null : id);
+    };
+
+    const handleSearchSubmit = useCallback(() => {
+        if (searchTerm.trim()) {
+            navigate(`/products?q=${encodeURIComponent(searchTerm.trim())}`);
+            setShowSearchResults(false);
+            setSearchFocused(false);
+            setMobileSearchOpen(false);
+            setSearchTerm('');
+        }
+    }, [searchTerm, navigate]);
+
+    const handleResultClick = useCallback(() => {
+        setShowSearchResults(false);
+        setSearchTerm('');
+        setSearchFocused(false);
+        setMobileSearchOpen(false);
+    }, []);
+
+    const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+    const totalResults = groupedResults.bestMatches.length + groupedResults.related.length;
+
+    // Render a search result item
+    const renderResultItem = (product: ScoredProduct) => (
+        <Link
+            key={product.id || product._id}
+            to={`/products/${product.slug || product._id}`}
+            className="search-result-item"
+            onClick={handleResultClick}
+        >
+            {product.images?.[0]?.url && (
+                <img
+                    src={product.images[0].url}
+                    alt={product.title}
+                    className="search-result-image"
+                />
+            )}
+            <div className="search-result-info">
+                <div className="search-result-title">{product.title}</div>
+                <div className="search-result-price">
+                    {product.price.currency} {(product.price.amount / 100).toLocaleString()}
+                </div>
+            </div>
+            <div className="search-result-score">{product.score}%</div>
+        </Link>
+    );
+
+    // Render search results dropdown content
+    const renderSearchResults = () => {
+        if (searchLoading) {
+            return (
+                <div className="search-shimmer-container">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="search-shimmer-row">
+                            <div className="search-shimmer-img" />
+                            <div className="search-shimmer-text">
+                                <div className="search-shimmer-line wide" />
+                                <div className="search-shimmer-line narrow" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        if (totalResults === 0 && searchTerm.trim().length > 1) {
+            return (
+                <div className="search-empty-state">
+                    <Search size={32} strokeWidth={1.5} />
+                    <p>No products found for &ldquo;{searchTerm}&rdquo;</p>
+                    <span>Try a different search term</span>
+                </div>
+            );
+        }
+
+        return (
+            <>
+                {groupedResults.bestMatches.length > 0 && (
+                    <div className="search-result-group">
+                        <div className="search-group-header">Best Matches</div>
+                        {groupedResults.bestMatches.map(renderResultItem)}
+                    </div>
+                )}
+                {groupedResults.related.length > 0 && (
+                    <div className="search-result-group">
+                        <div className="search-group-header">Related</div>
+                        {groupedResults.related.map(renderResultItem)}
+                    </div>
+                )}
+                {totalResults > 0 && (
+                    <button
+                        className="search-view-all"
+                        onClick={() => {
+                            handleSearchSubmit();
+                        }}
+                    >
+                        View all results for &ldquo;{searchTerm}&rdquo;
+                    </button>
+                )}
+            </>
+        );
     };
 
     return (
@@ -294,106 +443,84 @@ export function Navbar() {
                     </div>
                 </div>
 
-                {/* RIGHT: Search & Actions */}
-                <div className="nav-right">
-                    {/* Search Component */}
-                    <div className={`nav-search-container ${searchExpanded ? 'expanded' : ''}`}>
-                        <button
-                            className="search-toggle-btn"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setSearchExpanded(true);
-                                setTimeout(() => searchInputRef.current?.focus(), 100);
+                {/* CENTER: Search Bar (Desktop) */}
+                <div className="nav-center desktop-only">
+                    <div className={`nav-search-center ${searchFocused ? 'focused' : ''}`}>
+                        <Search size={18} className="search-icon-left" />
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            placeholder="Search collections..."
+                            className="nav-search-input"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onFocus={() => {
+                                setSearchFocused(true);
+                                if (searchTerm.trim().length > 1) setShowSearchResults(true);
                             }}
-                        >
-                            <Search size={20} />
-                        </button>
-
-                        <div className="search-input-wrapper">
-                            <input
-                                ref={searchInputRef}
-                                type="text"
-                                placeholder="Search..."
-                                className="nav-search-input"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        if (searchTerm.trim()) {
-                                            navigate(`/products?q=${encodeURIComponent(searchTerm.trim())}`);
-                                            setShowSearchResults(false);
-                                            setSearchExpanded(false);
-                                        }
-                                    }
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleSearchSubmit();
+                                }
+                                if (e.key === 'Escape') {
+                                    setShowSearchResults(false);
+                                    setSearchFocused(false);
+                                    searchInputRef.current?.blur();
+                                }
+                            }}
+                        />
+                        {searchTerm ? (
+                            <button
+                                className="search-clear-btn"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    searchInputRef.current?.focus();
                                 }}
-                            />
-                            {searchTerm && (
-                                <button
-                                    className="search-clear-btn"
-                                    onClick={() => {
-                                        setSearchTerm('');
-                                        searchInputRef.current?.focus();
-                                    }}
-                                >
-                                    <X size={16} />
-                                </button>
-                            )}
-                        </div>
+                            >
+                                <X size={16} />
+                            </button>
+                        ) : (
+                            <kbd className="search-shortcut-hint">
+                                {isMac ? <Command size={11} /> : 'Ctrl'}
+                                <span>K</span>
+                            </kbd>
+                        )}
 
                         {/* Search Results Dropdown */}
-                        {showSearchResults && searchExpanded && (
+                        {showSearchResults && searchFocused && (
                             <div className="search-results-dropdown">
-                                {searchLoading ? (
-                                    <div className="search-result-item">Searching...</div>
-                                ) : searchResults.length > 0 ? (
-                                    searchResults.map((product) => (
-                                        <Link
-                                            key={product.id || product._id}
-                                            to={`/products/${product.slug || product._id}`}
-                                            className="search-result-item"
-                                            onClick={() => {
-                                                setShowSearchResults(false);
-                                                setSearchTerm('');
-                                                setSearchExpanded(false);
-                                            }}
-                                        >
-                                            {product.images?.[0]?.url && (
-                                                <img
-                                                    src={product.images[0].url}
-                                                    alt={product.title}
-                                                    className="search-result-image"
-                                                />
-                                            )}
-                                            <div className="search-result-info">
-                                                <div className="search-result-title">{product.title}</div>
-                                                <div className="search-result-price">
-                                                    {product.price.currency} {(product.price.amount / 100).toLocaleString()}
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="search-result-item">No products found</div>
-                                )}
+                                {renderSearchResults()}
                             </div>
                         )}
                     </div>
+                </div>
+
+                {/* RIGHT: Actions */}
+                <div className="nav-right">
+                    {/* Mobile Search Trigger */}
+                    <button
+                        className="nav-icon-btn mobile-search-trigger"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setMobileSearchOpen(true);
+                            setTimeout(() => mobileSearchInputRef.current?.focus(), 150);
+                        }}
+                    >
+                        <Search size={20} />
+                    </button>
 
                     <div className="nav-actions">
-                        {/* Wishlist Link - Visible on Mobile */}
                         <Link to="/wishlist" className="nav-icon-btn" title="Wishlist">
                             <Heart size={20} />
                         </Link>
 
-                        {/* Admin Link - Visible on Mobile if Admin */}
                         {(user?.role === 'admin') && (
                             <Link to="/admin" className="nav-icon-btn" title="Admin Dashboard">
                                 <LayoutDashboard size={20} />
                             </Link>
                         )}
 
-                        {/* Cart Link - Visible on Mobile */}
                         <Link to="/cart" className="nav-icon-btn">
                             <ShoppingBag size={20} />
                             {(cart?.items?.length || 0) > 0 && (
@@ -403,7 +530,6 @@ export function Navbar() {
                             )}
                         </Link>
 
-                        {/* Sign In (Unauth) / Profile (Auth) */}
                         {!user ? (
                             <Link to="/login" className="nav-signin-btn">
                                 Sign In
@@ -414,7 +540,6 @@ export function Navbar() {
                             </Link>
                         )}
 
-                        {/* Logout Button (Last & Red) - Hidden on Mobile */}
                         {user && (
                             <button
                                 onClick={handleLogout}
@@ -428,6 +553,53 @@ export function Navbar() {
                     </div>
                 </div>
             </nav>
+
+            {/* Mobile Search Overlay */}
+            {mobileSearchOpen && (
+                <div className="mobile-search-overlay" onClick={() => setMobileSearchOpen(false)}>
+                    <div className="mobile-search-panel" onClick={e => e.stopPropagation()}>
+                        <div className="mobile-search-header">
+                            <div className="mobile-search-input-wrap">
+                                <Search size={18} className="search-icon-left" />
+                                <input
+                                    ref={mobileSearchInputRef}
+                                    type="text"
+                                    placeholder="Search collections..."
+                                    className="nav-search-input"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleSearchSubmit();
+                                        }
+                                    }}
+                                />
+                                {searchTerm && (
+                                    <button
+                                        className="search-clear-btn"
+                                        onClick={() => {
+                                            setSearchTerm('');
+                                            mobileSearchInputRef.current?.focus();
+                                        }}
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
+                            <button
+                                className="mobile-search-close"
+                                onClick={() => setMobileSearchOpen(false)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                        <div className="mobile-search-results">
+                            {showSearchResults && renderSearchResults()}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Mobile Menu Overlay */}
             {mobileMenuOpen && (
@@ -453,12 +625,11 @@ export function Navbar() {
                         </div>
 
                         {/* Navigation Links */}
-                        {/* Dynamic Links for Mobile Menu */}
                         {categoryTree.parents.map(parent => (
                             <div key={parent._id || parent.id} style={{ display: 'flex', flexDirection: 'column' }}>
-                                <Link 
-                                    to={`/products?parentCategory=${parent.slug}`} 
-                                    className="nav-link" 
+                                <Link
+                                    to={`/products?parentCategory=${parent.slug}`}
+                                    className="nav-link"
                                     style={{ fontSize: '1.1rem', padding: '0.75rem 0', fontWeight: '600' }}
                                     onClick={() => setMobileMenuOpen(false)}
                                 >

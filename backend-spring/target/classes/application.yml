@@ -5,14 +5,23 @@ spring:
       database: ${MONGO_DB:test}
   mail:
     host: smtp.zoho.in
-    port: 587
+    port: 465
     username: ${MAIL_USER:}
     password: ${MAIL_PASS:}
     properties:
       mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.enable: true
       mail.smtp.ssl.protocols: TLSv1.2
       mail.debug: true
+
+brevo:
+  api-key: ${BREVO_API_KEY:}
+  from-email: ${BREVO_FROM_EMAIL:royalyashwanth65@gmail.com}
+  from-name: ${BREVO_FROM_NAME:Threads Fashion}
+
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
 
 jwt:
   secret: ${JWT_SECRET:defaultDevSecretKeyThatShouldBeChangedInProduction123456}

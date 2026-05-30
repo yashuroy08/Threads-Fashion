@@ -117,95 +117,116 @@
 
 
 /* ===============================
-   SEARCH BAR EXPANSION
+   SEARCH BAR (DESKTOP)
    =============================== */
 
-.nav-search-container {
-    position: relative;
+.nav-center {
+    flex: 1;
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    /* Default width is just the icon size */
-    width: 40px;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.nav-search-container.expanded {
-    width: 300px;
-}
-
-.search-toggle-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    color: #ffffff;
-    /* color matches icon color */
-    display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 2;
+    max-width: 600px;
+    margin: 0 2rem;
 }
 
-.search-input-wrapper {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+.desktop-only {
+    display: flex;
+}
+
+.nav-search-center {
+    position: relative;
     width: 100%;
-    height: 40px;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    max-width: 450px;
     display: flex;
     align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 0.35rem 0.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
 }
 
-.nav-search-container.expanded .search-input-wrapper {
-    opacity: 1;
-    visibility: visible;
+.nav-search-center:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-search-center.focused {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.search-icon-left {
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+    transition: color 0.3s;
+}
+
+.nav-search-center.focused .search-icon-left {
+    color: #111111;
 }
 
 .nav-search-input {
-    width: 100%;
-    height: 100%;
-    padding: 0 2.5rem 0 1rem;
-    /* Space for clear btn */
-    background: #f1f2f4;
+    flex: 1;
+    background: transparent;
     border: none;
-    border-radius: 50px;
-    font-size: 0.9rem;
-    color: #333;
     outline: none;
+    color: #ffffff;
+    font-size: 0.95rem;
+    padding: 0.2rem;
+    width: 100%;
 }
 
-.nav-search-input:focus {
-    background: #fff;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+.nav-search-center.focused .nav-search-input,
+.mobile-search-panel .nav-search-input {
+    color: #111111;
+}
+
+.nav-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.nav-search-center.focused .nav-search-input::placeholder,
+.mobile-search-panel .nav-search-input::placeholder {
+    color: rgba(17, 17, 17, 0.4);
 }
 
 .search-clear-btn {
-    position: absolute;
-    right: 10px;
     background: none;
     border: none;
     cursor: pointer;
-    color: #666;
+    color: #888;
     display: flex;
     align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 50%;
+    margin-right: 0.25rem;
 }
 
-/* Hide toggle button when expanded or move it? 
-   Actually, the design often keeps the icon or replaces it. 
-   Here, we overlap the input on top of the toggle button space or push it.
-   Let's simply hide the toggle button visually when expanded to avoid cloning.
-   OR better: The toggle button IS the close button? No, user requested "expands to an input only on click".
-*/
-.nav-search-container.expanded .search-toggle-btn {
-    opacity: 0;
+.search-clear-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+}
+
+.search-shortcut-hint {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0.15rem 0.4rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-right: 0.25rem;
     pointer-events: none;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
-
 
 /* ===============================
    SEARCH RESULTS DROPDOWN
@@ -213,17 +234,33 @@
 
 .search-results-dropdown {
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 12px);
+    left: 0;
     right: 0;
-    width: 300px;
-    /* Fixed width relative to container or viewport? */
     background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    max-height: 400px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    max-height: 500px;
     overflow-y: auto;
     z-index: 1001;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-result-group {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.search-group-header {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    padding: 0.5rem 1rem 0.25rem;
 }
 
 .search-result-item {
@@ -231,27 +268,23 @@
     align-items: center;
     gap: 1rem;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #f0f0f0;
     text-decoration: none;
     color: inherit;
-    transition: background 0.2s ease;
+    transition: background 0.15s ease;
     cursor: pointer;
 }
 
-.search-result-item:last-child {
-    border-bottom: none;
-}
-
 .search-result-item:hover {
-    background: #f8f9fa;
+    background: #f9fafb;
 }
 
 .search-result-image {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: 6px;
     flex-shrink: 0;
+    background: #f3f4f6;
 }
 
 .search-result-info {
@@ -260,18 +293,173 @@
 }
 
 .search-result-title {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #2c3e50;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #111827;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .search-result-price {
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.1rem;
+    font-size: 0.85rem;
+    color: #4b5563;
+    margin-top: 0.2rem;
+    font-weight: 500;
+}
+
+.search-result-score {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #10b981;
+    background: #ecfdf5;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.search-view-all {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    text-align: center;
+    background: #f9fafb;
+    border: none;
+    color: #2563eb;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.search-view-all:hover {
+    background: #f3f4f6;
+}
+
+.search-empty-state {
+    padding: 3rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.search-empty-state p {
+    margin: 1rem 0 0.25rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.search-empty-state span {
+    font-size: 0.85rem;
+}
+
+/* Shimmer Loading */
+.search-shimmer-container {
+    padding: 0.5rem 0;
+}
+
+.search-shimmer-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+}
+
+.search-shimmer-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    background: #f3f4f6;
+    animation: shimmer 1.5s infinite linear;
+    background: linear-gradient(to right, #f3f4f6 4%, #e5e7eb 25%, #f3f4f6 36%);
+    background-size: 1000px 100%;
+}
+
+.search-shimmer-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.search-shimmer-line {
+    height: 12px;
+    border-radius: 4px;
+    background: #f3f4f6;
+    animation: shimmer 1.5s infinite linear;
+    background: linear-gradient(to right, #f3f4f6 4%, #e5e7eb 25%, #f3f4f6 36%);
+    background-size: 1000px 100%;
+}
+
+.search-shimmer-line.wide { width: 70%; }
+.search-shimmer-line.narrow { width: 30%; }
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+/* ===============================
+   MOBILE SEARCH OVERLAY
+   =============================== */
+
+.mobile-search-trigger {
+    display: none;
+}
+
+.mobile-search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: flex-start;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.mobile-search-panel {
+    width: 100%;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.mobile-search-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.mobile-search-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #f3f4f6;
+    border-radius: 999px;
+    padding: 0.35rem 0.5rem;
+}
+
+.mobile-search-close {
+    background: none;
+    border: none;
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.mobile-search-results {
+    overflow-y: auto;
 }
 
 
@@ -444,42 +632,31 @@
         gap: 0;
     }
 
-    .desktop-links {
+    .desktop-links,
+    .desktop-only {
         display: none !important;
-        /* Force hide desktop links */
+        /* Force hide desktop links and center search */
     }
 
-    .mobile-menu-trigger {
+    .mobile-menu-trigger,
+    .mobile-search-trigger {
         display: flex !important;
-        /* Force show hamburger */
+        /* Force show hamburger and search icon */
     }
 
     .nav-left {
         gap: 1rem;
     }
-
-    /* On mobile, search might need to be always expanded or handled differently?
-       For now, keeping the icon expando behavior or hiding it if space constraints.
-       The design says "Hamburger menu exclusively on mobile", implying search is still there. 
-    */
-    .nav-search-container.expanded {
-        width: 180px;
-        /* Smaller width on tablets */
-    }
-}
-
-@media (max-width: 480px) {
-    .nav-search-container.expanded {
-        width: 140px;
-    }
 }
 
 @media (min-width: 1025px) {
-    .mobile-menu-trigger {
+    .mobile-menu-trigger,
+    .mobile-search-trigger {
         display: none !important;
     }
 
-    .desktop-links {
+    .desktop-links,
+    .desktop-only {
         display: flex !important;
     }
 }
